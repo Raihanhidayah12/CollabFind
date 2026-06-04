@@ -32,6 +32,9 @@ import ApiReference from './pages/resources/ApiReference.jsx'
 import Blog from './pages/resources/Blog.jsx'
 import Changelog from './pages/resources/Changelog.jsx'
 import Status from './pages/resources/Status.jsx'
+import ProductFeatures from './pages/ProductFeatures.jsx'
+import FindTeammates from './pages/FindTeammates.jsx'
+import PortfolioGeneratorLanding from './pages/PortfolioGeneratorLanding.jsx'
 
 
 createRoot(document.getElementById('root')).render(
@@ -45,6 +48,9 @@ createRoot(document.getElementById('root')).render(
         <Route path="/reset_password" element={<ResetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/features" element={<ProductFeatures />} />
+        <Route path="/teammates" element={<FindTeammates />} />
+        <Route path="/portfolio-generator" element={<PortfolioGeneratorLanding />} />
         <Route path="/project/:id" element={<ProjectDetail />} />
         <Route path="/create-project" element={<CreateProject />} />
         <Route path="/dashboard" element={<Dashboard />} />

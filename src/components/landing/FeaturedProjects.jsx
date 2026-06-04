@@ -10,6 +10,7 @@ const STATUS_STYLE = {
   'completed': 'text-slate-400 bg-slate-400/10 border-slate-400/20',
 };
 
+// eslint-disable-next-line no-unused-vars
 const STATUS_LABEL = {
   'open':      'Recruiting',
   'ongoing':   'In Progress',

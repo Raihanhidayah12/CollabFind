@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, SlidersHorizontal, X, Users, ArrowRight, Zap,
   Code2, Smartphone, Palette, Brain, Cpu, Lightbulb, GitBranch, Trophy,
-  ChevronDown, ArrowLeft, ChevronUp,
+  ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import UserMenu from '../components/UserMenu';
@@ -72,7 +72,7 @@ function CustomSelect({ value, onChange, options }) {
 }
 
 /* ── Project Card ──────────────────────────────────────── */
-function ProjectCard({ p, i }) {
+function ProjectCard({ p, i, session }) {
   const accent = p.accent_color || '#3B82F6';
   const s = STATUS_STYLE[p.status] || STATUS_STYLE.open;
 
@@ -121,9 +121,10 @@ function ProjectCard({ p, i }) {
 
         <Link
           to={`/project/${p.id}`}
+          state={{ from: '/explore' }}
           className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold text-white border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.09] hover:border-white/[0.15] group/btn transition-all"
         >
-          Join Project <ArrowRight size={13} className="group-hover/btn:translate-x-0.5 transition-transform" />
+          {session ? 'Join Project' : 'View Project'} <ArrowRight size={13} className="group-hover/btn:translate-x-0.5 transition-transform" />
         </Link>
       </div>
     </motion.div>
@@ -173,44 +174,51 @@ export default function Explore() {
     });
   }, []);
 
-  const fetchProjects = useCallback(async () => {
-    setLoading(true);
-    let query = supabase.from('projects').select('*');
-    if (status !== 'all') query = query.eq('status', status);
-    if (sort === 'newest') query = query.order('created_at', { ascending: false });
-    else if (sort === 'oldest') query = query.order('created_at', { ascending: true });
-    else if (sort === 'slots') query = query.order('open_slots', { ascending: false });
+  useEffect(() => {
+    let cancelled = false;
 
-    const { data } = await query;
-    let filtered = data || [];
+    async function fetchProjects() {
+      setLoading(true);
+      let query = supabase.from('projects').select('*');
+      if (status !== 'all') query = query.eq('status', status);
+      if (sort === 'newest') query = query.order('created_at', { ascending: false });
+      else if (sort === 'oldest') query = query.order('created_at', { ascending: true });
+      else if (sort === 'slots') query = query.order('open_slots', { ascending: false });
 
-    if (search) {
-      const q = search.toLowerCase();
-      filtered = filtered.filter(p =>
-        p.title?.toLowerCase().includes(q) ||
-        p.description?.toLowerCase().includes(q) ||
-        (p.skills_needed || []).some(s => s.toLowerCase().includes(q))
-      );
-    }
+      const { data } = await query;
+      let filtered = data || [];
 
-    if (category !== 'all') {
-      const cat = categories.find(c =>
-        c.label.toLowerCase().replace(/[^a-z0-9]/g, '-') === category
-      );
-      if (cat?.skill_keywords?.length) {
+      if (search) {
+        const q = search.toLowerCase();
         filtered = filtered.filter(p =>
-          (p.skills_needed || []).some(skill =>
-            cat.skill_keywords.some(kw => skill.toLowerCase().includes(kw.toLowerCase()))
-          )
+          p.title?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          (p.skills_needed || []).some(s => s.toLowerCase().includes(q))
         );
+      }
+
+      if (category !== 'all') {
+        const cat = categories.find(c =>
+          c.label.toLowerCase().replace(/[^a-z0-9]/g, '-') === category
+        );
+        if (cat?.skill_keywords?.length) {
+          filtered = filtered.filter(p =>
+            (p.skills_needed || []).some(skill =>
+              cat.skill_keywords.some(kw => skill.toLowerCase().includes(kw.toLowerCase()))
+            )
+          );
+        }
+      }
+
+      if (!cancelled) {
+        setProjects(filtered);
+        setLoading(false);
       }
     }
 
-    setProjects(filtered);
-    setLoading(false);
+    fetchProjects();
+    return () => { cancelled = true; };
   }, [search, category, status, sort, categories]);
-
-  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
   const setParam = (key, val) => {
     const next = new URLSearchParams(searchParams);
@@ -413,7 +421,7 @@ export default function Explore() {
             )
             : (
               <AnimatePresence mode="popLayout">
-                {projects.map((p, i) => <ProjectCard key={p.id} p={p} i={i} />)}
+                {projects.map((p, i) => <ProjectCard key={p.id} p={p} i={i} session={session} />)}
               </AnimatePresence>
             )
           }

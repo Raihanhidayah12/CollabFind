@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 
 const links = {
   Product:    [
-    { label: 'Features',           to: '/#features' },
+    { label: 'Features',           to: '/features' },
     { label: 'Explore Projects',   to: '/explore' },
-    { label: 'Find Teammates',     to: '/explore' },
-    { label: 'Portfolio Generator',to: '/profile' },
+    { label: 'Find Teammates',     to: '/teammates' },
+    { label: 'Portfolio Generator',to: '/portfolio-generator' },
   ],
   Resources:  [
     { label: 'Documentation', to: '/docs' },

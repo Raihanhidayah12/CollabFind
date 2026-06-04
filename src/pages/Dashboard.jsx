@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
+  // eslint-disable-next-line no-unused-vars
   Zap, Bell,
   Users, FolderOpen, CheckCircle, Clock, ArrowRight,
   Plus, Sparkles, TrendingUp, Star, ExternalLink,
@@ -47,6 +48,7 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
 }
 
 /* ── Navbar authenticated ────────────────────────────────── */
+// eslint-disable-next-line no-unused-vars
 function AuthNavbar({ session, pendingCount }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -55,6 +57,7 @@ function AuthNavbar({ session, pendingCount }) {
     return () => window.removeEventListener('scroll', h);
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const navLinks = [
     { label: 'Dashboard', to: '/dashboard' },
     { label: 'Explore',   to: '/explore'   },
@@ -492,6 +495,7 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
                 recommendations.slice(0, 6).map((p, i) => {
                   const accent     = p.accent_color || '#3B82F6';
                   const scoreColor = p.matchScore >= 80 ? '#00FFC2' : p.matchScore >= 50 ? '#F59E0B' : '#94A3B8';
+                  // eslint-disable-next-line no-unused-vars
                   const s = STATUS_STYLE[p.status] || STATUS_STYLE.open;
                   return (
                     <motion.div key={p.id}

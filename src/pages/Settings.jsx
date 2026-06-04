@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
-import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
+import UserMenu from '../components/UserMenu';
 
 const tabs = [
   { id: 'account', label: 'Account', icon: User },
@@ -65,15 +65,34 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050816]/85 backdrop-blur-xl border-b border-white/[0.06]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-4 min-w-0">
+            <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <Zap size={14} className="text-white" />
+              </div>
+              <span className="text-white font-bold text-base hidden sm:block">
+                Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
+              </span>
+            </Link>
+
+            <div className="hidden sm:flex items-center text-slate-600 text-sm min-w-0">
+              <span className="mx-2">/</span>
+              <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors">
+                Dashboard
+              </Link>
+              <span className="mx-2">/</span>
+              <span className="text-slate-300 font-medium truncate">Settings</span>
+            </div>
+          </div>
+
+          {session && <UserMenu session={session} />}
+        </div>
+      </nav>
       
       <main className="flex-1 pt-28 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors mb-8">
-            <ArrowLeft size={16} /> Back to Dashboard
-          </Link>
-          
           <div className="mb-10">
             <h1 className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
               Settings
