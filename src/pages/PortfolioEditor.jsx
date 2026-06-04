@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { Loader2, Save, LayoutTemplate, Link as LinkIcon, GitBranch, Briefcase, Globe, CheckCircle2, Circle, User, Code2, AlertCircle, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import UserMenu from '../components/UserMenu';
+import PageNavbar from '../components/PageNavbar';
 
 export default function PortfolioEditor() {
   const [loading, setLoading] = useState(true);
@@ -213,30 +213,7 @@ export default function PortfolioEditor() {
 
   return (
     <div className="min-h-screen bg-[#06080F] text-white font-sans relative overflow-x-hidden flex flex-col">
-      {/* Navbar */}
-      <nav className="flex-shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-white/[0.06] bg-[#050816]/90 backdrop-blur-xl z-50">
-        <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <Zap size={14} className="text-white" />
-            </div>
-            <span className="text-white font-bold text-base hidden sm:block">
-              Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-            </span>
-          </Link>
-
-          <div className="hidden sm:flex items-center text-slate-600 text-sm">
-            <span className="mx-2">/</span>
-            <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
-            <span className="mx-2">/</span>
-            <span className="text-slate-300 font-medium truncate max-w-[180px]">Portfolio Generator</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {session && <UserMenu session={session} />}
-        </div>
-      </nav>
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Portfolio Generator' }]} homePath="/dashboard" />
 
       <div className="relative flex-1 p-6 lg:p-10">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
-import UserMenu from '../components/UserMenu';
+import PageNavbar from '../components/PageNavbar';
 
 /* ── helpers ──────────────────────────────────────────────── */
 function timeStr(iso) {
@@ -887,34 +887,7 @@ export default function Chat() {
 
   return (
     <div className="h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      {/* Navbar */}
-      <nav className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-white/[0.06] bg-[#050816]/90 backdrop-blur-xl z-10">
-        <div className="flex items-center gap-2 md:gap-3 min-w-0">
-          <button onClick={() => setShowMobileSidebar(!showMobileSidebar)} 
-            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors">
-            <Menu size={20} />
-          </button>
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-              <Zap size={14} className="text-white" />
-            </div>
-            <span className="text-white font-bold text-sm md:text-base hidden sm:block">
-              Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center text-slate-600 text-xs">
-            <span className="mx-2">/</span>
-            <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
-            <span className="mx-2">/</span>
-            <span className="text-slate-300 font-medium truncate max-w-[180px]">Real-time Chat</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <UserMenu session={session} />
-        </div>
-      </nav>
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Real-time Chat' }]} homePath="/dashboard" />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Hidden on mobile, visible on md+ */}

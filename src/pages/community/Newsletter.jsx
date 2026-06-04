@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Mail, CheckCircle, TrendingUp, Users, Lightbulb, Loader2 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 import Footer from '../../components/landing/Footer';
 
 const highlights = [
@@ -52,7 +52,7 @@ export default function Newsletter() {
 
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Newsletter', href: null }]} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 
         {/* Header */}

@@ -1,30 +1,50 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, LogOut, ChevronDown, Settings, Loader2, Zap } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
 export default function UserMenu({ session }) {
   const [open, setOpen]             = useState(false);
-  const [profile, setProfile]       = useState(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const ref      = useRef();
-  const navigate = useNavigate();
   const location = useLocation();
+
+// Initialize profile SYNCHRONOUSLY from localStorage - persists across all tabs/windows
+  const [profile, setProfile] = useState(() => {
+    if (!session) return null;
+    const cacheKey = `profile_${session.user.id}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
 
   // Protected routes — redirect to /login after logout
   const protectedRoutes = ['/dashboard', '/profile', '/settings', '/home'];
   const isProtected = protectedRoutes.some(r => location.pathname.startsWith(r));
 
-  // Fetch profile name
+  // Background update only if needed (silent, no flicker)
   useEffect(() => {
     if (!session) return;
+    const cacheKey = `profile_${session.user.id}`;
     supabase
       .from('profiles')
       .select('name, avatar_url, job_title')
       .eq('id', session.user.id)
       .single()
-      .then(({ data }) => { if (data) setProfile(data); });
+      .then(({ data }) => { 
+        if (data) {
+          setProfile(data);
+          localStorage.setItem(cacheKey, JSON.stringify(data));
+        }
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   // Close on outside click
@@ -47,7 +67,8 @@ export default function UserMenu({ session }) {
     }
   };
 
-  const displayName = profile?.name || session?.user?.email?.split('@')[0] || 'User';
+// Use profile name ONLY - no email fallback to prevent flickering
+  const displayName = profile?.name || 'User';
   const initial = displayName[0]?.toUpperCase() || 'U';
 
   return (

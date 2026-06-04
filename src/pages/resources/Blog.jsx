@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, X, Calendar, User, Tag, Zap, Loader2 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 import Footer from '../../components/landing/Footer';
 
 // ─── Category config ──────────────────────────────────────────────────────────
@@ -235,7 +235,7 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Blog', href: null }]} />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
 

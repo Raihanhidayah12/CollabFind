@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Code2, Webhook, Zap, Mail, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 import Footer from '../../components/landing/Footer';
 
 // ─── Webhook events ───────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ export default function ApiReference() {
 
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'API Reference', href: null }]} />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
 

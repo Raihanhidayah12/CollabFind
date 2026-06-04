@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Lock, MessageSquare, Search, Sparkles, UserPlus, Users } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import Navbar from '../components/landing/Navbar';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 
 function firstName(name) {
@@ -121,7 +121,7 @@ export default function FindTeammates() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-white font-['Manrope',sans-serif]">
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Find Teammates' }]} homePath="/dashboard" />
 
       <main className="relative pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">

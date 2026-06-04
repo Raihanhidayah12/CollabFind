@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Zap, Users, Target, Heart } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import Footer from '../../components/landing/Footer';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 
 const values = [
   { icon: Users,  color: '#3B82F6', title: 'Community First',    desc: 'We believe great projects are built by great teams. Our platform is designed to connect the right people at the right time.' },
@@ -20,7 +20,7 @@ export default function AboutUs() {
   }, []);
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'About Us', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 
         {/* Hero */}

@@ -2,52 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import { GitBranch, Briefcase, Globe, MapPin, Calendar, ExternalLink, ArrowRight, Star, Loader2, Zap, Code2, User } from 'lucide-react';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
-
-// A custom navbar for the portfolio page
-function PortfolioNavbar({ portfolioName }) {
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const y = el.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
-
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#06080F]/80 backdrop-blur-xl border-b border-white/[0.05]">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <Zap size={16} className="text-white" />
-            </div>
-            <span className="font-bold text-white hidden sm:block tracking-tight">CollabFind</span>
-          </Link>
-
-          <div className="hidden sm:flex items-center text-slate-600 text-sm">
-            <span className="mx-2">/</span>
-            <span className="text-slate-400">Portfolio</span>
-            <span className="mx-2">/</span>
-            <span className="text-slate-300 font-medium truncate max-w-[150px]">{portfolioName}</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-6">
-          <button onClick={() => scrollTo('about')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">About</button>
-          <button onClick={() => scrollTo('projects')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Projects</button>
-          <button onClick={() => scrollTo('recommendations')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Testimonials</button>
-        </div>
-        
-        <div>
-          <span className="text-sm font-semibold bg-white/10 px-3 py-1.5 rounded-full text-white border border-white/10">
-            {portfolioName}
-          </span>
-        </div>
-      </div>
-    </nav>
-  );
-}
 
 export default function PublicPortfolio() {
   const { username } = useParams();
@@ -175,7 +131,7 @@ export default function PublicPortfolio() {
 
   return (
     <div className="min-h-screen bg-[#06080F] text-white font-sans selection:bg-blue-500/30">
-      <PortfolioNavbar portfolioName={displayName} />
+      <PageNavbar breadcrumbs={[{ label: 'Portfolio' }]} homePath="/dashboard" />
       
       <main className="pt-28 pb-20">
         

@@ -6,7 +6,7 @@ import {
   ExternalLink, FileText, UserCheck, UserX,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import UserMenu from '../components/UserMenu';
+import PageNavbar from '../components/PageNavbar';
 
 const STATUS_STYLE = {
   open:      { label: 'Recruiting',  cls: 'text-green-400 bg-green-400/10 border-green-400/20' },
@@ -288,39 +288,7 @@ export default function ProjectDetail() {
       </div>
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050816]/85 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <Zap size={14} className="text-white" />
-              </div>
-              <span className="text-white font-bold text-base hidden sm:block">
-                Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-              </span>
-            </Link>
-
-            <div className="hidden sm:flex items-center text-slate-600 text-sm">
-              <span className="mx-2">/</span>
-              <Link to={location.state?.from || "/explore"} className="text-slate-400 hover:text-white transition-colors">
-                {location.state?.from?.startsWith('/portfolio/') ? 'Portfolio' : 'Explore'}
-              </Link>
-              <span className="mx-2">/</span>
-              <span className="text-slate-300 font-medium truncate max-w-[180px]">{project?.title || 'Loading...'}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {session ? (
-              <UserMenu session={session} />
-            ) : (
-              <>
-                <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors">Login</Link>
-                <Link to="/register" className="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-blue-500 to-purple-600">Sign Up</Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+      <PageNavbar breadcrumbs={[{ label: 'Explore', href: '/explore' }, { label: 'Project Details' }]} homePath="/dashboard" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

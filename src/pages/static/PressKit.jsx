@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Download, Zap } from 'lucide-react';
 import Footer from '../../components/landing/Footer';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 
 const facts = [
   { label: 'Founded',      value: '2025' },
@@ -20,7 +20,7 @@ const assets = [
 export default function PressKit() {
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Press Kit', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-medium mb-6">

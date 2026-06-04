@@ -5,7 +5,7 @@ import {
   ArrowRight, BookOpen, CheckSquare, Lock, MessageSquare, Sparkles, Users, Zap,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import Navbar from '../components/landing/Navbar';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 
 const tools = [
@@ -67,7 +67,7 @@ export default function ProductFeatures() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-white font-['Manrope',sans-serif]">
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Product Features', href: null }]} />
 
       <main className="relative overflow-hidden pt-28">
         <div className="absolute inset-0 pointer-events-none">

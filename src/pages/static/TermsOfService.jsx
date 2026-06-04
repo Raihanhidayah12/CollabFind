@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import Footer from '../../components/landing/Footer';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 
 const sections = [
   {
@@ -63,7 +63,7 @@ const sections = [
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Terms of Service', href: null }]} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-xs text-slate-500 mb-3">Last updated: June 2025</p>

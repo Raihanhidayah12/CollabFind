@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthParticles from '../components/AuthParticles';
+import PageNavbar from '../components/PageNavbar';
 import { Globe, Smartphone, Bot, Zap, Palette, Gamepad2, LineChart, Link as LinkIcon, Box, Rocket } from 'lucide-react';
 
 const CATEGORIES = [
@@ -231,6 +232,7 @@ export default function CreateProject() {
   // ── Main form ────────────────────────────────────────────
   return (
     <div className="auth-page">
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Create Project' }]} homePath="/dashboard" />
       <div className="auth-bg" />
       <div className="auth-orb auth-orb-1" />
       <div className="auth-orb auth-orb-2" />

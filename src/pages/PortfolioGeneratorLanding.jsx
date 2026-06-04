@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Briefcase, CheckCircle, GitBranch, Sparkles, Star, Trophy, Zap } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import Navbar from '../components/landing/Navbar';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 
 const templates = [
@@ -36,7 +36,7 @@ export default function PortfolioGeneratorLanding() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-white font-['Manrope',sans-serif]">
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Portfolio Generator' }]} homePath="/dashboard" />
 
       <main className="relative pt-28 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">

@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Menu, X, Zap, Plus } from 'lucide-react';
-import { supabase } from '../../utils/supabaseClient';
 import UserMenu from '../UserMenu';
 import NotificationMenu from '../NotificationMenu';
+import { useAuth } from '../AuthProvider';
 
 
 const navLinks = [
@@ -18,7 +18,8 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [session, setSession] = useState(null);
+  // Use shared auth context - already initialized from localStorage
+  const { session } = useAuth();
 
   const location = useLocation();
 
@@ -43,22 +44,6 @@ export default function Navbar() {
       }
     }
   };
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const {
-      data: listener,
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
 
   return (
     <motion.nav
@@ -95,7 +80,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -117,7 +102,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
 
             <button
               className="
@@ -190,24 +175,49 @@ export default function Navbar() {
                     transition-all duration-300
                   "
                 >
-                  Start Collaborating
+                  Sign Up
                 </Link>
               </>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+{/* Mobile Menu Button */}
           <button
             onClick={() => setOpen(!open)}
             className="
-              md:hidden
-              p-2
-              text-slate-400
-              hover:text-white
-              transition-colors
+              lg:hidden
+              p-2.5
+              rounded-lg
+              bg-white/10
+              text-white
+              hover:bg-white/20
+              transition-all
+              border border-white/10
             "
           >
-            {open ? <X size={22} /> : <Menu size={22} />}
+            <AnimatePresence mode="wait">
+              {open ? (
+                <motion.div
+                  key="close"
+                  initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                  exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
+                  <X size={22} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ scale: 0.5, opacity: 0, rotate: 90 }}
+                  animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                  exit={{ scale: 0.5, opacity: 0, rotate: -90 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
+                  <Menu size={22} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
@@ -231,8 +241,8 @@ export default function Navbar() {
             transition={{
               duration: 0.25,
             }}
-            className="
-              md:hidden
+className="
+              lg:hidden
               bg-[#050816]/95
               backdrop-blur-xl
               border-t border-white/[0.06]
@@ -321,7 +331,7 @@ export default function Navbar() {
                         to-purple-600
                       "
                     >
-                      Join Now
+                      Sign Up
                     </Link>
                   </div>
                 )}

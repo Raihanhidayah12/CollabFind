@@ -7,7 +7,7 @@ import {
   ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import UserMenu from '../components/UserMenu';
+import PageNavbar from '../components/PageNavbar';
 
 const ICON_MAP = { Code2, Smartphone, Palette, Brain, Cpu, Lightbulb, GitBranch, Trophy };
 
@@ -254,37 +254,7 @@ export default function Explore() {
       </div>
 
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050816]/85 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <Zap size={14} className="text-white" />
-              </div>
-              <span className="text-white font-bold text-base hidden sm:block">
-                Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-              </span>
-            </Link>
-
-            <div className="hidden sm:flex items-center text-slate-600 text-sm">
-              <span className="mx-2">/</span>
-              <span className="text-slate-300 font-medium">Explore</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {session ? (
-              <UserMenu session={session} />
-            ) : (
-              <>
-                <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors">Login</Link>
-                <Link to="/register" className="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 transition-all">
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+      <PageNavbar breadcrumbs={[{ label: 'Explore', href: null }]} />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
 

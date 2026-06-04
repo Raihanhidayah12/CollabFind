@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
-import UserMenu from '../components/UserMenu';
 
 const tabs = [
   { id: 'account', label: 'Account', icon: User },
@@ -65,31 +65,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050816]/85 backdrop-blur-xl border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0">
-            <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <Zap size={14} className="text-white" />
-              </div>
-              <span className="text-white font-bold text-sm md:text-base hidden sm:block">
-                Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-              </span>
-            </Link>
-
-            <div className="hidden md:flex items-center text-slate-600 text-xs min-w-0">
-              <span className="mx-2">/</span>
-              <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors">
-                Dashboard
-              </Link>
-              <span className="mx-2">/</span>
-              <span className="text-slate-300 font-medium truncate">Settings</span>
-            </div>
-          </div>
-
-          {session && <UserMenu session={session} />}
-        </div>
-      </nav>
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} homePath="/dashboard" />
       
       <main className="flex-1 pt-20 md:pt-28 pb-12 md:pb-16">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, RefreshCw, Zap, Globe, Database, HardDrive } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
-import Navbar from '../../components/landing/Navbar';
+import PageNavbar from '../../components/PageNavbar';
 import Footer from '../../components/landing/Footer';
 
 // ─── Status levels ────────────────────────────────────────────────────────────
@@ -230,7 +230,7 @@ export default function Status() {
 
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
-      <Navbar />
+      <PageNavbar breadcrumbs={[{ label: 'Status', href: null }]} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
 

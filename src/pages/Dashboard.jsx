@@ -13,8 +13,7 @@ import { supabase } from '../utils/supabaseClient';
 import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
 import Features from '../components/landing/Features';
 import TrustedBy from '../components/landing/TrustedBy';
-import UserMenu from '../components/UserMenu';
-import NotificationMenu from '../components/NotificationMenu';
+import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 
 /* ── helpers ─────────────────────────────────────────────── */
@@ -49,55 +48,6 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
   );
 }
 
-/* ── Navbar authenticated ────────────────────────────────── */
-// eslint-disable-next-line no-unused-vars
-function AuthNavbar({ session, pendingCount }) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', h);
-    return () => window.removeEventListener('scroll', h);
-  }, []);
-
-  // eslint-disable-next-line no-unused-vars
-  const navLinks = [
-    { label: 'Dashboard', to: '/dashboard' },
-    { label: 'Explore',   to: '/explore'   },
-  ];
-
-  return (
-    <motion.nav
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-[#050816]/85 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_4px_32px_rgba(0,0,0,0.4)]'
-                 : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-
-          {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_16px_rgba(59,130,246,0.5)] group-hover:shadow-[0_0_24px_rgba(59,130,246,0.7)] transition-shadow">
-              <Zap size={16} className="text-white" />
-            </div>
-            <span className="text-white font-bold text-lg tracking-tight">
-              Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
-            </span>
-          </Link>
-
-          {/* Right actions */}
-          <div className="flex items-center gap-3">
-            {session && <NotificationMenu session={session} />}
-            {session && <UserMenu session={session} />}
-          </div>
-        </div>
-      </div>
-    </motion.nav>
-  );
-}
 
 /* ── Hero section (post-login) ───────────────────────────── */
 function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects, applications }) {
@@ -1055,6 +1005,7 @@ export default function Dashboard() {
   }, [session]);
 
   const displayName = profile?.name || session?.user?.email?.split('@')[0] || 'User';
+  // eslint-disable-next-line no-unused-vars
   const pendingCount = applications.filter(a => a.status === 'pending').length;
   const userSkills = profile?.skills || [];
   const firstWorkspaceId = myProjects[0]?.id || applications.find(a => a.status === 'accepted')?.project_id;
@@ -1076,7 +1027,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily:"'Manrope',sans-serif" }}>
 
-      <AuthNavbar session={session} pendingCount={pendingCount} />
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard' }]} homePath="/dashboard" />
 
       {/* Hero */}
       <AuthHero
