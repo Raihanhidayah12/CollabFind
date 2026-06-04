@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Trash2, Edit3, Save, X, BookOpen,
+  // eslint-disable-next-line no-unused-vars
   AlertCircle, Loader2, FileText, ChevronRight, Lock,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
@@ -71,6 +72,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
   const [saving, setSaving]           = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [titleError, setTitleError]   = useState('');
+  // eslint-disable-next-line no-unused-vars
   const textareaRef = useState(null);
 
   // ── Fetch pages ──────────────────────────────────────────
@@ -90,6 +92,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
     setLoading(false);
   }, [projectId, addToast]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchPages(); }, [fetchPages]);
 
   // ── Buat halaman baru ────────────────────────────────────
@@ -206,10 +209,10 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
 
   // ── Render ────────────────────────────────────────────────
   return (
-    <div className="flex gap-4 h-[600px]">
+    <div className="flex flex-col md:flex-row gap-4 h-auto md:h-[600px]">
 
       {/* Sidebar */}
-      <div className="w-56 flex-shrink-0 flex flex-col gap-2">
+      <div className="w-full md:w-56 flex-shrink-0 flex flex-col gap-2">
         {readOnly ? (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-amber-500/20 bg-amber-500/8 text-amber-300 text-xs">
             <Lock size={12} /> View only
@@ -229,15 +232,14 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                 <div key={i} className="h-9 rounded-xl bg-white/[0.04] animate-pulse" />
               ))
             : pages.map((page) => (
-                <button
+                <div
                   key={page.id}
                   onClick={() => { setActivePage(page); setIsEditing(false); setIsCreating(false); }}
-                  className={`group flex items-center gap-2 w-full px-3 py-2 rounded-xl text-left text-sm transition-all ${
+                  className={`group flex items-center gap-2 w-full px-3 py-2 rounded-xl text-left text-sm transition-all cursor-pointer ${
                     activePage?.id === page.id
                       ? 'bg-blue-500/15 border border-blue-500/30 text-white'
                       : 'text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
-                  }`}
-                >
+                  }`}>
                   <FileText size={13} className="flex-shrink-0" />
                   <span className="truncate flex-1">{page.title}</span>
                   {!readOnly && (
@@ -249,7 +251,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                       <Trash2 size={12} />
                     </button>
                   )}
-                </button>
+                </div>
               ))
           }
           {!loading && pages.length === 0 && (

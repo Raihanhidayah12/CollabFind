@@ -38,7 +38,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center overflow-hidden">
 
         {/* Badge */}
         <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-sm font-medium mb-8">
@@ -53,7 +53,7 @@ export default function Hero() {
           className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight mb-6"
         >
           Build Amazing{' '}
-          <span className="relative">
+          <span className="relative inline-block">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Projects
             </span>
@@ -65,7 +65,8 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
             />
           </span>
-          <br />Together
+          {' '}
+          Together
         </motion.h1>
 
         {/* Subtitle */}
@@ -126,7 +127,7 @@ export default function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="relative max-w-5xl mx-auto"
+          className="relative max-w-5xl mx-auto overflow-hidden"
         >
           {/* Glow behind mockup */}
           <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 rounded-3xl blur-2xl" />

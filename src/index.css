@@ -43,7 +43,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; overflow-x: hidden; }
 
 #root {
   width: 100%;
@@ -863,4 +863,3 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; }
 }
 .wiki-content strong { color: #e2e8f0; font-weight: 700; }
 .wiki-content em     { color: #cbd5e1; font-style: italic; }
- 

@@ -72,25 +72,13 @@ export function useRealtimeNotifications(session) {
 
           console.log('💬 New message received:', msg.sender_id);
 
-          const { data: sender } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', msg.sender_id)
-            .single();
+          
 
-          const senderName = sender?.name || 'Someone';
-          const msgPreview = msg.content?.substring(0, 60) || 'Sent a message';
+          
+          
 
-          console.log('🎉 Showing toast for message from', senderName);
-          addToast({
-            type: 'message',
-            title: `💬 ${senderName}`,
-            message: msgPreview,
-            link: `/dashboard/chat?conv=${msg.conversation_id}`,
-            autoClose: 6000
-          });
-
-          playSound();
+// Toast chat sudah ditangani NotificationMenu.jsx
+console.log('Chat notification handled by NotificationMenu');
         }
       )
       .subscribe((status) => {
@@ -119,7 +107,9 @@ export function useRealtimeNotifications(session) {
             .single();
 
           const isAccepted = app.status === 'accepted';
-          const title = isAccepted ? '✅ Application Accepted!' : '❌ Application Rejected';
+          const title = isAccepted
+  ? 'Application Accepted'
+  : 'Application Rejected';
           const message = isAccepted
             ? `You've been accepted to join "${project?.title}"`
             : `Your application to "${project?.title}" was rejected`;
@@ -170,7 +160,7 @@ export function useRealtimeNotifications(session) {
           console.log('🎉 Showing toast for new application');
           addToast({
             type: 'info',
-            title: `👤 New Application`,
+            title: `New Application`,
             message: `${applicantName} applied to "${project?.title}"`,
             link: `/project/${app.project_id}`,
             autoClose: 8000
