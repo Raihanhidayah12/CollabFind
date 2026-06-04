@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, Users, Calendar, Zap, CheckCircle, Clock, XCircle, Trophy, AlertTriangle, Upload, X,
+  Users, Calendar, Zap, CheckCircle, Clock, XCircle, Trophy, AlertTriangle, Upload, X,
+  ExternalLink, FileText, UserCheck, UserX,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import UserMenu from '../components/UserMenu';
@@ -27,6 +28,10 @@ export default function ProjectDetail() {
   const [appStatus, setAppStatus] = useState(null); // 'pending'|'accepted'|'rejected'|null
   const [message, setMessage]   = useState('');
   const [markingDone, setMarkingDone] = useState(false);
+  const [ownerApplications, setOwnerApplications] = useState([]);
+  const [ownerAppsLoading, setOwnerAppsLoading] = useState(false);
+  const [reviewingAppId, setReviewingAppId] = useState(null);
+  const [cvLinks, setCvLinks] = useState({});
 
   // Apply form extra fields
   const [portfolioUrl, setPortfolioUrl] = useState('');
@@ -88,6 +93,67 @@ export default function ProjectDetail() {
         if (data) { setApplied(true); setAppStatus(data.status); }
       });
   }, [session, id]);
+
+  // Load incoming applications for the project owner.
+  useEffect(() => {
+    if (!session || !project || session.user.id !== project.creator_id) return;
+
+    async function loadOwnerApplications() {
+      setOwnerAppsLoading(true);
+
+      const { data: apps, error } = await supabase
+        .from('applications')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading project applications:', error);
+        setOwnerAppsLoading(false);
+        return;
+      }
+
+      const applicantIds = [...new Set((apps || []).map(app => app.applicant_id).filter(Boolean))];
+      let profiles = [];
+
+      if (applicantIds.length > 0) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, name, job_title, avatar_url, skills, bio, portofolio_url')
+          .in('id', applicantIds);
+
+        if (profileError) {
+          console.error('Error loading applicant profiles:', profileError);
+        } else {
+          profiles = profileData || [];
+        }
+      }
+
+      const profileById = new Map(profiles.map(profile => [profile.id, profile]));
+      const mergedApps = (apps || []).map(app => ({
+        ...app,
+        applicant: profileById.get(app.applicant_id) || null,
+      }));
+
+      setOwnerApplications(mergedApps);
+
+      const links = {};
+      await Promise.all(
+        mergedApps
+          .filter(app => app.cv_url)
+          .map(async app => {
+            const { data } = await supabase.storage
+              .from('cv-files')
+              .createSignedUrl(app.cv_url, 60 * 10);
+            if (data?.signedUrl) links[app.id] = data.signedUrl;
+          })
+      );
+      setCvLinks(links);
+      setOwnerAppsLoading(false);
+    }
+
+    loadOwnerApplications();
+  }, [session, project]);
 
   const handleApply = async () => {
     if (!session) { navigate('/login'); return; }
@@ -153,6 +219,51 @@ export default function ProjectDetail() {
       alert('Failed to update status: ' + error.message);
     }
     setMarkingDone(false);
+  };
+
+  const handleReviewApplication = async (application, newStatus) => {
+    if (!isOwner || application.status !== 'pending') return;
+
+    setReviewingAppId(application.id);
+    const { data: updatedApplication, error } = await supabase
+      .from('applications')
+      .update({ status: newStatus })
+      .eq('id', application.id)
+      .eq('project_id', project.id)
+      .select('id, status')
+      .maybeSingle();
+
+    if (error) {
+      alert('Failed to update application: ' + error.message);
+      setReviewingAppId(null);
+      return;
+    }
+
+    if (!updatedApplication) {
+      alert('Application was not updated. Check Supabase RLS policy for owner updates on the applications table.');
+      setReviewingAppId(null);
+      return;
+    }
+
+    setOwnerApplications(prev =>
+      prev.map(app => app.id === application.id ? { ...app, status: updatedApplication.status } : app)
+    );
+
+    if (updatedApplication.status === 'accepted') {
+      const nextMembers = (project.current_members ?? 1) + 1;
+      const { error: memberUpdateError } = await supabase
+        .from('projects')
+        .update({ current_members: nextMembers })
+        .eq('id', project.id);
+
+      if (memberUpdateError) {
+        console.error('Failed to update member count:', memberUpdateError);
+      } else {
+        setProject(prev => ({ ...prev, current_members: nextMembers }));
+      }
+    }
+
+    setReviewingAppId(null);
   };
 
   if (loading) return (
@@ -555,6 +666,122 @@ export default function ProjectDetail() {
                     <AlertTriangle size={10} /> Completed projects can be showcased in your Portfolio.
                   </p>
                 </div>
+              </motion.div>
+            )}
+
+            {/* Incoming Applications */}
+            {isOwner && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 p-5"
+              >
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Applicants</p>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20">
+                    {ownerApplications.length}
+                  </span>
+                </div>
+
+                {ownerAppsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                  </div>
+                ) : ownerApplications.length === 0 ? (
+                  <p className="text-sm text-slate-500 leading-relaxed">Belum ada pelamar untuk project ini.</p>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {ownerApplications.map(app => {
+                      const applicant = app.applicant;
+                      const statusStyle =
+                        app.status === 'accepted' ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20' :
+                        app.status === 'rejected' ? 'text-red-300 bg-red-500/10 border-red-500/20' :
+                        'text-yellow-300 bg-yellow-500/10 border-yellow-500/20';
+                      const portfolioLink = app.portfolio_url || applicant?.portofolio_url;
+
+                      return (
+                        <div key={app.id} className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                              style={{ background: `${accent}22`, border: `1px solid ${accent}44` }}>
+                              {applicant?.name?.[0] || '?'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="text-sm font-semibold text-white truncate">{applicant?.name || 'Anonymous applicant'}</p>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border flex-shrink-0 ${statusStyle}`}>
+                                  {app.status}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-500 truncate">{applicant?.job_title || 'Member'}</p>
+                            </div>
+                          </div>
+
+                          {app.message && (
+                            <p className="text-xs text-slate-400 leading-relaxed mb-3">{app.message}</p>
+                          )}
+
+                          {(app.selected_skills?.length > 0 || applicant?.skills?.length > 0) && (
+                            <div className="flex flex-wrap gap-1.5 mb-3">
+                              {(app.selected_skills?.length > 0 ? app.selected_skills : applicant.skills).slice(0, 6).map(skill => (
+                                <span key={skill} className="px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.07] text-[10px] text-slate-400">
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                            {portfolioLink && (
+                              <a
+                                href={portfolioLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-blue-300 border border-blue-500/25 bg-blue-500/10 hover:bg-blue-500/20 transition-all"
+                              >
+                                <ExternalLink size={12} /> Portfolio
+                              </a>
+                            )}
+                            {app.cv_url && (
+                              <a
+                                href={cvLinks[app.id] || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold border transition-all ${
+                                  cvLinks[app.id]
+                                    ? 'text-purple-300 border-purple-500/25 bg-purple-500/10 hover:bg-purple-500/20'
+                                    : 'text-slate-500 border-white/[0.08] bg-white/[0.03] pointer-events-none'
+                                }`}
+                              >
+                                <FileText size={12} /> {app.cv_file_name || 'CV'}
+                              </a>
+                            )}
+                          </div>
+
+                          {app.status === 'pending' && (
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => handleReviewApplication(app, 'accepted')}
+                                disabled={reviewingAppId === app.id}
+                                className="flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-emerald-300 border border-emerald-500/25 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all disabled:opacity-50"
+                              >
+                                <UserCheck size={12} /> Accept
+                              </button>
+                              <button
+                                onClick={() => handleReviewApplication(app, 'rejected')}
+                                disabled={reviewingAppId === app.id}
+                                className="flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-red-300 border border-red-500/25 bg-red-500/10 hover:bg-red-500/20 transition-all disabled:opacity-50"
+                              >
+                                <UserX size={12} /> Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </motion.div>
             )}
 

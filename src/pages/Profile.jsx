@@ -22,22 +22,11 @@ export default function Profile() {
   });
   const [customSkill, setCustomSkill] = useState('');
   const [portfolio, setPortfolio] = useState(null);
-  const [links, setLinks] = useState({ github_url: '', linkedin_url: '', website_url: '', portfolio_url: '' });
-  const [savedPortfolioUrl, setSavedPortfolioUrl] = useState('');
+  const [links, setLinks] = useState({ github_url: '', linkedin_url: '', website_url: '' });
+  const portfolioHref = links.website_url?.trim() || (portfolio?.username ? `/portfolio/${portfolio.username}` : '');
+  const portfolioIsExternal = Boolean(links.website_url?.trim());
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        navigate('/login');
-        return;
-      }
-      setSession(data.session);
-      fetchProfile(data.session.user.id);
-      fetchPortfolio(data.session.user.id);
-    });
-  }, [navigate]);
-
-  const fetchProfile = async (userId) => {
+  async function fetchProfile(userId) {
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -55,10 +44,9 @@ export default function Profile() {
           skills: Array.isArray(data.skills) ? data.skills : (data.skills ? data.skills : []),
           avatar_url: data.avatar_url || ''
         });
-        // Load custom portfolio URL from profiles (takes priority)
+        // Backward compatibility: old data used profiles.portofolio_url for personal portfolio links.
         if (data.portofolio_url) {
-          setLinks(l => ({ ...l, portfolio_url: data.portofolio_url }));
-          setSavedPortfolioUrl(data.portofolio_url);
+          setLinks(l => ({ ...l, website_url: l.website_url || data.portofolio_url }));
         }
       }
     } catch (err) {
@@ -66,9 +54,9 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const fetchPortfolio = async (userId) => {
+  async function fetchPortfolio(userId) {
     const { data } = await supabase
       .from('user_portfolios')
       .select('username, github_url, linkedin_url, website_url')
@@ -82,13 +70,22 @@ export default function Profile() {
       setLinks(prev => ({
         github_url: data.github_url || '',
         linkedin_url: data.linkedin_url || '',
-        website_url: data.website_url || '',
-        // Don't override custom URL already loaded from profiles
-        portfolio_url: prev.portfolio_url || collabfindUrl,
+        website_url: data.website_url || prev.website_url || collabfindUrl,
       }));
-      setSavedPortfolioUrl(prev => prev || collabfindUrl);
     }
-  };
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        navigate('/login');
+        return;
+      }
+      setSession(data.session);
+      fetchProfile(data.session.user.id);
+      fetchPortfolio(data.session.user.id);
+    });
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -113,7 +110,7 @@ export default function Profile() {
         bio: formData.bio || null,
         skills: skillsArray.length > 0 ? skillsArray : null,
         avatar_url: formData.avatar_url?.trim() || null,
-        portofolio_url: links.portfolio_url?.trim() || null,
+        portofolio_url: links.website_url?.trim() || null,
       };
 
       const { error } = await supabase
@@ -135,8 +132,6 @@ export default function Profile() {
           website_url: links.website_url || null,
         }).eq('user_id', session.user.id);
       }
-      // Persist the saved portfolio URL for display logic
-      setSavedPortfolioUrl(links.portfolio_url || '');
     } catch (err) {
       setMessage({ text: err.message || 'Failed to update profile', type: 'error' });
     } finally {
@@ -387,15 +382,22 @@ export default function Profile() {
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">Hubungkan akun dan tampilkan portfoliomu kepada recruiter.</p>
                   </div>
-                  {portfolio && (
+                  {portfolioHref ? (
                     <a
-                      href={`/portfolio/${portfolio.username}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={portfolioHref}
+                      target={portfolioIsExternal ? '_blank' : undefined}
+                      rel={portfolioIsExternal ? 'noopener noreferrer' : undefined}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-300 border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all"
                     >
                       <ExternalLink size={12} /> Lihat Portfolio
                     </a>
+                  ) : (
+                    <Link
+                      to="/dashboard/portfolio"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-300 border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all"
+                    >
+                      <Plus size={12} /> Buat Portfolio
+                    </Link>
                   )}
                 </div>
 
@@ -432,35 +434,10 @@ export default function Profile() {
                       type="url"
                       value={links.website_url}
                       onChange={e => setLinks(l => ({ ...l, website_url: e.target.value }))}
-                      placeholder="https://mywebsite.com"
+                      placeholder="https://mywebsite.com atau portfolio pribadi"
                       className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
                     />
                   </div>
-                  
-                  {/* Portfolio Link Box — kotak ke-4 */}
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400">
-                      <ExternalLink size={16} />
-                    </div>
-                    <input
-                      type="url"
-                      value={links.portfolio_url}
-                      onChange={e => setLinks(l => ({ ...l, portfolio_url: e.target.value }))}
-                      placeholder="https://yourportfolio.com atau link CollabFind-mu"
-                      className="w-full bg-purple-500/[0.06] border border-purple-500/30 rounded-xl pl-10 pr-4 py-3 text-purple-200 placeholder-slate-600 focus:outline-none focus:border-purple-500/60 transition-colors text-sm"
-                    />
-                  </div>
-
-                  {/* Hanya tampil kalau belum ada URL portfolio DAN belum buat dari editor */}
-                  {!savedPortfolioUrl && !portfolio && (
-                    <Link
-                      to="/dashboard/portfolio"
-                      className="flex items-center justify-center gap-2 w-full border border-dashed border-purple-500/30 rounded-xl py-2.5 text-sm text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/50 transition-all font-medium"
-                    >
-                      <Plus size={14} />
-                      Buat Portfolio CollabFind-mu
-                    </Link>
-                  )}
                 </div>
               </div>
               

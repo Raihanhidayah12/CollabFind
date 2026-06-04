@@ -1,9 +1,10 @@
 /* ============================================
    TAILWIND v4
    ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 
-/* Custom theme tokens aligned with design.md */
 @theme {
   --color-bg-deep:   #08090D;
   --color-cyan:      #00D2FF;
@@ -15,12 +16,6 @@
   --font-sans:       'Manrope', system-ui, sans-serif;
   --font-heading:    'Space Grotesk', system-ui, sans-serif;
 }
-
-/* ============================================
-   GOOGLE FONTS IMPORT
-   ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
-
 /* ============================================
    BASE RESET
    ============================================ */
