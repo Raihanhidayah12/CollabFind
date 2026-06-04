@@ -199,6 +199,10 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; }
     0 0 60px rgba(0,210,255,0.07),
     0 32px 80px rgba(0,0,0,0.6);
   animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
 }
 
 @keyframes cardIn {
@@ -752,22 +756,49 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; }
 /* Responsive */
 @media (max-width: 500px) {
   .auth-card {
-    padding: 22px 18px 20px;
+    padding: 18px 16px 16px;
     border-radius: 16px;
+    width: calc(100% - 4px);
+    max-width: calc(100vw - 24px);
+    overflow-x: hidden;
   }
   .auth-title { font-size: 22px; }
 }
 
-/* Very short screens — allow scroll as last resort */
+/* Very short screens — form scrolls internally */
 @media (max-height: 600px) {
   .auth-page {
-    overflow-y: auto;
-    align-items: flex-start;
-    padding: 16px;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
   }
   .auth-card {
-    margin: auto;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    overflow: hidden;
+    padding: 16px 14px 14px;
   }
+  .auth-form {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    gap: 8px;
+    padding-right: 4px;
+  }
+  .auth-form::-webkit-scrollbar {
+    width: 4px;
+  }
+  .auth-form::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .auth-form::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 255, 0.3);
+    border-radius: 2px;
+  }
+  .auth-title { font-size: 18px; }
+  .auth-subtitle { font-size: 12px; }
+  .auth-label { font-size: 10px; }
+  .auth-field { gap: 3px; }
 }
 
 /* ============================================

@@ -230,7 +230,7 @@ export default function CreateProject() {
 
   // ── Main form ────────────────────────────────────────────
   return (
-    <div className="auth-page" style={{ alignItems: 'flex-start', overflowY: 'auto', padding: '24px 16px' }}>
+    <div className="auth-page">
       <div className="auth-bg" />
       <div className="auth-orb auth-orb-1" />
       <div className="auth-orb auth-orb-2" />
@@ -314,15 +314,14 @@ export default function CreateProject() {
                 {/* Status */}
                 <div className="auth-field">
                   <label className="auth-label">Project Status</label>
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 8 }}>
                     {STATUS_OPTIONS.map(opt => (
                       <button
                         key={opt.value}
                         type="button"
                         onClick={() => setStatus(opt.value)}
                         style={{
-                          flex: 1,
-                          padding: '9px 6px',
+                          padding: '10px 8px',
                           borderRadius: 10,
                           border: status === opt.value
                             ? '1px solid rgba(0,210,255,0.55)'
@@ -331,16 +330,21 @@ export default function CreateProject() {
                             ? 'rgba(0,210,255,0.09)'
                             : 'rgba(255,255,255,0.03)',
                           color: status === opt.value ? '#00D2FF' : 'rgba(148,163,184,0.75)',
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: 600,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
                           textAlign: 'center',
-                          lineHeight: 1.3,
+                          lineHeight: 1.2,
+                          minHeight: 70,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
-                        {opt.label}
-                        <div style={{ fontSize: 10, fontWeight: 400, marginTop: 2, opacity: 0.65 }}>
+                        <span style={{ fontWeight: 700, fontSize: 11 }}>{opt.label}</span>
+                        <div style={{ fontSize: 8, fontWeight: 400, marginTop: 4, opacity: 0.65, lineHeight: 1.1 }}>
                           {opt.desc}
                         </div>
                       </button>
@@ -380,14 +384,14 @@ export default function CreateProject() {
                 {/* Category */}
                 <div className="auth-field">
                   <label className="auth-label">Category *</label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(70px, 1fr))', gap: 7 }}>
                     {CATEGORIES.map(cat => (
                       <button
                         key={cat.label}
                         type="button"
                         onClick={() => setCategory(cat.label)}
                         style={{
-                          padding: '6px 13px',
+                          padding: '8px 6px',
                           borderRadius: 20,
                           border: category === cat.label
                             ? '1px solid rgba(157,80,187,0.7)'
@@ -396,16 +400,21 @@ export default function CreateProject() {
                             ? 'rgba(157,80,187,0.15)'
                             : 'rgba(255,255,255,0.03)',
                           color: category === cat.label ? '#D1B4FF' : 'rgba(148,163,184,0.7)',
-                          fontSize: 12,
+                          fontSize: 9,
                           fontWeight: 600,
                           cursor: 'pointer',
                           transition: 'all 0.2s',
                           display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
-                          gap: 5,
+                          justifyContent: 'center',
+                          gap: 2,
+                          minHeight: 50,
+                          lineHeight: 1.1,
                         }}
                       >
-                        <span>{cat.icon}</span> {cat.label}
+                        <span style={{ fontSize: 14 }}>{cat.icon}</span>
+                        <span style={{ textAlign: 'center', wordBreak: 'break-word' }}>{cat.label}</span>
                       </button>
                     ))}
                   </div>
@@ -480,15 +489,16 @@ export default function CreateProject() {
 
                 {/* Summary card */}
                 <div style={{
-                  padding: '14px 16px',
+                  padding: '12px 14px',
                   borderRadius: 12,
                   border: '1px solid rgba(0,210,255,0.15)',
                   background: 'rgba(0,210,255,0.04)',
+                  overflow: 'hidden',
                 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,210,255,0.7)', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 8px' }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,210,255,0.7)', letterSpacing: '1px', textTransform: 'uppercase', margin: '0 0 8px' }}>
                     Summary
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {[
                       ['Title',    title],
                       ['Category', category],
@@ -496,8 +506,8 @@ export default function CreateProject() {
                       ['Skills',   skills.length ? skills.join(', ') : '—'],
                       ['Team',     `${maxMembers} people · ${maxMembers - 1} open slots`],
                     ].map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', gap: 8, fontSize: 12 }}>
-                        <span style={{ color: 'rgba(148,163,184,0.5)', minWidth: 64 }}>{k}</span>
+                      <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11, minHeight: 20, alignItems: 'center' }}>
+                        <span style={{ color: 'rgba(148,163,184,0.5)', minWidth: 50, flexShrink: 0 }}>{k}</span>
                         <span style={{ color: '#e2e8f0', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
                       </div>
                     ))}

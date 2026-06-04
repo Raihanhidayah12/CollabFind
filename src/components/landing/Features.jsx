@@ -84,7 +84,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
   };
 
   return (
-    <section id="features" className="py-24 relative">
+    <section id="features" className="features-section py-24 relative">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-0 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
         <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-purple-600/8 rounded-full blur-[100px]" />

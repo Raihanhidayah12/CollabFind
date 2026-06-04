@@ -65,7 +65,7 @@ export default function Collaborators() {
   }, []);
 
   return (
-    <section id="collaborators" className="py-24 relative">
+    <section id="collaborators" className="collaborators-section py-24 relative">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-purple-600/8 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

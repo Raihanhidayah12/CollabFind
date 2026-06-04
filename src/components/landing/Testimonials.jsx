@@ -52,6 +52,7 @@ export default function Testimonials() {
           // Fallback to static data if table doesn't exist or is empty
           setItems(fallbackTestimonials);
         }
+      // eslint-disable-next-line no-unused-vars
       } catch (err) {
         setItems(fallbackTestimonials);
       } finally {
@@ -62,7 +63,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="testimonials-section py-24 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-600/8 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

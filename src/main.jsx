@@ -35,47 +35,52 @@ import Status from './pages/resources/Status.jsx'
 import ProductFeatures from './pages/ProductFeatures.jsx'
 import FindTeammates from './pages/FindTeammates.jsx'
 import PortfolioGeneratorLanding from './pages/PortfolioGeneratorLanding.jsx'
+import { NotificationProvider } from './components/NotificationProvider.jsx'
+import ToastContainer from './components/ToastContainer.jsx'
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset_password" element={<ResetPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/features" element={<ProductFeatures />} />
-        <Route path="/teammates" element={<FindTeammates />} />
-        <Route path="/portfolio-generator" element={<PortfolioGeneratorLanding />} />
-        <Route path="/project/:id" element={<ProjectDetail />} />
-        <Route path="/create-project" element={<CreateProject />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/dashboard/workspace/:projectId" element={<Workspace />} />
-        <Route path="/dashboard/chat" element={<Chat />} />
-        <Route path="/dashboard/portfolio" element={<PortfolioEditor />} />
-        <Route path="/portfolio/:username" element={<PublicPortfolio />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/careers" element={<Careers />} />
-        <Route path="/press" element={<PressKit />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/discord" element={<Discord />} />
-        <Route path="/forum" element={<Forum />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/hackathons" element={<Hackathons />} />
-        <Route path="/newsletter" element={<Newsletter />} />
-        <Route path="/docs" element={<Documentation />} />
-        <Route path="/api" element={<ApiReference />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/changelog" element={<Changelog />} />
-        <Route path="/status" element={<Status />} />
-      </Routes>
+      <NotificationProvider>
+        <ToastContainer />
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset_password" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/features" element={<ProductFeatures />} />
+          <Route path="/teammates" element={<FindTeammates />} />
+          <Route path="/portfolio-generator" element={<PortfolioGeneratorLanding />} />
+          <Route path="/project/:id" element={<ProjectDetail />} />
+          <Route path="/create-project" element={<CreateProject />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/dashboard/workspace/:projectId" element={<Workspace />} />
+          <Route path="/dashboard/chat" element={<Chat />} />
+          <Route path="/dashboard/portfolio" element={<PortfolioEditor />} />
+          <Route path="/portfolio/:username" element={<PublicPortfolio />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/press" element={<PressKit />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/discord" element={<Discord />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/hackathons" element={<Hackathons />} />
+          <Route path="/newsletter" element={<Newsletter />} />
+          <Route path="/docs" element={<Documentation />} />
+          <Route path="/api" element={<ApiReference />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/changelog" element={<Changelog />} />
+          <Route path="/status" element={<Status />} />
+        </Routes>
+      </NotificationProvider>
     </BrowserRouter>
   </StrictMode>,
 )

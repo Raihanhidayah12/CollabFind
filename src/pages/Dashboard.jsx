@@ -6,9 +6,11 @@ import {
   Zap, Bell,
   Users, FolderOpen, CheckCircle, Clock, ArrowRight,
   Plus, Sparkles, TrendingUp, Star, ExternalLink,
-  MessageSquare, Loader2,
+  // eslint-disable-next-line no-unused-vars
+  MessageSquare, Loader2, UserPlus, Search,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
 import Features from '../components/landing/Features';
 import TrustedBy from '../components/landing/TrustedBy';
 import UserMenu from '../components/UserMenu';
@@ -88,10 +90,6 @@ function AuthNavbar({ session, pendingCount }) {
 
           {/* Right actions */}
           <div className="flex items-center gap-3">
-            <Link to="/create-project"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_16px_rgba(59,130,246,0.3)] transition-all">
-              <Plus size={13} /> New Project
-            </Link>
             {session && <NotificationMenu session={session} />}
             {session && <UserMenu session={session} />}
           </div>
@@ -124,7 +122,7 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
             </motion.div>
 
             <motion.h1 {...fadeUp(0.08)}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight mb-4"
+              className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white leading-[1.2] sm:leading-[1.1] tracking-tight mb-4"
               style={{ fontFamily:"'Space Grotesk',sans-serif" }}>
               {greeting},{' '}
               <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -133,7 +131,7 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
             </motion.h1>
 
             <motion.p {...fadeUp(0.15)}
-              className="text-lg text-slate-400 mb-8 max-w-xl leading-relaxed">
+              className="text-sm sm:text-base lg:text-lg text-slate-400 mb-8 max-w-xl leading-relaxed break-words">
               Kelola proyekmu, temukan kolaborator baru, dan akses workspace tim — semuanya di satu tempat.
             </motion.p>
 
@@ -151,7 +149,7 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
                 <button
                   type="button"
                   onClick={() => { setExpandProjects(p => !p); setExpandApps(false); }}
-                  className="w-full flex items-center gap-3 hover:bg-white/[0.03] rounded-xl px-2 py-1.5 -mx-2 transition-all group"
+                  className="w-full flex items-center gap-3 hover:bg-white/[0.03] rounded-xl px-2 py-1.5 transition-all group"
                 >
                   <div className="w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center flex-shrink-0">
                     <FolderOpen size={16} className="text-blue-400" />
@@ -196,7 +194,7 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
                 <button
                   type="button"
                   onClick={() => { setExpandApps(p => !p); setExpandProjects(false); }}
-                  className="w-full flex items-center gap-3 hover:bg-white/[0.03] rounded-xl px-2 py-1.5 -mx-2 transition-all group"
+                  className="w-full flex items-center gap-3 hover:bg-white/[0.03] rounded-xl px-2 py-1.5 transition-all group"
                 >
                   <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center flex-shrink-0">
                     <Users size={16} className="text-purple-400" />
@@ -242,10 +240,16 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
             </div>
 
             {/* Bottom CTA */}
-            <Link to="/explore"
-              className="flex items-center justify-center gap-2 py-3 px-5 text-xs font-semibold text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-t border-white/[0.06] hover:from-blue-500/30 hover:to-purple-500/30 transition-all">
-              <Plus size={13} /> Apply Proyek Baru
-            </Link>
+            <div className="flex gap-2 py-3 px-3 border-t border-white/[0.06]">
+              <Link to="/create-project"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-400 hover:to-purple-500 transition-all">
+                <Plus size={13} /> Buat Proyek
+              </Link>
+              <Link to="/explore"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-semibold text-white bg-gradient-to-r from-slate-600/40 to-slate-700/40 rounded-lg hover:from-slate-600/60 hover:to-slate-700/60 transition-all">
+                <Search size={13} /> Cari
+              </Link>
+            </div>
           </motion.div>
         </div>
       </div>
@@ -770,6 +774,151 @@ function TopCollaborators({ collaborators }) {
 }
 
 
+/* ── Find Teammates Preview ──────────────────────────────── */
+function FindTeammatesPreview({ allProfiles, session, myProjects }) {
+  const [invitingId, setInvitingId] = useState(null);
+
+  async function handleInvite(profile) {
+    if (!session || !myProjects.length) return;
+    
+    if (invitingId) return;
+    setInvitingId(profile.id);
+
+    let convId = null;
+    const { data: memberRows } = await supabase
+      .from('conversation_members')
+      .select('conversation_id')
+      .eq('user_id', session.user.id);
+
+    if (memberRows?.length) {
+      const convIds = memberRows.map(row => row.conversation_id);
+      const { data: dmConvs } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('type', 'dm')
+        .in('id', convIds);
+
+      if (dmConvs?.length) {
+        const { data: theirMemberships } = await supabase
+          .from('conversation_members')
+          .select('conversation_id')
+          .eq('user_id', profile.id)
+          .in('conversation_id', dmConvs.map(conv => conv.id));
+
+        convId = theirMemberships?.[0]?.conversation_id || null;
+      }
+    }
+
+    if (!convId) {
+      convId = crypto.randomUUID();
+      await supabase.from('conversations').insert({ id: convId, type: 'dm', name: null });
+      await supabase.from('conversation_members').insert([
+        { conversation_id: convId, user_id: session.user.id },
+        { conversation_id: convId, user_id: profile.id },
+      ]);
+    }
+
+    const firstName = (profile.name || 'Builder').split(' ')[0];
+    await supabase.from('messages').insert({
+      id: crypto.randomUUID(),
+      conversation_id: convId,
+      sender_id: session.user.id,
+      type: 'text',
+      content: `Halo ${firstName}! Saya tertarik mengajak kamu ngobrol soal proyek ${myProjects[0].title}.`,
+    });
+
+    setInvitingId(null);
+    // eslint-disable-next-line react-hooks/immutability
+    window.location.href = `/dashboard/chat?conv=${convId}`;
+  }
+
+  if (!allProfiles || allProfiles.length === 0) return null;
+
+  return (
+    <section className="py-14 relative">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-600/8 rounded-full blur-[120px]" />
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-medium mb-2">
+              <Users size={11} /> Talent Directory
+            </div>
+            <h2 className="text-xl font-extrabold text-white" style={{ fontFamily:"'Space Grotesk',sans-serif" }}>
+              Find Teammates
+            </h2>
+            <p className="text-sm text-slate-500 mt-0.5">Temukan developer, designer, dan builder untuk proyek berikutnya</p>
+          </div>
+          <Link to="/teammates" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+            Lihat semua <ArrowRight size={12} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {allProfiles.slice(0, 6).map((profile, i) => {
+            const initial = (profile.name || 'B')[0].toUpperCase();
+            const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+            return (
+              <motion.div key={profile.id}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.07 }}
+                whileHover={{ y: -4 }}
+                className="group relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/60 hover:border-white/[0.14] transition-all overflow-hidden"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  {profile.avatar_url?.startsWith('http') ? (
+                    <img src={profile.avatar_url} alt={profile.name} className="w-12 h-12 rounded-xl object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg text-white flex-shrink-0"
+                      style={{ background: `${color}20`, border: `1px solid ${color}44` }}>
+                      {initial}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors truncate">{profile.name || 'Anonymous'}</p>
+                    <p className="text-xs text-slate-500 truncate">{profile.job_title || 'Builder'}</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-500 leading-relaxed min-h-[42px] mb-4">{profile.bio || 'Terbuka untuk kolaborasi proyek baru.'}</p>
+
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {(profile.skills || []).slice(0, 3).map(skill => (
+                    <span key={skill} className="px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.07] text-xs text-slate-400">{skill}</span>
+                  ))}
+                </div>
+
+                {session && myProjects.length > 0 ? (
+                  <button
+                    onClick={() => handleInvite(profile)}
+                    disabled={invitingId === profile.id || profile.id === session.user.id}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-cyan-600 disabled:opacity-45 disabled:cursor-not-allowed transition-all hover:from-blue-400 hover:to-cyan-500"
+                  >
+                    {invitingId === profile.id ? (
+                      <>
+                        <Loader2 size={12} className="animate-spin" /> Membuka chat...
+                      </>
+                    ) : (
+                      <>
+                        <MessageSquare size={12} /> Hubungi
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <Link to="/teammates" className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold text-slate-300 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-all">
+                    <UserPlus size={12} /> Lihat Profil
+                  </Link>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ════════════════════════════════════════════════════════════
    MAIN EXPORT — HomeAuth page
    ════════════════════════════════════════════════════════════ */
@@ -784,6 +933,7 @@ export default function Dashboard() {
   const [teammateRecommendations, setTeammateRecommendations] = useState([]);
   const [featured, setFeatured]         = useState([]);
   const [collaborators, setCollaborators] = useState([]);
+  const [allProfiles, setAllProfiles]   = useState([]);
   const [loading, setLoading]           = useState(true);
 
   /* ── 1. Get session ──────────────────────────────────────── */
@@ -793,6 +943,9 @@ export default function Dashboard() {
       setSession(data.session);
     });
   }, [navigate]);
+
+  /* ── Setup real-time notifications (must be after session) ── */
+  useRealtimeNotifications(session);
 
   /* ── 2. Load all data in parallel ───────────────────────── */
   useEffect(() => {
@@ -807,6 +960,7 @@ export default function Dashboard() {
         { data: feat },
         collabsRes,
         { data: allProj },
+        { data: allProfs },
       ] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', uid).single(),
         supabase.from('projects').select('*').eq('creator_id', uid).order('created_at', { ascending: false }),
@@ -814,12 +968,14 @@ export default function Dashboard() {
         supabase.from('projects').select('*').eq('is_featured', true).order('created_at', { ascending: false }).limit(6),
         supabase.from('profiles').select('id, name, bio, skills, job_title, avatar_url').order('created_at', { ascending: false }).limit(6),
         supabase.from('projects').select('*').neq('creator_id', uid).eq('status', 'open'),
+        supabase.from('profiles').select('id, name, bio, skills, job_title, avatar_url').neq('id', uid).order('created_at', { ascending: false }).limit(24),
       ]);
 
       if (prof)    setProfile(prof);
       if (proj)    setMyProjects(proj);
       if (apps)    setApplications(apps);
       if (feat)    setFeatured(feat);
+      if (allProfs) setAllProfiles(allProfs);
       
       let collabs = collabsRes?.data || [];
       if (collabs.length > 0) {
@@ -987,6 +1143,8 @@ export default function Dashboard() {
       {/* Top Collaborators */}
       {collaborators.length > 0 && <TopCollaborators collaborators={collaborators} />}
 
+      {/* Find Teammates Preview */}
+      {allProfiles.length > 0 && <FindTeammatesPreview allProfiles={allProfiles} session={session} myProjects={myProjects} />}
 
       <Footer />
     </div>

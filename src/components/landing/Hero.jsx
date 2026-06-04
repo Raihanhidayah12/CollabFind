@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, Users, FolderOpen, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import GuidedTourSimple from '../GuidedTourSimple';
 
 const stats = [
   { icon: FolderOpen, value: '2,500+', label: 'Active Projects', color: 'from-blue-500 to-cyan-400' },
@@ -16,8 +18,10 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function Hero() {
+  const [isTourOpen, setIsTourOpen] = useState(false);
   return (
-    <section id="home" className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-16 overflow-hidden">
+    <>
+      <section id="home" className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-16 overflow-hidden">
 
       {/* Background glows */}
       <div className="absolute inset-0 pointer-events-none">
@@ -82,7 +86,12 @@ export default function Hero() {
             Explore Projects
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
-          <button className="group flex items-center gap-2.5 px-7 py-3.5 text-base font-semibold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.03] hover:bg-white/[0.07] transition-all duration-300">
+          <button
+            onClick={() => {
+              console.log('Watch Demo clicked!');
+              setIsTourOpen(true);
+            }}
+            className="group flex items-center gap-2.5 px-7 py-3.5 text-base font-semibold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 bg-white/[0.03] hover:bg-white/[0.07] transition-all duration-300">
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_12px_rgba(59,130,246,0.4)]">
               <Play size={13} className="text-white fill-white ml-0.5" />
             </div>
@@ -198,5 +207,7 @@ export default function Hero() {
         </motion.div>
       </div>
     </section>
+      <GuidedTourSimple isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+    </>
   );
 }

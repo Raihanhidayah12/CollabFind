@@ -58,7 +58,7 @@ export default function Categories() {
   }, []);
 
   return (
-    <section id="categories" className="py-24 relative">
+    <section id="categories" className="categories-section py-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

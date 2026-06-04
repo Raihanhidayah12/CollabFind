@@ -3,9 +3,10 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Hash, MessageSquare, Plus, Send, Code2, Paperclip,
-  X, ChevronRight, Loader2, Zap, Users, Search, ArrowLeft, UserPlus, Check, Pencil, Trash2, Settings, MoreVertical
+  X, ChevronRight, Loader2, Zap, Users, Search, ArrowLeft, UserPlus, Check, Pencil, Trash2, Settings, MoreVertical, Menu
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
 import UserMenu from '../components/UserMenu';
 
 /* ── helpers ──────────────────────────────────────────────── */
@@ -672,9 +673,13 @@ export default function Chat() {
   const [showJoin,    setShowJoin]    = useState(false);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [showChannelSettings, setShowChannelSettings] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Notifications
   const [notif, setNotif] = useState(null);
+
+  /* ── Setup Real-time Notifications ── */
+  useRealtimeNotifications(session);
 
   /* ── Auth guard ── */
   useEffect(() => {
@@ -883,18 +888,22 @@ export default function Chat() {
   return (
     <div className="h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       {/* Navbar */}
-      <nav className="flex-shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-white/[0.06] bg-[#050816]/90 backdrop-blur-xl z-10">
-        <div className="flex items-center gap-3">
+      <nav className="flex-shrink-0 h-14 flex items-center justify-between px-3 sm:px-6 border-b border-white/[0.06] bg-[#050816]/90 backdrop-blur-xl z-10">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
+          <button onClick={() => setShowMobileSidebar(!showMobileSidebar)} 
+            className="md:hidden p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors">
+            <Menu size={20} />
+          </button>
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
               <Zap size={14} className="text-white" />
             </div>
-            <span className="text-white font-bold text-base hidden sm:block">
+            <span className="text-white font-bold text-sm md:text-base hidden sm:block">
               Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
             </span>
           </Link>
 
-          <div className="hidden sm:flex items-center text-slate-600 text-sm">
+          <div className="hidden md:flex items-center text-slate-600 text-xs">
             <span className="mx-2">/</span>
             <Link to="/dashboard" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
             <span className="mx-2">/</span>
@@ -902,14 +911,14 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <UserMenu session={session} />
         </div>
       </nav>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside className="w-64 flex-shrink-0 border-r border-white/[0.06] bg-[#07091a] flex flex-col overflow-hidden">
+        {/* Sidebar - Hidden on mobile, visible on md+ */}
+        <aside className="hidden md:flex md:w-64 flex-shrink-0 border-r border-white/[0.06] bg-[#07091a] flex-col overflow-hidden">
           <div className="p-4 flex flex-col gap-4 overflow-y-auto flex-1">
             {/* Channels */}
             <div>
@@ -973,18 +982,104 @@ export default function Chat() {
           </div>
         </aside>
 
+        {/* Mobile Drawer - Visible on mobile, hidden on md+ */}
+        <AnimatePresence>
+          {showMobileSidebar && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowMobileSidebar(false)}
+                className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              />
+              {/* Drawer Panel */}
+              <motion.aside
+                initial={{ x: -256 }}
+                animate={{ x: 0 }}
+                exit={{ x: -256 }}
+                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                className="fixed left-0 top-0 bottom-0 w-64 border-r border-white/[0.06] bg-[#07091a] flex flex-col overflow-hidden z-50 md:hidden"
+              >
+                <div className="p-4 flex flex-col gap-4 overflow-y-auto flex-1">
+                  {/* Channels */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Channels</p>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => { setShowJoin(true); setShowMobileSidebar(false); }}
+                          className="p-1 rounded-md text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors" title="Join Channel">
+                          <Search size={13} />
+                        </button>
+                        <button onClick={() => { setShowCreateChannel(true); setShowMobileSidebar(false); }}
+                          className="p-1 rounded-md text-slate-500 hover:text-white hover:bg-white/[0.06] transition-colors" title="Buat Channel">
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                    </div>
+                    {channels.length === 0 ? (
+                      <p className="text-xs text-slate-700 px-1">Belum ada channel. Buat atau gabung projek dulu.</p>
+                    ) : (
+                      channels.map(c => (
+                        <button key={c.id} onClick={() => { setActiveConv(c); setShowMobileSidebar(false); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all ${
+                            activeConv?.id === c.id
+                              ? 'bg-blue-500/15 text-white border border-blue-500/30'
+                              : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                          }`}>
+                          <Hash size={14} className="flex-shrink-0" />
+                          <span className="truncate">{convName(c)}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+
+                  {/* DMs */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Direct Messages</p>
+                      <button onClick={() => { setShowNewDM(true); setShowMobileSidebar(false); }}
+                        className="text-slate-500 hover:text-white transition-colors" title="New DM">
+                        <Plus size={13} />
+                      </button>
+                    </div>
+                    {dms.length === 0 ? (
+                      <p className="text-xs text-slate-700 px-1">Belum ada DM.</p>
+                    ) : (
+                      dms.map(c => (
+                        <button key={c.id} onClick={() => { setActiveConv(c); setShowMobileSidebar(false); }}
+                          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all ${
+                            activeConv?.id === c.id
+                              ? 'bg-purple-500/15 text-white border border-purple-500/30'
+                              : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                          }`}>
+                          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
+                            {(convName(c))[0].toUpperCase()}
+                          </div>
+                          <span className="truncate">{convName(c)}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
         {/* Main chat */}
         <main className="flex-1 flex flex-col overflow-hidden">
           {activeConv ? (
             <>
-              <div className="flex-shrink-0 flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] bg-[#050816]/60">
+              <div className="flex-shrink-0 flex items-center gap-2 md:gap-3 px-3 md:px-5 py-2 md:py-3 border-b border-white/[0.06] bg-[#050816]/60">
                 {activeConv.type === 'channel'
-                  ? <Hash size={16} className="text-slate-400" />
-                  : <MessageSquare size={16} className="text-slate-400" />
+                  ? <Hash size={16} className="text-slate-400 flex-shrink-0" />
+                  : <MessageSquare size={16} className="text-slate-400 flex-shrink-0" />
                 }
-                <div>
-                  <p className="text-sm font-bold text-white">{convName(activeConv)}</p>
-                  <p className="text-xs text-slate-600">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs md:text-sm font-bold text-white truncate">{convName(activeConv)}</p>
+                  <p className="text-[10px] md:text-xs text-slate-600">
                     {activeConv.type === 'channel'
                       ? `${activeConv.members?.length || 0} members`
                       : 'Direct Message'
@@ -992,12 +1087,12 @@ export default function Chat() {
                   </p>
                 </div>
                 {activeConv.type === 'channel' && (
-                  <div className="ml-auto flex items-center gap-3">
-                    <div className="flex items-center gap-1">
+                  <div className="ml-auto flex items-center gap-2 md:gap-3">
+                    <div className="hidden md:flex items-center gap-1">
                       <Users size={13} className="text-slate-600" />
                       <span className="text-xs text-slate-600">{activeConv.members?.length || 0}</span>
                     </div>
-                    <button onClick={() => setShowChannelSettings(true)} className="p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-white/5 transition-all" title="Pengaturan Channel">
+                    <button onClick={() => setShowChannelSettings(true)} className="p-1 md:p-1.5 text-slate-500 hover:text-white rounded-lg hover:bg-white/5 transition-all flex-shrink-0" title="Pengaturan Channel">
                       <Settings size={14} />
                     </button>
                   </div>
@@ -1006,13 +1101,13 @@ export default function Chat() {
               <MessageArea convId={activeConv.id} session={session} profileMap={profileMap} />
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-8">
-              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <MessageSquare size={28} className="text-blue-400" />
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-4 md:p-8">
+              <div className="w-12 md:w-16 h-12 md:h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <MessageSquare size={24} className="text-blue-400" />
               </div>
               <div>
-                <p className="text-base font-bold text-white mb-1">Pilih percakapan</p>
-                <p className="text-sm text-slate-500">Pilih channel atau DM dari sidebar, atau mulai percakapan baru.</p>
+                <p className="text-sm md:text-base font-bold text-white mb-1">Pilih percakapan</p>
+                <p className="text-xs md:text-sm text-slate-500">Pilih channel atau DM dari sidebar, atau mulai percakapan baru.</p>
               </div>
               <button onClick={() => setShowNewDM(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 transition-all">
