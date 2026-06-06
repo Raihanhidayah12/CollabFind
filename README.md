@@ -25,8 +25,7 @@
 
 **CollabFind** adalah platform kolaborasi inovatif yang dirancang untuk menghubungkan para profesional, developer, desainer, dan kreator dengan proyek-proyek menarik dan kolaborator yang tepat. ✨
 
-**[🌐 Demo Website](https://collabfind.vercel.app)** · 
-**[📖 Dokumentasi](https://docs.collabfind.app)** · 
+**[🌐 Demo Website](https://collab-find.vercel.app)** · 
 **[🐛 Laporkan Bug](https://github.com/username/collabfind/issues)**
 
 </div>
