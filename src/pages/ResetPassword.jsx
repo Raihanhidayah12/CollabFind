@@ -15,8 +15,10 @@ export default function ResetPassword() {
 
   // Supabase sends the token in the URL hash — we need to let it process
   useEffect(() => {
+    console.log('ResetPassword useEffect triggered');
     // Give Supabase time to parse the hash and set the session
-    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('onAuthStateChange event:', event, 'session:', session);
       if (event === 'PASSWORD_RECOVERY') {
         setReady(true);
       }
@@ -24,6 +26,7 @@ export default function ResetPassword() {
 
     // Also check if already in recovery session
     supabase.auth.getSession().then(({ data }) => {
+      console.log('getSession data:', data);
       if (data.session) setReady(true);
     });
 

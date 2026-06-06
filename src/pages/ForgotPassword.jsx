@@ -15,7 +15,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: 'https://collab-find.vercel.app/reset-password',
     });
 
     if (error) setError(error.message);
