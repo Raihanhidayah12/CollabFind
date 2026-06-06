@@ -193,89 +193,34 @@ export default function CreateProject() {
 // Process invited collaborators
       if (inviteEmails.trim()) {
         const emails = inviteEmails.split(',').map(e => e.trim()).filter(Boolean);
-        
+
         for (const email of emails) {
           // Lookup user by email in auth.users
           const { data: authUser } = await supabase.auth.admin.listUsers();
-          const matchedAuthUser = authUser?.users?.find(u => 
+          const matchedAuthUser = authUser?.users?.find(u =>
             u.email?.toLowerCase() === email.toLowerCase()
           );
-          
+
           if (matchedAuthUser) {
-            // User is registered - create DM and send invitation
+            // User is registered - send invitation notification
             const inviterUserId = user.id;
             const inviteeUserId = matchedAuthUser.id;
-            
-            // Check if DM already exists or create new one
-            let convId = null;
-            
-            // Get existing conversations for inviter
-            const { data: inviterConvs } = await supabase
-              .from('conversation_members')
-              .select('conversation_id')
-              .eq('user_id', inviterUserId);
-            
-            if (inviterConvs && inviterConvs.length > 0) {
-              const convIds = inviterConvs.map(c => c.conversation_id);
-              const { data: dmConvs } = await supabase
-                .from('conversations')
-                .select('id')
-                .eq('type', 'dm')
-                .in('id', convIds);
-              
-              if (dmConvs && dmConvs.length > 0) {
-                const { data: theirMemberships } = await supabase
-                  .from('conversation_members')
-                  .select('conversation_id')
-                  .eq('user_id', inviteeUserId)
-                  .in('conversation_id', dmConvs.map(d => d.id));
-                
-                convId = theirMemberships?.[0]?.conversation_id || null;
-              }
-            }
-            
-            // Create new DM if doesn't exist
-            if (!convId) {
-              convId = crypto.randomUUID();
-              await supabase.from('conversations').insert({ 
-                id: convId, 
-                type: 'dm', 
-                name: null 
-              });
-              await supabase.from('conversation_members').insert([
-                { conversation_id: convId, user_id: inviterUserId },
-                { conversation_id: convId, user_id: inviteeUserId }
-              ]);
-            }
-            
-            // Get inviter profile name
-            const { data: inviterProfile } = await supabase
-              .from('profiles')
-              .select('name')
-              .eq('id', inviterUserId)
-              .single();
-            
-            const inviterName = inviterProfile?.name || 'Someone';
-            
-            // Send invitation message
-            const inviteMsg = `Halo! ${inviterName} mengundang kamu untuk bergabung di proyek "${title}". Klik untuk lihat detail proyek atau hubungi langsung!`;
-            await supabase.from('messages').insert({
-              id: crypto.randomUUID(),
-              conversation_id: convId,
-              sender_id: inviterUserId,
-              type: 'text',
-              content: inviteMsg
-            });
-            
-            // Insert to project_collaborators with user_id (registered user)
-            await supabase.from('project_collaborators').insert({
+
+            // Insert invitation to invitations table
+            const { error: invitError } = await supabase.from('invitations').insert({
+              inviter_id: inviterUserId,
+              invitee_id: inviteeUserId,
               project_id: project.id,
-              email: email.toLowerCase(),
-              user_id: inviteeUserId,
               status: 'pending'
             });
+
+            if (invitError) {
+              console.error('Invitation error:', invitError);
+            } else {
+              console.log('Invitation sent to', email);
+            }
           } else {
-            // User not registered - insert with email only (status invited)
+            // User not registered - insert with email only
             await supabase.from('project_collaborators').insert({
               project_id: project.id,
               email: email.toLowerCase(),
@@ -319,7 +264,7 @@ export default function CreateProject() {
 
   // ── Main form ────────────────────────────────────────────
   return (
-    <div className="auth-page">
+    <div className="auth-page pt-16">
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Create Project' }]} homePath="/dashboard" />
       <div className="auth-bg" />
       <div className="auth-orb auth-orb-1" />

@@ -35,6 +35,7 @@ import Status from './pages/resources/Status.jsx'
 import ProductFeatures from './pages/ProductFeatures.jsx'
 import FindTeammates from './pages/FindTeammates.jsx'
 import PortfolioGeneratorLanding from './pages/PortfolioGeneratorLanding.jsx'
+import ProjectInvitation from './pages/ProjectInvitation.jsx'
 import { NotificationProvider } from './components/NotificationProvider.jsx'
 import ToastContainer from './components/ToastContainer.jsx'
 import { AuthProvider } from './components/AuthProvider.jsx'
@@ -58,6 +59,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/teammates" element={<FindTeammates />} />
             <Route path="/portfolio-generator" element={<PortfolioGeneratorLanding />} />
             <Route path="/project/:id" element={<ProjectDetail />} />
+            <Route path="/invite/:inviteId" element={<ProjectInvitation />} />
             <Route path="/create-project" element={<CreateProject />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />

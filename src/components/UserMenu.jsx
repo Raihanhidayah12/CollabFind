@@ -93,7 +93,7 @@ export default function UserMenu({ session }) {
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/[0.06] transition-all group"
+        className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-white/[0.06] transition-all group"
       >
         {/* Avatar */}
         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
@@ -119,7 +119,7 @@ export default function UserMenu({ session }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full right-0 mt-2 w-52 rounded-2xl border border-white/[0.1] bg-[#0d1224]/95 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)] overflow-hidden z-50"
+            className="absolute top-full right-0 mt-2 w-48 md:w-52 rounded-2xl border border-white/[0.1] bg-[#0d1224]/95 backdrop-blur-xl shadow-[0_16px_48px_rgba(0,0,0,0.6)] overflow-hidden z-[60]"
           >
             {/* User info */}
             <div className="px-4 py-3 border-b border-white/[0.06]">

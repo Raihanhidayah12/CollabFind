@@ -3,7 +3,8 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Hash, MessageSquare, Plus, Send, Code2, Paperclip,
+  // eslint-disable-next-line no-unused-vars
+  Hash, MessageSquare, Plus, Send, Code2, Paperclip, Image,
   // eslint-disable-next-line no-unused-vars
   X, ChevronRight, Loader2, Zap, Users, Search, ArrowLeft, UserPlus, Check, Pencil, Trash2, Settings, MoreVertical, Menu
 } from 'lucide-react';
@@ -240,19 +241,25 @@ function MessageArea({ convId, session, profileMap }) {
     const channel = supabase
       .channel(`active-chat:${convId}`)
       .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'messages',
+        event: 'INSERT', schema: 'public', table: 'messages',
         filter: `conversation_id=eq.${convId}`,
       }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setMessages(prev => {
-            if (prev.some(m => m.id === payload.new.id)) return prev;
-            return [...prev, payload.new];
-          });
-        } else if (payload.eventType === 'UPDATE') {
-          setMessages(prev => prev.map(m => m.id === payload.new.id ? payload.new : m));
-        } else if (payload.eventType === 'DELETE') {
-          setMessages(prev => prev.filter(m => m.id !== payload.old.id));
-        }
+        setMessages(prev => {
+          if (prev.some(m => m.id === payload.new.id)) return prev;
+          return [...prev, payload.new];
+        });
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'messages',
+        filter: `conversation_id=eq.${convId}`,
+      }, (payload) => {
+        setMessages(prev => prev.map(m => m.id === payload.new.id ? payload.new : m));
+      })
+      .on('postgres_changes', {
+        event: 'DELETE', schema: 'public', table: 'messages',
+        filter: `conversation_id=eq.${convId}`,
+      }, (payload) => {
+        setMessages(prev => prev.filter(m => m.id !== payload.old.id));
       })
       .subscribe();
     return () => supabase.removeChannel(channel);
@@ -842,19 +849,15 @@ export default function Chat() {
 
   /* ── Global Realtime Listener untuk Notifikasi ── */
   useEffect(() => {
-    if (!session || channels.length + dms.length === 0) return;
-    
-    // Subscribe ke semua messages (ideal-nya difilter lewat RLS atau in-filter, tapi pub-sub Supabase untuk public schema mendengarkan semua insert jika tidak difilter)
-    // Kita filter di client side untuk memastikan kita member.
-    const allConvIds = [...channels, ...dms].map(c => c.id);
-    
+    if (!session) return;
+
     const globalChannel = supabase
       .channel('global-notifications')
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'messages'
       }, (payload) => {
         const msg = payload.new;
-        // Hanya notif jika: bukan dari kita sendiri, kita adalah member, dan bukan di chat yang sedang aktif
+        const allConvIds = [...channels, ...dms].map(c => c.id);
         if (
           msg.sender_id !== session.user.id &&
           allConvIds.includes(msg.conversation_id) &&
@@ -863,21 +866,20 @@ export default function Chat() {
           const senderName = profileMap[msg.sender_id]?.name || 'Seseorang';
           const conv = channels.find(c => c.id === msg.conversation_id) || dms.find(d => d.id === msg.conversation_id);
           const convText = conv ? (conv.name || conv.otherUser?.name || 'Grup') : 'Grup';
-          
+
           setNotif({
             title: `${senderName} di ${convText}`,
             body: msg.type === 'text' ? msg.content : `Mengirim ${msg.type}`,
             conv: conv
           });
-          
-          // Auto hide notif
+
           setTimeout(() => setNotif(null), 4000);
         }
       })
       .subscribe();
-      
+
     return () => supabase.removeChannel(globalChannel);
-  }, [session, channels, dms, activeConv, profileMap]);
+  }, [session]);
 
   const convName = (conv) => {
     if (conv.type === 'channel') return conv.name || 'Channel';
@@ -894,7 +896,7 @@ export default function Chat() {
     <div className="h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Real-time Chat' }]} homePath="/dashboard" />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden pt-16">
         {/* Sidebar - Hidden on mobile, visible on md+ */}
         <aside className="hidden md:flex md:w-64 flex-shrink-0 border-r border-white/[0.06] bg-[#07091a] flex-col overflow-hidden">
           <div className="p-4 flex flex-col gap-4 overflow-y-auto flex-1">

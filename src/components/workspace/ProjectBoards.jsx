@@ -135,7 +135,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
 }
 
 // ── Task Card ────────────────────────────────────────────────
-function TaskCard({ task, teamMembers, onMove, onEdit, onDelete }) {
+function TaskCard({ task, teamMembers, onMove, onEdit, onDelete, readOnly = false, canEdit = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const assigneeName = teamMembers.find((m) => m.id === task.assignee_id)?.name || null;
   const pastDeadline = isPastDeadline(task.deadline);
@@ -171,12 +171,14 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete }) {
                 onMouseLeave={() => setMenuOpen(false)}
               >
                 <div className="p-1">
-                  <button
-                    onClick={() => { setMenuOpen(false); onEdit(task); }}
-                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
-                  >
-                    <Edit3 size={12} /> Edit Tugas
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => { setMenuOpen(false); onEdit(task); }}
+                      className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
+                    >
+                      <Edit3 size={12} /> Edit Tugas
+                    </button>
+                  )}
                   {otherCols.map((col) => (
                     <button
                       key={col.id}
@@ -187,18 +189,23 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete }) {
                       Pindah ke {col.label}
                     </button>
                   ))}
-                  <div className="h-px bg-white/[0.06] my-1" />
-                  <button
-                    onClick={() => { setMenuOpen(false); onDelete(task); }}
-                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
-                  >
-                    <Trash2 size={12} /> Hapus Tugas
-                  </button>
+                  {canEdit && (
+                    <>
+                      <div className="h-px bg-white/[0.06] my-1" />
+                      <button
+                        onClick={() => { setMenuOpen(false); onDelete(task); }}
+                        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+                      >
+                        <Trash2 size={12} /> Hapus Tugas
+                      </button>
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
+
       </div>
 
       {/* Meta */}
@@ -224,7 +231,7 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete }) {
 }
 
 // ── Kolom Kanban ─────────────────────────────────────────────
-function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, readOnly = false }) {
+function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, readOnly = false, canEdit = true }) {
   const [adding, setAdding]     = useState(false);
   const [saving, setSaving]     = useState(false);
 
@@ -274,6 +281,8 @@ function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMo
                 onMove={onMove}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                readOnly={readOnly}
+                canEdit={canEdit}
               />
             ))
           )}
@@ -386,7 +395,40 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // ── Tambah task ──────────────────────────────────────────
+  // ── Real-time subscription ───────────────────────────────
+  useEffect(() => {
+    if (!projectId) return;
+
+    const channel = supabase
+      .channel(`workspace_tasks_${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'workspace_tasks',
+          filter: `project_id=eq.${projectId}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setTasks((prev) => [...prev, payload.new]);
+          } else if (payload.eventType === 'UPDATE') {
+            setTasks((prev) =>
+              prev.map((t) => t.id === payload.new.id ? payload.new : t)
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [projectId]);
+
+
   async function handleAddTask(data) {
     const { data: newTask, error } = await supabase
       .from('workspace_tasks')
@@ -415,6 +457,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
 
     if (error) {
       setTasks(prevTasks);
+      console.error('Move error:', error);
       addToast('Gagal memperbarui status tugas. Silakan coba lagi.', 'error');
     }
   }
@@ -549,11 +592,12 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             teamMembers={teamMembers}
             sprints={sprints}
             selectedSprintId={selectedSprint?.id || null}
-            onMove={readOnly ? () => {} : handleMove}
-            onEdit={(task) => !readOnly && setEditingTask(task)}
-            onDelete={(task) => !readOnly && setConfirmDelete(task)}
+            onMove={handleMove}
+            onEdit={(task) => setEditingTask(task)}
+            onDelete={(task) => setConfirmDelete(task)}
             onAddTask={handleAddTask}
             readOnly={readOnly}
+            canEdit={isOwner}
           />
         ))}
       </div>

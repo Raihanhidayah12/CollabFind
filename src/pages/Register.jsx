@@ -57,6 +57,24 @@ export default function Register() {
         bio: 'Halo! Saya baru bergabung di CollabFind',
         role: 'user',
       }, { onConflict: 'id' });
+
+      // Match pending invitations by email
+      const emailLower = form.email.toLowerCase();
+      const { data: pendingInvites } = await supabase
+        .from('invitations')
+        .select('id')
+        .eq('invitee_email', emailLower)
+        .eq('status', 'pending')
+        .is('invitee_id', null);
+
+      if (pendingInvites && pendingInvites.length > 0) {
+        await supabase
+          .from('invitations')
+          .update({ invitee_id: data.user.id })
+          .eq('invitee_email', emailLower)
+          .eq('status', 'pending')
+          .is('invitee_id', null);
+      }
     }
 
     setDone(true);

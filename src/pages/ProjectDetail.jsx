@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Calendar, Zap, CheckCircle, Clock, XCircle, Trophy, AlertTriangle, Upload, X,
-  ExternalLink, FileText, UserCheck, UserX,
+  ExternalLink, FileText, UserCheck, UserX, UserPlus, Check,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
@@ -39,6 +39,14 @@ export default function ProjectDetail() {
   const [cvFile, setCvFile]         = useState(null);
   const [cvUploading, setCvUploading] = useState(false);
 
+  // Invite members
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Get session
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -52,6 +60,19 @@ export default function ProjectDetail() {
       setLoading(true);
       const { data: p } = await supabase.from('projects').select('*').eq('id', id).single();
       if (!p) { navigate('/explore'); return; }
+
+      // Check if slots are full and auto-update status
+      const remainingSlots = Math.max(0, (p.open_slots ?? 0) - ((p.current_members ?? 1) - 1));
+      if (remainingSlots <= 0 && p.status === 'open') {
+        const { error: updateError } = await supabase
+          .from('projects')
+          .update({ status: 'ongoing' })
+          .eq('id', id);
+        if (!updateError) {
+          p.status = 'ongoing';
+        }
+      }
+
       setProject(p);
 
       // Fetch creator profile
@@ -80,18 +101,33 @@ export default function ProjectDetail() {
       });
   }, [session]);
 
-  // Check if already applied
+  // Check if already applied or invited
   useEffect(() => {
     if (!session || !id) return;
-    supabase
-      .from('applications')
-      .select('id, status')
-      .eq('project_id', id)
-      .eq('applicant_id', session.user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) { setApplied(true); setAppStatus(data.status); }
-      });
+    async function checkStatus() {
+      const [appRes, invRes] = await Promise.all([
+        supabase
+          .from('applications')
+          .select('id, status')
+          .eq('project_id', id)
+          .eq('applicant_id', session.user.id)
+          .maybeSingle(),
+        supabase
+          .from('invitations')
+          .select('id, status')
+          .eq('project_id', id)
+          .eq('invitee_id', session.user.id)
+          .maybeSingle(),
+      ]);
+      if (appRes.data) {
+        setApplied(true);
+        setAppStatus(appRes.data.status);
+      } else if (invRes.data) {
+        setApplied(true);
+        setAppStatus(invRes.data.status);
+      }
+    }
+    checkStatus();
   }, [session, id]);
 
   // Load incoming applications for the project owner.
@@ -154,6 +190,13 @@ export default function ProjectDetail() {
 
     loadOwnerApplications();
   }, [session, project]);
+
+  // Load registered users when invite modal opens
+  useEffect(() => {
+    if (showInviteModal) {
+      loadRegisteredUsers();
+    }
+  }, [showInviteModal]);
 
   const handleApply = async () => {
     if (!session) { navigate('/login'); return; }
@@ -221,6 +264,79 @@ export default function ProjectDetail() {
     setMarkingDone(false);
   };
 
+  const loadRegisteredUsers = async () => {
+    try {
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, name, skills, avatar_url, job_title')
+        .neq('id', session?.user?.id);
+
+      if (error) throw error;
+      setRegisteredUsers(profiles || []);
+    } catch (err) {
+      console.error('Error loading users:', err);
+    }
+  };
+
+  const handleInvite = async () => {
+    if (selectedUsers.length === 0 || !session || !project) return;
+    setInviting(true);
+    setInviteError('');
+    let successCount = 0;
+    let duplicateCount = 0;
+
+    try {
+      for (const user of selectedUsers) {
+        try {
+          const { data: existing } = await supabase
+            .from('invitations')
+            .select('id')
+            .eq('project_id', project.id)
+            .eq('invitee_id', user.id)
+            .maybeSingle();
+
+          if (existing) {
+            duplicateCount++;
+            continue;
+          }
+
+          const { error: invitError } = await supabase.from('invitations').insert({
+            inviter_id: session.user.id,
+            invitee_id: user.id,
+            invitee_email: '', // Email not available from profiles
+            project_id: project.id,
+            status: 'pending'
+          });
+
+          if (invitError) {
+            console.error(`Invitation error for ${user.name}:`, invitError);
+            setInviteError(prev => prev + `\n❌ ${user.name}: ${invitError.message}`);
+          } else {
+            successCount++;
+          }
+        } catch (err) {
+          console.error(`Error inviting ${user.name}:`, err);
+          setInviteError(prev => prev + `\n❌ ${user.name}: ${err.message}`);
+        }
+      }
+
+      if (successCount > 0) {
+        setSelectedUsers([]);
+        setSearchQuery('');
+        setTimeout(() => setShowInviteModal(false), 1000);
+        const msg = `✅ ${successCount} invitation(s) sent successfully!${duplicateCount > 0 ? ` (${duplicateCount} already invited)` : ''}`;
+        alert(msg);
+      } else if (duplicateCount > 0) {
+        alert(`⚠️ All ${duplicateCount} users are already invited to this project.`);
+      }
+    } catch (err) {
+      console.error('Invite error:', err);
+      setInviteError(err.message);
+    }
+
+    setInviting(false);
+  };
+
   const handleReviewApplication = async (application, newStatus) => {
     if (!isOwner || application.status !== 'pending') return;
 
@@ -251,15 +367,29 @@ export default function ProjectDetail() {
 
     if (updatedApplication.status === 'accepted') {
       const nextMembers = (project.current_members ?? 1) + 1;
+      const remainingSlots = (project.open_slots ?? 0) - ((nextMembers) - 1);
+
+      // Check if slots are now full and auto-update status
+      const shouldUpdateStatus = remainingSlots <= 0 && project.status === 'open';
+
+      const updateData = { current_members: nextMembers };
+      if (shouldUpdateStatus) {
+        updateData.status = 'ongoing';
+      }
+
       const { error: memberUpdateError } = await supabase
         .from('projects')
-        .update({ current_members: nextMembers })
+        .update(updateData)
         .eq('id', project.id);
 
       if (memberUpdateError) {
         console.error('Failed to update member count:', memberUpdateError);
       } else {
-        setProject(prev => ({ ...prev, current_members: nextMembers }));
+        setProject(prev => ({
+          ...prev,
+          current_members: nextMembers,
+          ...(shouldUpdateStatus && { status: 'ongoing' })
+        }));
       }
     }
 
@@ -317,7 +447,7 @@ export default function ProjectDetail() {
                   <span className={`px-3 py-1 rounded-full text-xs font-bold border ${s.cls}`}>{s.label}</span>
                   <div className="flex items-center gap-1.5 text-slate-500 text-xs">
                     <Users size={13} />
-                    <span>{project.current_members ?? 1} members · {project.open_slots ?? 0} open slots</span>
+                    <span>{project.current_members ?? 1} members · {Math.max(0, (project.open_slots ?? 0) - ((project.current_members ?? 1) - 1))} slots left</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-slate-500 text-xs">
                     <Calendar size={13} />
@@ -346,8 +476,26 @@ export default function ProjectDetail() {
               </div>
             </motion.div>
 
-            {/* Apply form — only when status is 'open' */}
-            {!isOwner && project.status === 'open' && (
+            {/* Show when user has joined */}
+            {!isOwner && project.status === 'open' && appStatus === 'accepted' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 p-6"
+              >
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
+                  <CheckCircle size={18} />
+                  <div>
+                    <div className="font-semibold text-sm">You've Joined This Project</div>
+                    <div className="text-xs opacity-75 mt-0.5">Welcome to the team! Check back for updates.</div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Apply form — only when status is 'open' and user hasn't joined */}
+            {!isOwner && project.status === 'open' && appStatus !== 'accepted' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -360,6 +508,31 @@ export default function ProjectDetail() {
                 <p className="text-sm text-slate-500 mb-5">
                   Fill in your details to apply. The more complete, the better your chances.
                 </p>
+
+                {/* Slots display */}
+                {(() => {
+                  const remainingSlots = Math.max(0, (project.open_slots ?? 0) - ((project.current_members ?? 1) - 1));
+                  const isFull = remainingSlots <= 0;
+
+                  return (
+                    <div className={`p-4 rounded-xl mb-5 border flex items-center justify-between ${
+                      isFull
+                        ? 'bg-red-500/10 border-red-500/30'
+                        : 'bg-blue-500/10 border-blue-500/30'
+                    }`}>
+                      <div className={isFull ? 'text-red-300' : 'text-blue-300'}>
+                        <div className="text-xs font-bold uppercase">{isFull ? 'Slots Full' : 'Slots Available'}</div>
+                        <div className="text-sm font-semibold">{isFull ? 'No spots left' : `${remainingSlots} slot${remainingSlots === 1 ? '' : 's'} remaining`}</div>
+                      </div>
+                      {!isFull && (
+                        <div className="text-right">
+                          <div className="text-xs text-slate-400">Current Members</div>
+                          <div className="text-lg font-bold text-white">{project.current_members ?? 1}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {applied ? (
                   <div className={`flex items-center gap-3 p-4 rounded-xl border ${
@@ -591,7 +764,7 @@ export default function ProjectDetail() {
               <div className="flex flex-col gap-3">
                 {[
                   { label: 'Current Members', value: project.current_members ?? 1 },
-                  { label: 'Open Slots',       value: project.open_slots ?? 0 },
+                  { label: 'Remaining Slots', value: Math.max(0, (project.open_slots ?? 0) - ((project.current_members ?? 1) - 1)) },
                   { label: 'Status',           value: s.label },
                 ].map(stat => (
                   <div key={stat.label} className="flex items-center justify-between">
@@ -612,6 +785,13 @@ export default function ProjectDetail() {
               >
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Owner Actions</p>
                 <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setShowInviteModal(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-purple-300 border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all"
+                  >
+                    <UserPlus size={14} />
+                    Invite Members
+                  </button>
                   {project.status === 'open' && (
                     <button
                       onClick={() => handleMarkStatus('ongoing')}
@@ -769,6 +949,161 @@ export default function ProjectDetail() {
           </div>
         </div>
       </div>
+
+      {/* Invite Members Modal */}
+      <AnimatePresence>
+        {showInviteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowInviteModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 16 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 16 }}
+              className="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[#0d1224]/95 backdrop-blur-xl p-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white">Invite Members</h2>
+                <button
+                  onClick={() => setShowInviteModal(false)}
+                  className="text-slate-500 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs text-slate-400 block mb-2">Search and select members</label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search by name or skills..."
+                  className="w-full bg-white/[0.04] border border-white/[0.09] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 outline-none focus:border-blue-500/50 transition-all"
+                />
+              </div>
+
+              <div className="mb-4 max-h-[300px] overflow-y-auto border border-white/[0.09] rounded-xl p-3 bg-white/[0.02]">
+                {registeredUsers
+                  .filter(u => {
+                    const q = searchQuery.toLowerCase();
+                    return u.name?.toLowerCase().includes(q) ||
+                           u.skills?.some(s => s.toLowerCase().includes(q));
+                  })
+                  .length === 0 ? (
+                  <p className="text-xs text-slate-500 text-center py-4">No users found</p>
+                ) : (
+                  registeredUsers
+                    .filter(u => {
+                      const q = searchQuery.toLowerCase();
+                      return u.name?.toLowerCase().includes(q) ||
+                             u.skills?.some(s => s.toLowerCase().includes(q));
+                    })
+                    .map(user => {
+                      const isSelected = selectedUsers.some(s => s.id === user.id);
+                      return (
+                        <button
+                          key={user.id}
+                          onClick={() => {
+                            setSelectedUsers(prev =>
+                              isSelected
+                                ? prev.filter(u => u.id !== user.id)
+                                : [...prev, user]
+                            );
+                          }}
+                          className={`w-full text-left px-3 py-3 rounded-lg text-sm mb-2 transition-all border ${
+                            isSelected
+                              ? 'bg-blue-500/20 border-blue-500/50'
+                              : 'bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.06]'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2">
+                            <div className={`w-4 h-4 rounded border mt-0.5 flex-shrink-0 ${
+                              isSelected ? 'bg-blue-500 border-blue-500' : 'border-white/30'
+                            } flex items-center justify-center`}>
+                              {isSelected && <Check size={12} className="text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-white">{user.name || 'Anonymous'}</span>
+                                {user.job_title && <span className="text-xs text-slate-500">{user.job_title}</span>}
+                              </div>
+                              {user.skills && user.skills.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {user.skills.slice(0, 3).map(skill => (
+                                    <span key={skill} className="text-[10px] px-2 py-0.5 rounded bg-blue-500/15 border border-blue-500/25 text-blue-300">
+                                      {skill}
+                                    </span>
+                                  ))}
+                                  {user.skills.length > 3 && <span className="text-[10px] text-slate-500">+{user.skills.length - 3}</span>}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                )}
+              </div>
+
+              {selectedUsers.length > 0 && (
+                <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                  <p className="text-xs text-blue-300 font-semibold">
+                    {selectedUsers.length} user(s) selected
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedUsers.map(user => (
+                      <div
+                        key={user.id}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-xs text-blue-300"
+                      >
+                        {user.name || 'Anonymous'}
+                        <button
+                          onClick={() => setSelectedUsers(prev => prev.filter(u => u.id !== user.id))}
+                          className="hover:text-blue-200"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {inviteError && (
+                <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300 whitespace-pre-wrap">
+                  {inviteError}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setShowInviteModal(false);
+                    setSelectedUsers([]);
+                    setSearchQuery('');
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-400 border border-white/[0.1] hover:bg-white/[0.05] transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleInvite}
+                  disabled={selectedUsers.length === 0 || inviting}
+                  className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 disabled:opacity-50 transition-all"
+                >
+                  {inviting ? 'Sending...' : `Send Invites (${selectedUsers.length})`}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

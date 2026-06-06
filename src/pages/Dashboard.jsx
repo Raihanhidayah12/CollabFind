@@ -220,9 +220,6 @@ function MyWorkspaces({ projects }) {
             </h2>
             <p className="text-sm text-slate-500 mt-0.5">Proyek yang kamu buat — klik untuk buka workspace tim</p>
           </div>
-          <Link to="/dashboard" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
-            Lihat semua →
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -961,6 +958,7 @@ export default function Dashboard() {
         collabsRes,
         { data: allProj },
         { data: allProfs },
+        { data: invitations },
       ] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', uid).single(),
         supabase.from('projects').select('*').eq('creator_id', uid).order('created_at', { ascending: false }),
@@ -969,14 +967,24 @@ export default function Dashboard() {
         supabase.from('profiles').select('id, name, bio, skills, job_title, avatar_url').order('created_at', { ascending: false }).limit(6),
         supabase.from('projects').select('*').neq('creator_id', uid).eq('status', 'open'),
         supabase.from('profiles').select('id, name, bio, skills, job_title, avatar_url').neq('id', uid).order('created_at', { ascending: false }).limit(24),
+        supabase.from('invitations').select('*, projects(*)').eq('invitee_id', uid).eq('status', 'accepted'),
       ]);
 
       if (prof)    setProfile(prof);
-      if (proj)    setMyProjects(proj);
       if (apps)    setApplications(apps);
       if (feat)    setFeatured(feat);
       if (allProfs) setAllProfiles(allProfs);
-      
+
+      // Merge own projects with accepted invitations
+      let allMyProjects = proj || [];
+      if (invitations && invitations.length > 0) {
+        const invitedProjects = invitations
+          .map(inv => inv.projects)
+          .filter(p => p && !allMyProjects.some(mp => mp.id === p.id));
+        allMyProjects = [...allMyProjects, ...invitedProjects];
+      }
+      setMyProjects(allMyProjects);
+
       let collabs = collabsRes?.data || [];
       if (collabs.length > 0) {
         const collabIds = collabs.map(c => c.id);
@@ -984,7 +992,7 @@ export default function Dashboard() {
           .from('user_ratings')
           .select('ratee_id, score')
           .in('ratee_id', collabIds);
-          
+
         if (ratingsData) {
           collabs.forEach(c => {
             const userRatings = ratingsData.filter(r => r.ratee_id === c.id);

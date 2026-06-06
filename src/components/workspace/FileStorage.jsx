@@ -180,6 +180,31 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
 
   useEffect(() => { fetchFiles(); }, [fetchFiles]);
 
+  // ── Real-time subscription ───────────────────────────────
+  useEffect(() => {
+    if (!projectId) return;
+
+    const subscription = supabase
+      .channel(`workspace_files:project_id=eq.${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'workspace_files',
+          filter: `project_id=eq.${projectId}`,
+        },
+        () => {
+          fetchFiles();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [projectId]);
+
   // ── Validasi file ────────────────────────────────────────
   function validateFile(file) {
     const ext = getExt(file.name);

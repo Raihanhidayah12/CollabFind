@@ -276,7 +276,7 @@ playNotificationSound();
             title: `${inviterName} invited you`,
             message: `You have been invited to join "${project?.title || 'a project'}"`,
             time: invite.created_at,
-            link: `/project/${invite.project_id}`,
+            link: `/invite/${invite.id}`,
             isUnread: true
           };
 

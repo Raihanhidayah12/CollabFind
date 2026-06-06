@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Zap, FolderOpen, BookOpen, LayoutDashboard,
-  ArrowLeft, Users, Lock, Archive, Star,
+  ArrowLeft, Users, Lock,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
@@ -49,7 +49,7 @@ export default function Workspace() {
     async function verifyAccess() {
       const uid = session.user.id;
 
-      const [{ data: proj }, { data: app }] = await Promise.all([
+      const [{ data: proj }, { data: app }, { data: invited }] = await Promise.all([
         supabase
           .from('projects')
           .select('id, title, accent_color, creator_id, status')
@@ -62,6 +62,13 @@ export default function Workspace() {
           .eq('applicant_id', uid)
           .eq('status', 'accepted')
           .maybeSingle(),
+        supabase
+          .from('invitations')
+          .select('id')
+          .eq('project_id', projectId)
+          .eq('invitee_id', uid)
+          .eq('status', 'accepted')
+          .maybeSingle(),
       ]);
 
       if (!proj) {
@@ -70,7 +77,13 @@ export default function Workspace() {
       }
 
       const isOwner       = proj.creator_id === uid;
-      const isCollaborator = !!app;
+      const isCollaborator = !!app || !!invited;
+
+      // Deny non-owner access to completed projects
+      if (proj.status === 'completed' && !isOwner) {
+        setAccess(false);
+        return;
+      }
 
       setProject(proj);
       setIsOwner(isOwner);
@@ -108,7 +121,9 @@ export default function Workspace() {
             Akses Ditolak
           </h1>
           <p className="text-sm text-slate-400 mb-6 leading-relaxed">
-            Kamu tidak memiliki akses ke workspace ini. Hanya Project Owner dan Collaborator yang diterima yang dapat masuk.
+            {project?.status === 'completed'
+              ? 'Proyek ini telah selesai oleh owner dan workspace tidak lagi dapat diakses oleh anggota tim.'
+              : 'Kamu tidak memiliki akses ke workspace ini. Hanya Project Owner dan Collaborator yang diterima yang dapat masuk.'}
           </p>
           <Link
             to="/dashboard"
@@ -123,8 +138,6 @@ export default function Workspace() {
 
   // ── Main workspace ────────────────────────────────────────
   const accentColor = project?.accent_color || '#3B82F6';
-  const isCompleted = project?.status === 'completed';
-  const isReadOnly  = isCompleted && !isOwner; // collaborators get read-only when completed
 
   return (
     <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
@@ -137,39 +150,6 @@ export default function Workspace() {
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Workspace' }]} homePath="/dashboard" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-16">
-
-        {/* Completed read-only banner */}
-        {isCompleted && (
-          <div className={`mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4 rounded-2xl border ${
-            isReadOnly
-              ? 'bg-slate-500/10 border-slate-500/20'
-              : 'bg-emerald-500/10 border-emerald-500/20'
-          }`}>
-            <div className="flex items-center gap-3">
-              <Archive size={18} className={`flex-shrink-0 ${isReadOnly ? 'text-slate-400' : 'text-emerald-400'}`} />
-              <div>
-                <p className={`text-sm font-bold ${isReadOnly ? 'text-slate-300' : 'text-emerald-300'}`}>
-                  Project Completed
-                </p>
-                <p className={`text-xs mt-0.5 ${isReadOnly ? 'text-slate-400' : 'text-emerald-400/80'}`}>
-                  {isReadOnly
-                    ? 'The workspace is now read-only for collaborators.'
-                    : 'As the owner, you still have full access.'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowRateModal(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all w-full sm:w-auto"
-              style={{
-                background: isReadOnly ? 'linear-gradient(135deg, #475569, #64748b)' : 'linear-gradient(135deg, #059669, #10b981)',
-                boxShadow: isReadOnly ? '0 0 16px rgba(71, 85, 105, 0.3)' : '0 0 16px rgba(16, 185, 129, 0.3)',
-              }}
-            >
-              <Star size={14} className="fill-white/80" /> Rate Team
-            </button>
-          </div>
-        )}
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
@@ -226,13 +206,13 @@ export default function Workspace() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === 'files' && (
-            <FileStorage projectId={projectId} session={session} addToast={addToast} readOnly={isReadOnly} />
+            <FileStorage projectId={projectId} session={session} addToast={addToast} readOnly={false} />
           )}
           {activeTab === 'wiki' && (
-            <Wiki projectId={projectId} session={session} addToast={addToast} readOnly={isReadOnly} />
+            <Wiki projectId={projectId} session={session} addToast={addToast} />
           )}
           {activeTab === 'boards' && (
-            <ProjectBoards projectId={projectId} session={session} addToast={addToast} readOnly={isReadOnly} />
+            <ProjectBoards projectId={projectId} session={session} addToast={addToast} readOnly={!isOwner} />
           )}
         </motion.div>
       </div>
