@@ -3,10 +3,11 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Calendar, Zap, CheckCircle, Clock, XCircle, Trophy, AlertTriangle, Upload, X,
-  ExternalLink, FileText, UserCheck, UserX, UserPlus, Check,
+  ExternalLink, FileText, UserCheck, UserX, UserPlus, Check, Star,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
+import RateTeammatesModal from '../components/workspace/RateTeammatesModal';
 
 const STATUS_STYLE = {
   open:      { label: 'Recruiting',  cls: 'text-green-400 bg-green-400/10 border-green-400/20' },
@@ -47,6 +48,11 @@ export default function ProjectDetail() {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Rate teammates
+  const [showRateModal, setShowRateModal] = useState(false);
+  const [collaborators, setCollaborators] = useState([]);
+  const [collaboratorsLoading, setCollaboratorsLoading] = useState(false);
+
   // Get session
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -85,6 +91,57 @@ export default function ProjectDetail() {
     }
     load();
   }, [id, navigate]);
+
+  // Fetch collaborators (accepted applicants + accepted invitations)
+  // Depends on session so RLS can authorize the applications query
+  useEffect(() => {
+    if (!project?.id || !session) return;
+
+    async function fetchCollaborators() {
+      try {
+        setCollaboratorsLoading(true);
+
+        // 1. Fetch accepted applicants (RLS requires authenticated user)
+        const { data: apps, error: appsErr } = await supabase
+          .from('applications')
+          .select('applicant_id')
+          .eq('project_id', project.id)
+          .eq('status', 'accepted');
+
+        if (appsErr) console.warn('fetchCollaborators apps error:', appsErr);
+
+        // 2. Fetch accepted invitations only
+        const { data: invites, error: invitesErr } = await supabase
+          .from('invitations')
+          .select('invitee_id')
+          .eq('project_id', project.id)
+          .eq('status', 'accepted');
+
+        if (invitesErr) console.warn('fetchCollaborators invites error:', invitesErr);
+
+        const applicantIds = (apps || []).map(a => a.applicant_id).filter(Boolean);
+        const inviteeIds   = (invites || []).map(i => i.invitee_id).filter(Boolean);
+        const allIds       = [...new Set([...applicantIds, ...inviteeIds])];
+
+        if (allIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name, avatar_url, job_title')
+            .in('id', allIds);
+
+          setCollaborators(profiles || []);
+        } else {
+          setCollaborators([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch collaborators:', err);
+      } finally {
+        setCollaboratorsLoading(false);
+      }
+    }
+
+    fetchCollaborators();
+  }, [project?.id, session]);
 
   // Auto-fill portfolio URL from user_portfolios
   useEffect(() => {
@@ -258,6 +315,9 @@ export default function ProjectDetail() {
       .eq('id', id);
     if (!error) {
       setProject(prev => ({ ...prev, status: newStatus }));
+      if (newStatus === 'completed') {
+        setShowRateModal(true);
+      }
     } else {
       alert('Failed to update status: ' + error.message);
     }
@@ -817,6 +877,62 @@ export default function ProjectDetail() {
               </motion.div>
             )}
 
+            {/* Project Collaborators - shown for all statuses if logged in */}
+            {session && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.18 }}
+                className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 p-5"
+              >
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Collaborators</p>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20">
+                    {collaborators.length}
+                  </span>
+                </div>
+
+                {collaboratorsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                  </div>
+                ) : collaborators.length === 0 ? (
+                  <p className="text-sm text-slate-500">No collaborators yet.</p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {collaborators.map(collab => (
+                      <div key={collab.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/[0.04] transition-colors">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-slate-700 flex-shrink-0">
+                          {collab.avatar_url ? (
+                            <img src={collab.avatar_url} alt={collab.name} className="w-full h-full object-cover" />
+                          ) : (
+                            (collab.name || 'C')[0].toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-white truncate">{collab.name || 'Anonymous'}</p>
+                          {collab.job_title && (
+                            <p className="text-[10px] text-slate-500 truncate">{collab.job_title}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Rate button — shown for ALL members when project is completed */}
+                {project.status === 'completed' && (
+                  <button
+                    onClick={() => setShowRateModal(true)}
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-yellow-300 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 transition-all"
+                  >
+                    <Star size={14} />
+                    {isOwner ? 'Rate Collaborators' : 'Rate Teammates'}
+                  </button>
+                )}
+              </motion.div>
+            )}
+
             {/* Incoming Applications */}
             {isOwner && (
               <motion.div
@@ -1102,6 +1218,15 @@ export default function ProjectDetail() {
               </div>
             </motion.div>
           </motion.div>
+        )}
+
+        {/* Rate Teammates Modal */}
+        {showRateModal && session && project && (
+          <RateTeammatesModal
+            project={project}
+            session={session}
+            onClose={() => setShowRateModal(false)}
+          />
         )}
       </AnimatePresence>
     </div>
