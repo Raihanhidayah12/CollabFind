@@ -14,6 +14,7 @@ import Features from '../components/landing/Features';
 import TrustedBy from '../components/landing/TrustedBy';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
+import RatePlatform from '../components/RatePlatform';
 
 /* ── helpers ─────────────────────────────────────────────── */
 const STATUS_STYLE = {
@@ -1193,8 +1194,17 @@ export default function Dashboard() {
       {/* Top Collaborators */}
       {collaborators.length > 0 && <TopCollaborators collaborators={collaborators} />}
 
-      {/* Find Teammates Preview */}
+{/* Find Teammates Preview */}
       {allProfiles.length > 0 && <FindTeammatesPreview allProfiles={allProfiles} session={session} myProjects={myProjects} />}
+
+      {/* Rate Platform Section - for collecting user testimonials and ratings */}
+      <section className="py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-xl mx-auto">
+            <RatePlatform session={session} />
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

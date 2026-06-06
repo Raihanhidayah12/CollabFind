@@ -24,12 +24,7 @@ function SkeletonCard() {
 }
 
 const fallbackTestimonials = [
-  { id: '1', name: 'Alex Johnson', role: 'Software Engineer', quote: 'CollabFind helped me find the perfect team for my side project. The talent here is unmatched!', avatar_initial: 'A', accent_color: '#3b82f6', stars: 5 },
-  { id: '2', name: 'Sarah Lee', role: 'Product Designer', quote: 'I was able to collaborate with developers from across the globe and build an amazing portfolio piece.', avatar_initial: 'S', accent_color: '#ec4899', stars: 5 },
-  { id: '3', name: 'Michael Chen', role: 'Full Stack Developer', quote: 'The project matching system is incredibly accurate. Found a team building exactly what I wanted to learn.', avatar_initial: 'M', accent_color: '#10b981', stars: 5 },
-  { id: '4', name: 'Emily Davis', role: 'UI/UX Designer', quote: 'As a designer, it\'s always hard to find developers to bring my ideas to life. CollabFind solved that for me.', avatar_initial: 'E', accent_color: '#f59e0b', stars: 5 },
-  { id: '5', name: 'David Kim', role: 'Backend Developer', quote: 'Built a real-time chat application with a team I met here. We even launched it on Product Hunt!', avatar_initial: 'D', accent_color: '#8b5cf6', stars: 5 },
-  { id: '6', name: 'Jessica Wilson', role: 'Frontend Developer', quote: 'The community is supportive and the platform is so easy to use. Highly recommend for any builder.', avatar_initial: 'J', accent_color: '#ef4444', stars: 5 }
+
 ];
 
 export default function Testimonials() {
