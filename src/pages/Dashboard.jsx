@@ -6,7 +6,6 @@ import {
   Zap, Bell,
   Users, FolderOpen, CheckCircle, Clock, ArrowRight,
   Plus, Sparkles, TrendingUp, Star, ExternalLink,
-  // eslint-disable-next-line no-unused-vars
   MessageSquare, Loader2, UserPlus, Search,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
@@ -333,7 +332,7 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
 
   const hasSkills = userSkills && userSkills.length > 0;
 
-  async function handleInvite(user) {
+async function handleInvite(user) {
     if (invitingId) return;
     setInvitingId(user.id);
     
@@ -375,10 +374,10 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
       ]);
     }
 
-    // Insert pre-filled message
+    // Insert pre-filled message (INVITATION)
     const msgId = crypto.randomUUID();
     const projName = myProjects[0]?.title || 'Proyek';
-    const content = `Halo! Saya melihat profilmu sangat cocok dengan proyek ${projName} saya. Apakah kamu tertarik untuk mengobrol lebih lanjut?`;
+    const content = `INVITE:${projName}:Halo! Saya melihat profilmu sangat cocok dengan proyek ${projName} saya. Apakah kamu tertarik untuk mengobrol lebih lanjut?`;
     
     await supabase.from('messages').insert({
       id: msgId,
@@ -389,6 +388,28 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
     });
 
     navigate(`/dashboard/chat?conv=${convId}`);
+  }
+
+  async function handleAcceptInvite(inviteId, projectId) {
+    // Update invitation status to accepted
+    await supabase
+      .from('invitations')
+      .update({ status: 'accepted', updated_at: new Date().toISOString() })
+      .eq('id', inviteId);
+    
+    // Navigate to workspace
+    navigate(`/dashboard/workspace/${projectId}`);
+  }
+
+  async function handleDeclineInvite(inviteId) {
+    // Update invitation status to declined
+    await supabase
+      .from('invitations')
+      .update({ status: 'declined', updated_at: new Date().toISOString() })
+      .eq('id', inviteId);
+    
+    // Remove from recommendations (reload page or update state)
+    window.location.reload();
   }
 
   return (
@@ -494,7 +515,7 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
               )
             )}
 
-            {activeTab === 'teammates' && (
+{activeTab === 'teammates' && (
               myProjects.length === 0 ? (
                 <div className="col-span-full p-8 rounded-2xl border border-white/[0.08] bg-[#0a0f1e]/80 text-center flex flex-col items-center">
                   <div className="w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-4">
@@ -514,6 +535,9 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
                   const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
                   const scoreColor = u.matchScore >= 80 ? '#00FFC2' : u.matchScore >= 50 ? '#F59E0B' : '#94A3B8';
                   
+                  // Check if this is an invitation received
+                  const isInvitedMe = u.invitedMe === true;
+                  
                   return (
                     <motion.div key={u.id}
                       initial={{ opacity: 0, y: 24 }}
@@ -524,7 +548,7 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
                     >
                       <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border"
                         style={{ color: scoreColor, background: `${scoreColor}15`, borderColor: `${scoreColor}40` }}>
-                        ✦ {u.matchScore}% Match
+                        {isInvitedMe ? '👤 Undangan' : `✦ ${u.matchScore}% Match`}
                       </div>
                       
                       <div className="flex items-center gap-3 mb-4">
@@ -539,6 +563,9 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
                         <div>
                           <p className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">{u.name}</p>
                           <p className="text-xs text-slate-500">{u.job_title || 'Member'}</p>
+                          {isInvitedMe && u.inviteProjectTitle && (
+                            <p className="text-xs text-purple-400 mt-1">Proyek: {u.inviteProjectTitle}</p>
+                          )}
                         </div>
                       </div>
                       
@@ -548,13 +575,36 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
                         ))}
                       </div>
 
-                      <button 
-                        onClick={() => handleInvite(u)}
-                        disabled={invitingId === u.id}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-500/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-600 transition-all disabled:opacity-50">
-                        {invitingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <MessageSquare size={12} />}
-                        Invite to Project
-                      </button>
+                      {isInvitedMe && u.inviteId ? (
+                        <div className="flex gap-2">
+                          <Link 
+                            to={`/dashboard/workspace/${u.inviteProjectId}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleAcceptInvite(u.inviteId, u.inviteProjectId);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white bg-green-500/80 hover:bg-green-500 transition-all"
+                          >
+                            <ExternalLink size={12} />
+                            Join Workspace
+                          </Link>
+                          <button 
+                            onClick={() => handleDeclineInvite(u.inviteId)}
+                            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 transition-all"
+                          >
+                            Tolak
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleInvite(u)}
+                          disabled={invitingId === u.id}
+                          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-500/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-600 transition-all disabled:opacity-50"
+                        >
+                          {invitingId === u.id ? <Loader2 size={12} className="animate-spin" /> : <MessageSquare size={12} />}
+                          Invite to Project
+                        </button>
+                      )}
                     </motion.div>
                   );
                 })
@@ -967,7 +1017,43 @@ export default function Dashboard() {
         setRecommendations(scored);
       }
 
-      // Teammate Recommendations for My Projects
+// Teammate Recommendations for My Projects
+      // First, load pending invitations I received
+      const { data: pendingInvites } = await supabase
+        .from('invitations')
+        .select('id, inviter_id, project_id')
+        .eq('invitee_id', uid)
+        .eq('status', 'pending');
+      
+      const inviteesFromMyProjects = [];
+      if (pendingInvites && pendingInvites.length > 0) {
+        // Get details of users who invited me and their project details
+        for (const inv of pendingInvites) {
+          const [{ data: inviter }, { data: project }] = await Promise.all([
+            supabase
+              .from('profiles')
+              .select('id, name, job_title, skills, avatar_url')
+              .eq('id', inv.inviter_id)
+              .single(),
+            supabase
+              .from('projects')
+              .select('title')
+              .eq('id', inv.project_id)
+              .single()
+          ]);
+          
+          if (inviter) {
+            inviteesFromMyProjects.push({
+              ...inviter,
+              invitedMe: true,
+              inviteProjectTitle: project?.title,
+              inviteProjectId: inv.project_id,
+              inviteId: inv.id
+            });
+          }
+        }
+      }
+
       if (proj && proj.length > 0) {
         // Collect all skills needed across my projects
         const myProjectSkills = new Set();
@@ -994,8 +1080,13 @@ export default function Dashboard() {
               .filter(u => u.matchScore > 0)
               .sort((a, b) => b.matchScore - a.matchScore)
               .slice(0, 6);
-            setTeammateRecommendations(scoredUsers);
+            
+            // Combine invited users with recommendations (put invited users first)
+            const combined = [...inviteesFromMyProjects, ...scoredUsers];
+            setTeammateRecommendations(combined);
           }
+        } else {
+          setTeammateRecommendations(inviteesFromMyProjects);
         }
       }
 

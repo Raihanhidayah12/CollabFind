@@ -5,6 +5,7 @@ import { Search, Menu, X, Zap, Plus } from 'lucide-react';
 import UserMenu from '../UserMenu';
 import NotificationMenu from '../NotificationMenu';
 import { useAuth } from '../AuthProvider';
+import SearchModal from './SearchModal';
 
 
 const navLinks = [
@@ -18,6 +19,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   // Use shared auth context - already initialized from localStorage
   const { session } = useAuth();
 
@@ -104,7 +106,8 @@ export default function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
 
-            <button
+<button
+              onClick={() => setSearchOpen(true)}
               className="
                 p-2.5
                 text-slate-400
@@ -340,7 +343,10 @@ className="
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+</AnimatePresence>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </motion.nav>
   );
 }

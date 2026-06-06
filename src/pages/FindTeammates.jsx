@@ -107,13 +107,21 @@ export default function FindTeammates() {
       ]);
     }
 
-    await supabase.from('messages').insert({
+await supabase.from('messages').insert({
       id: crypto.randomUUID(),
       conversation_id: convId,
       sender_id: session.user.id,
       type: 'text',
       content: `Halo ${firstName(profile.name)}! Saya tertarik mengajak kamu ngobrol soal proyek ${myProjects[0].title}.`,
     });
+
+    // Create project invitation for the invited user
+    await supabase.from('invitations').upsert({
+      project_id: myProjects[0].id,
+      inviter_id: session.user.id,
+      invitee_id: profile.id,
+      status: 'pending'
+    }, { onConflict: 'project_id,invitee_id' });
 
     setInvitingId(null);
     navigate(`/dashboard/chat?conv=${convId}`);

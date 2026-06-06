@@ -128,7 +128,7 @@ console.log('Chat notification handled by NotificationMenu');
       )
       .subscribe();
 
-    // ========== NEW APPLICATIONS TO MY PROJECTS ==========
+// ========== NEW APPLICATIONS TO MY PROJECTS ==========
     const incomingAppsSub = supabase
       .channel(`incoming-apps-${uid}`)
       .on(
@@ -171,7 +171,53 @@ console.log('Chat notification handled by NotificationMenu');
       )
       .subscribe();
 
-    channelsRef.current = [chatSub, appStatusSub, incomingAppsSub];
+    // ========== NEW INVITATIONS TO ME (Someone invited me to their project) ==========
+    const incomingInvitesSub = supabase
+      .channel(`incoming-invites-${uid}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'invitations',
+          filter: `invitee_id=eq.${uid}`,
+        },
+        async (payload) => {
+          const invite = payload.new;
+          if (invite.status !== 'pending') return;
+
+          // Get inviter info
+          const { data: inviter } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', invite.inviter_id)
+            .single();
+
+          // Get project info
+          const { data: project } = await supabase
+            .from('projects')
+            .select('title')
+            .eq('id', invite.project_id)
+            .single();
+
+          const inviterName = inviter?.name || 'Someone';
+          const projectTitle = project?.title || 'a project';
+
+          console.log('🎉 Showing toast for new invitation');
+          addToast({
+            type: 'invite',
+            title: `Team Invitation!`,
+            message: `${inviterName} invited you to join "${projectTitle}"`,
+            link: `/dashboard`,
+            autoClose: 10000
+          });
+
+          playSound();
+        }
+      )
+      .subscribe();
+
+    channelsRef.current = [chatSub, appStatusSub, incomingAppsSub, incomingInvitesSub];
     console.log('✅ All subscriptions set up');
 
     // Cleanup function

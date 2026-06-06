@@ -244,9 +244,66 @@ playNotificationSound();
         console.log('APP STATUS:', status);
       });
 
+// ==========================
+    // NEW INVITATIONS (when I receive an invitation to join a project)
+    // ==========================
+    const inviteChannel = supabase
+      .channel(`invitations-${uid}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'invitations',
+          filter: `invitee_id=eq.${uid}`
+        },
+        async (payload) => {
+          const invite = payload.new;
+
+          // Get inviter's name
+          const inviterName = await getProfileName(invite.inviter_id);
+          
+          // Get project title
+          const { data: project } = await supabase
+            .from('projects')
+            .select('title')
+            .eq('id', invite.project_id)
+            .single();
+
+          const notification = {
+            id: `invite-${invite.id}`,
+            type: 'invite',
+            title: `${inviterName} invited you`,
+            message: `You have been invited to join "${project?.title || 'a project'}"`,
+            time: invite.created_at,
+            link: `/project/${invite.project_id}`,
+            isUnread: true
+          };
+
+          setNotifications((prev) => [
+            notification,
+            ...prev
+          ].slice(0, 20));
+
+          setUnreadCount((prev) => prev + 1);
+
+          // Show toast
+          addToast({
+            type: 'info',
+            title: notification.title,
+            message: notification.message,
+            link: notification.link
+          });
+
+          playNotificationSound();
+        }
+      )
+      .subscribe();
+
     notificationChannels.current = [
       chatChannel,
-      appChannel
+      appChannel,
+      inviteChannel
     ];
   }, [
     session,
@@ -448,11 +505,19 @@ playNotificationSound();
                         />
                       )}
 
-                      {notif.type ===
+{notif.type ===
                         'info' && (
                         <Info
                           size={18}
                           className="text-blue-400"
+                        />
+                      )}
+
+                      {notif.type ===
+                        'invite' && (
+                        <MessageCircle
+                          size={18}
+                          className="text-purple-400"
                         />
                       )}
                     </div>
