@@ -190,12 +190,6 @@ Baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
 
 ---
 
-## 📸 Preview
-
-| Landing Page | Dashboard | Workspace |
-|:---:|:---:|:---:|
-| ![Landing](/src/assets/hero.png) | ![Dashboard](/src/assets/demo-dashboard.png) | ![Workspace](/src/assets/demo-workspace.png) |
-
 ---
 
 ## 📄 Lisensi
