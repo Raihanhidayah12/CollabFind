@@ -8,6 +8,7 @@ import {
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import RateTeammatesModal from '../components/workspace/RateTeammatesModal';
+import { SkeletonCard } from '../components/Skeleton';
 
 const STATUS_STYLE = {
   open:      { label: 'Recruiting',  cls: 'text-green-400 bg-green-400/10 border-green-400/20' },
@@ -457,8 +458,19 @@ export default function ProjectDetail() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope', sans-serif" }}>
+      <PageNavbar breadcrumbs={[{ label: 'Explore', href: '/explore' }, { label: 'Project Details' }]} homePath="/dashboard" />
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 flex flex-col gap-5">
+            <SkeletonCard lines={4} />
+          </div>
+          <div className="flex flex-col gap-4">
+            <SkeletonCard lines={1} />
+            <SkeletonCard lines={2} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 

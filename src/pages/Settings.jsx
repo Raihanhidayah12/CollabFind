@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
+import { SkeletonRow } from '../components/Skeleton';
 
 const tabs = [
   { id: 'account', label: 'Account', icon: User },
@@ -58,8 +59,28 @@ export default function Settings() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} homePath="/dashboard" />
+      <main className="flex-1 pt-20 md:pt-28 pb-12 md:pb-16">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="mb-8 md:mb-10">
+            <div className="h-8 w-40 animate-pulse rounded-lg bg-white/[0.06] mb-3" />
+            <div className="h-3 w-72 animate-pulse rounded-lg bg-white/[0.04]" />
+          </div>
+          <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
+            <div className="w-full lg:w-64 flex-shrink-0 space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
+            </div>
+            <div className="flex-1 w-full min-w-0">
+              <div className="bg-[#0a0f1e]/80 border border-white/[0.08] rounded-2xl p-6 lg:p-8 min-h-[400px] space-y-4">
+                <div className="h-5 w-48 animate-pulse rounded-lg bg-white/[0.06]" />
+                <div className="h-3 w-64 animate-pulse rounded-lg bg-white/[0.04]" />
+                <div className="h-10 w-full max-w-lg animate-pulse rounded-xl bg-white/[0.05]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 

@@ -327,8 +327,11 @@ function SkillBasedRecommendations({ recommendations, teammateRecommendations, u
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('projects');
   const [invitingId, setInvitingId] = useState(null);
+  const [declinedIds, setDeclinedIds] = useState([]);
 
   const hasSkills = userSkills && userSkills.length > 0;
+
+  const visibleTeammates = teammateRecommendations.filter(u => !declinedIds.includes(u.inviteId));
 
 async function handleInvite(user) {
     if (invitingId) return;
@@ -400,14 +403,12 @@ async function handleInvite(user) {
   }
 
   async function handleDeclineInvite(inviteId) {
-    // Update invitation status to declined
     await supabase
       .from('invitations')
       .update({ status: 'declined', updated_at: new Date().toISOString() })
       .eq('id', inviteId);
-    
-    // Remove from recommendations (reload page or update state)
-    window.location.reload();
+
+    setDeclinedIds(prev => [...prev, inviteId]);
   }
 
   return (
@@ -527,8 +528,8 @@ async function handleInvite(user) {
                     Buat Proyek Baru
                   </Link>
                 </div>
-              ) : teammateRecommendations.length > 0 ? (
-                teammateRecommendations.slice(0, 6).map((u, i) => {
+              ) : visibleTeammates.length > 0 ? (
+                visibleTeammates.slice(0, 6).map((u, i) => {
                   const initial = (u.name || 'U')[0].toUpperCase();
                   const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
                   const scoreColor = u.matchScore >= 80 ? '#00FFC2' : u.matchScore >= 50 ? '#F59E0B' : '#94A3B8';
@@ -975,6 +976,40 @@ export default function Dashboard() {
       if (apps)    setApplications(apps);
       if (feat)    setFeatured(feat);
       if (allProfs) setAllProfiles(allProfs);
+
+      // Convert project_collaborators entries matching this user's email into invitations
+      const userEmail = session.user.email?.toLowerCase();
+      if (userEmail) {
+        const { data: pendingCollabs } = await supabase
+          .from('project_collaborators')
+          .select('id, project_id')
+          .eq('email', userEmail)
+          .eq('status', 'invited');
+
+        if (pendingCollabs && pendingCollabs.length > 0) {
+          for (const collab of pendingCollabs) {
+            const { data: projectData } = await supabase
+              .from('projects')
+              .select('creator_id')
+              .eq('id', collab.project_id)
+              .single();
+
+            if (projectData) {
+              await supabase.from('invitations').insert({
+                inviter_id: projectData.creator_id,
+                invitee_id: uid,
+                project_id: collab.project_id,
+                status: 'pending'
+              });
+            }
+
+            await supabase
+              .from('project_collaborators')
+              .update({ status: 'converted' })
+              .eq('id', collab.id);
+          }
+        }
+      }
 
       // Merge own projects with accepted invitations
       let allMyProjects = proj || [];

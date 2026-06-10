@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
+import { SkeletonCard } from '../components/Skeleton';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -141,8 +142,17 @@ export default function Profile() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+      <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Profile' }]} homePath="/dashboard" />
+      <main className="flex-1 pt-28 pb-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <div className="h-8 w-48 animate-pulse rounded-lg bg-white/[0.06] mb-3" />
+            <div className="h-3 w-96 animate-pulse rounded-lg bg-white/[0.04]" />
+          </div>
+          <SkeletonCard lines={5} />
+        </div>
+      </main>
     </div>
   );
 

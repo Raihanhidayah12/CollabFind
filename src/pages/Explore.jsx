@@ -156,6 +156,7 @@ export default function Explore() {
   const [loading, setLoading]           = useState(true);
   const [showFilter, setShowFilter]     = useState(false);
   const [session, setSession]           = useState(null);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const search   = searchParams.get('q') || '';
   const category = searchParams.get('category') || 'all';
@@ -179,6 +180,7 @@ export default function Explore() {
 
     async function fetchProjects() {
       setLoading(true);
+      setVisibleCount(12);
       let query = supabase.from('projects').select('*');
       if (status !== 'all') query = query.eq('status', status);
       if (sort === 'newest') query = query.order('created_at', { ascending: false });
@@ -391,11 +393,22 @@ export default function Explore() {
             )
             : (
               <AnimatePresence mode="popLayout">
-                {projects.map((p, i) => <ProjectCard key={p.id} p={p} i={i} session={session} />)}
+                {projects.slice(0, visibleCount).map((p, i) => <ProjectCard key={p.id} p={p} i={i} session={session} />)}
               </AnimatePresence>
             )
           }
         </div>
+
+        {!loading && projects.length > visibleCount && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => setVisibleCount(prev => prev + 12)}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] transition-all"
+            >
+              Load More ({projects.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -202,7 +202,8 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; overflow-
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 32px);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @keyframes cardIn {
@@ -478,6 +479,7 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; overflow-
   align-items: center;
   justify-content: center;
   gap: 8px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .auth-btn-primary {
@@ -776,7 +778,8 @@ body { margin: 0; background: var(--bg-deep); scroll-behavior: smooth; overflow-
   .auth-card {
     max-width: calc(100vw - 24px);
     max-height: calc(100vh - 24px);
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px 14px 14px;
   }
   .auth-form {

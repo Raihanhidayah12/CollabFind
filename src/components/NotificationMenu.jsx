@@ -7,7 +7,8 @@ import {
   XCircle,
   Info,
   Loader2,
-  MessageCircle
+  MessageCircle,
+  UserPlus
 } from 'lucide-react';
 
 import { supabase } from '../utils/supabaseClient';
@@ -333,7 +334,36 @@ playNotificationSound();
         })
         .limit(10);
 
+      const { data: pendingInvites } = await supabase
+        .from('invitations')
+        .select('id, inviter_id, project_id, created_at')
+        .eq('invitee_id', uid)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
       const result = [];
+
+      if (pendingInvites?.length) {
+        for (const inv of pendingInvites) {
+          const inviterName = await getProfileName(inv.inviter_id);
+
+          const { data: project } = await supabase
+            .from('projects')
+            .select('title')
+            .eq('id', inv.project_id)
+            .single();
+
+          result.push({
+            id: `invite-${inv.id}`,
+            type: 'invite',
+            title: `${inviterName} invited you`,
+            message: `You have been invited to join "${project?.title || 'a project'}"`,
+            time: inv.created_at,
+            link: `/invite/${inv.id}`,
+            isUnread: true
+          });
+        }
+      }
 
       if (messages?.length) {
         for (const msg of messages) {
@@ -343,7 +373,7 @@ playNotificationSound();
           result.push({
             id: `chat-${msg.id}`,
             type: 'message',
-            title: `💬 Message from ${senderName}`,
+            title: `Message from ${senderName}`,
             message:
               msg.content?.substring(0, 100),
             time: msg.created_at,
@@ -515,9 +545,9 @@ playNotificationSound();
 
                       {notif.type ===
                         'invite' && (
-                        <MessageCircle
+                        <UserPlus
                           size={18}
-                          className="text-purple-400"
+                          className="text-cyan-400"
                         />
                       )}
                     </div>

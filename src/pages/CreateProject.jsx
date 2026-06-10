@@ -190,43 +190,22 @@ export default function CreateProject() {
 
       if (projErr) throw projErr;
 
-// Process invited collaborators
+// Process invited collaborators — simpan semua ke project_collaborators berdasarkan email.
+      // Konversi ke invitations dilakukan di Dashboard saat user dengan email tsb login.
       if (inviteEmails.trim()) {
         const emails = inviteEmails.split(',').map(e => e.trim()).filter(Boolean);
+        const collaboratorRows = emails.map(email => ({
+          project_id: project.id,
+          email: email.toLowerCase(),
+          status: 'invited'
+        }));
 
-        for (const email of emails) {
-          // Lookup user by email in auth.users
-          const { data: authUser } = await supabase.auth.admin.listUsers();
-          const matchedAuthUser = authUser?.users?.find(u =>
-            u.email?.toLowerCase() === email.toLowerCase()
-          );
+        const { error: collabError } = await supabase
+          .from('project_collaborators')
+          .insert(collaboratorRows);
 
-          if (matchedAuthUser) {
-            // User is registered - send invitation notification
-            const inviterUserId = user.id;
-            const inviteeUserId = matchedAuthUser.id;
-
-            // Insert invitation to invitations table
-            const { error: invitError } = await supabase.from('invitations').insert({
-              inviter_id: inviterUserId,
-              invitee_id: inviteeUserId,
-              project_id: project.id,
-              status: 'pending'
-            });
-
-            if (invitError) {
-              console.error('Invitation error:', invitError);
-            } else {
-              console.log('Invitation sent to', email);
-            }
-          } else {
-            // User not registered - insert with email only
-            await supabase.from('project_collaborators').insert({
-              project_id: project.id,
-              email: email.toLowerCase(),
-              status: 'invited'
-            });
-          }
+        if (collabError) {
+          console.error('Collaborator insert error:', collabError);
         }
       }
 

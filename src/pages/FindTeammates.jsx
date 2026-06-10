@@ -5,6 +5,7 @@ import { ArrowRight, Lock, MessageSquare, Search, Sparkles, UserPlus, Users } fr
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
+import { SkeletonCard } from '../components/Skeleton';
 
 function firstName(name) {
   return (name || 'Builder').split(' ')[0];
@@ -18,6 +19,7 @@ export default function FindTeammates() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [invitingId, setInvitingId] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -32,7 +34,7 @@ export default function FindTeammates() {
         .from('profiles')
         .select('id, name, bio, skills, job_title, avatar_url')
         .order('created_at', { ascending: false })
-        .limit(24);
+        .limit(48);
       setProfiles(data || []);
       setLoading(false);
     }
@@ -51,13 +53,18 @@ export default function FindTeammates() {
 
   const visibleProfiles = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return profiles;
-    return profiles.filter(profile =>
-      profile.name?.toLowerCase().includes(q) ||
-      profile.job_title?.toLowerCase().includes(q) ||
-      (profile.skills || []).some(skill => skill.toLowerCase().includes(q))
-    );
+    const base = q
+      ? profiles.filter(profile =>
+          profile.name?.toLowerCase().includes(q) ||
+          profile.job_title?.toLowerCase().includes(q) ||
+          (profile.skills || []).some(skill => skill.toLowerCase().includes(q))
+        )
+      : profiles;
+    return base;
   }, [profiles, query]);
+
+  const displayedProfiles = visibleProfiles.slice(0, visibleCount);
+  const hasMore = visibleProfiles.length > visibleCount;
 
   async function handleInvite(profile) {
     if (!session) {
@@ -183,7 +190,7 @@ await supabase.from('messages').insert({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {loading ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="h-56 rounded-2xl border border-white/[0.07] bg-white/[0.03] animate-pulse" />
+                <SkeletonCard key={index} lines={2} />
               ))
             ) : visibleProfiles.length === 0 ? (
               <div className="col-span-full text-center py-20">
@@ -191,7 +198,7 @@ await supabase.from('messages').insert({
                 <p className="text-sm text-slate-500">Coba keyword skill lain.</p>
               </div>
             ) : (
-              visibleProfiles.map((profile, index) => {
+              displayedProfiles.map((profile, index) => {
                 const displayName = session ? (profile.name || 'Anonymous') : firstName(profile.name);
                 const initial = (displayName || 'B')[0].toUpperCase();
                 return (
@@ -251,6 +258,17 @@ await supabase.from('messages').insert({
               })
             )}
           </div>
+
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => setVisibleCount(prev => prev + 12)}
+                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] transition-all"
+              >
+                Load More ({visibleProfiles.length - visibleCount} remaining)
+              </button>
+            </div>
+          )}
         </section>
       </main>
 
