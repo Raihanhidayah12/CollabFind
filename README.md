@@ -1,220 +1,284 @@
-<!--
-  _______  _____ __   _ _______ ______  ______
- |       |     | | \  | |       |      |
- |    _  |     | |  \ | |    ___|___   |
- |    \_| |_|||_| |   \| |    ___|___   |
- |     |       | | |\   |    |___|      |
- |_____|_______|_|_| \_|______|______|
-
-  CollabFind - Platform Kolaborasi untuk Profesional
-  =================================================
-
-  Dibuat dengan ❤️ menggunakan React + Supabase
--->
-
 <div align="center">
 
-# 🚀 CollabFind
+<img src="https://img.shields.io/badge/CollabFind-Platform%20Kolaborasi-0a0f1e?style=for-the-badge&labelColor=0a0f1e" alt="CollabFind" />
 
-[![License](https://img.shields.io/github/license/username/collabfind?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Development-blue?style=for-the-badge)]()
-[![Tech Stack](https://img.shields.io/badge/Made%20with-React%20%2B%20Supabase-orange?style=for-the-badge)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://github.com/username/collabfind/pulls)
+<br />
 
----
+# CollabFind
 
-**CollabFind** adalah platform kolaborasi inovatif yang dirancang untuk menghubungkan para profesional, developer, desainer, dan kreator dengan proyek-proyek menarik dan kolaborator yang tepat. ✨
+### Temukan Proyek. Bentuk Tim. Bangun Bersama.
 
-**[🌐 Demo Website](https://collab-find.vercel.app)** · 
-**[🐛 Laporkan Bug](https://github.com/username/collabfind/issues)**
+Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator dengan proyek menarik dan kolaborator yang tepat.
+
+<br />
+
+<a href="https://collab-find.vercel.app"><img src="https://img.shields.io/badge/Live%20Demo-collab--find.vercel.app-00D2FF?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo" /></a>
+<a href="https://github.com/Raihanhidayah12/CollabFind/actions"><img src="https://img.shields.io/github/actions/workflow/status/Raihanhidayah12/CollabFind/ci.yml?style=for-the-badge&label=CI&logo=githubactions&logoColor=white" alt="CI Status" /></a>
+<a href="https://github.com/Raihanhidayah12/CollabFind/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" /></a>
+
+<br />
+
+**[Explore Docs](https://collab-find.vercel.app/docs)** &nbsp;·&nbsp; **[Report Bug](https://github.com/Raihanhidayah12/CollabFind/issues)** &nbsp;·&nbsp; **[Request Feature](https://github.com/Raihanhidayah12/CollabFind/issues)**
 
 </div>
 
 ---
 
-## 📋 Daftar Isi
+## Fitur Utama
 
-- [✨ Fitur Utama](#-fitur-utama)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🚀 Memulai](#-memulai)
-- [📁 Struktur Proyek](#-struktur-proyek)
-- [🤝 Berkontribusi](#-berkontribusi)
-- [📸 Preview](#-preview)
-- [📄 Lisensi](#-lisensi)
-- [📞 Kontak](#-kontak)
+<table>
+  <tr>
+    <td width="50%" valign="top">
+
+### Smart Match
+Algoritma cerdas yang mencocokkan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi.
+
+### Workspace Kolaboratif
+Ruang kerja terintegrasi dengan **Kanban Board**, **Team Chat**, **File Storage**, dan **Wiki**.
+
+### Portfolio Generator
+Builder portofolio dinamis untuk showcase hasil karya secara profesional.
+
+    </td>
+    <td width="50%" valign="top">
+
+### Eksplorasi Proyek
+Temukan dan ikuti proyek dari berbagai kategori dan industri.
+
+### Forum & Komunitas
+Diskusi real-time, hackathon, events, dan newsletter komunitas.
+
+### Task Management
+Sprint planning dengan task assignment dan progress tracking.
+
+    </td>
+  </tr>
+</table>
+
+**Dan masih banyak lagi:**
+
+- **OAuth Login** — Sign in dengan Google atau GitHub
+- **Real-time Notifications** — Notifikasi invitation dan update proyek secara langsung
+- **Command Palette** — Tekan `Ctrl+K` untuk navigasi cepat (pengguna terdaftar)
+- **Error Boundary** — Crash protection di setiap halaman
+- **Code Splitting** — Lazy loading untuk performa optimal
+- **Responsive Design** — Tampilan optimal di desktop, tablet, dan mobile
 
 ---
 
-## ✨ Fitur Utama
+## Tech Stack
 
-| Fitur | Deskripsi |
+| Layer | Teknologi |
 |-------|-----------|
-| 🔍 **Smart Match** | Algoritma cerdas yang mencocokkan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi. |
-| 👥 **Workspace Kolaboratif** | Ruang kerja terintegrasi dengan Kanban, Team Chat, File Storage, dan Wiki. |
-| 📄 **Portfolio Editor** | Builder portofolio dinamis untuk showcase hasil karya profesional. |
-| 🌎 **Eksplorasi Proyek** | Temukan dan ikuti proyek dari berbagai kategori & industri. |
-| 🏆 **Hackathon & Events** | Ikut kompetisi dan event komunitas reguler. |
-| 📊 **Task Management** | Sprint planning dengan task assignment dan progress tracking. |
-| 💬 **Forum & Chat** | Diskusi real-time dengan komunitas. |
+| **Frontend** | React 19, Vite 8, Tailwind CSS 4 |
+| **Backend & DB** | Supabase (PostgreSQL, Auth, Realtime, Storage) |
+| **Routing** | React Router v7 |
+| **Animation** | Framer Motion |
+| **Icons** | Lucide React |
+| **CI/CD** | GitHub Actions |
+| **Deployment** | Vercel |
 
 ---
 
-## 🛠️ Tech Stack
+## Getting Started
 
-Built with modern and scalable technologies:
+### Prasyarat
 
-### Frontend
-<p>
-  <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-  <img src="https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/react_router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
-</p>
-
-### Backend & Database
-<p>
-  <img src="https://img.shields.io/badge/supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=black" alt="Supabase" />
-</p>
-
-### Animation & Icons
-<p>
-  <img src="https://img.shields.io/badge/framer_motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" />
-  <img src="https://img.shields.io/badge/lucide_react-000000?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PC9zdmc+&alt="Lucide" />
-</p>
-
----
-
-## 🚀 Mem/getting Started
-
-### Prerequisites
-
- Pastikan kamu sudah install:
-- [Node.js](https://nodejs.org/) (v18+)
-- [npm](https://www.npmjs.com/) atau [yarn](https://yarnpkg.com/)
+- [Node.js](https://nodejs.org/) v18+
 - [Git](https://git-scm.com/)
+- Akun [Supabase](https://supabase.com) (gratis)
 
-### Installation
+### Instalasi
 
-1. **Clone repositori ini:**
+**1. Clone repository**
+
 ```bash
-git clone https://github.com/username/collabfind.git
-cd collabfind
+git clone https://github.com/Raihanhidayah12/CollabFind.git
+cd CollabFind
 ```
 
-2. **Install dependencies:**
+**2. Install dependencies**
+
 ```bash
 npm install
-# atau menggunakan yarn
-# yarn install
 ```
 
-3. **Setup Environment Variables:**
+**3. Setup environment variables**
+
 ```bash
-# Copy contoh environment file
 cp .env.example .env
 ```
 
-Edit file `.env` dan tambahkan konfigurasi Supabase:
+Edit file `.env` dengan credentials Supabase kamu:
 
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_SUPABASE_PROJECT_ID=your-project-ref
 ```
 
-> 💡 **Catatan:** Untuk mendapatkan kredensial Supabase, buat proyek baru di [supabase.com](https://supabase.com) dan salin URL serta anon key dari Settings > API.
+> [!TIP]
+> Untuk mendapatkan credentials, buat project baru di [supabase.com](https://supabase.com), lalu salin URL dan anon key dari **Settings → API**. Project ref bisa ditemukan di URL dashboard: `https://supabase.com/dashboard/project/<ref>`.
 
-4. **Run development server:**
+**4. Setup database tables**
+
+Jalankan SQL berikut di **Supabase SQL Editor** untuk membuat tabel yang dibutuhkan:
+
+- `supabase/create_project_collaborators.sql` — Tabel invitation by email
+
+Pastikan tabel-tabel utama (`profiles`, `projects`, `invitations`) sudah ada sesuai skema aplikasi.
+
+**5. Enable OAuth providers** _(opsional)_
+
+Untuk login dengan Google/GitHub, aktifkan provider di **Supabase Dashboard → Authentication → Providers**.
+
+**6. Jalankan development server**
+
 ```bash
 npm run dev
 ```
 
-Aplikasi akan berjalan di **`http://localhost:5173`** 🎉
+Aplikasi berjalan di **http://localhost:5173**
 
 ### Perintah Lainnya
 
 | Perintah | Deskripsi |
 |---------|-----------|
 | `npm run build` | Build untuk production |
-| `npm run lint` | Run ESLint |
-| `npm run preview` | Preview build production |
+| `npm run preview` | Preview hasil build |
+| `npm run lint` | Jalankan ESLint |
 
 ---
 
-## 📁 Struktur Proyek
+## Struktur Proyek
 
 ```
-collabfind/
-├── public/                 # Static assets
-│   ├── favicon.svg
-│   └── icons.svg
+CollabFind/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI pipeline
+├── public/                     # Static assets
 ├── src/
-│   ├── assets/            # Images & static files
-│   ├── components/        # React components
-│   │   ├── landing/       # Landing page components
-│   │   └── workspace/     # Workspace components
-│   ├── pages/             # Page components
-│   │   ├── community/     # Community pages
-│   │   ├── resources/     # Resources pages
-│   │   └── static/        # Static pages
-│   ├── utils/             # Utility functions
-│   ├── App.jsx            # Main app component
-│   ├── main.jsx           # Entry point
-│   └── index.css          # Global styles
-├── supabase/             # SQL schemas
-├── eslint.config.js      # ESLint config
-├── vite.config.js        # Vite config
-├── package.json
-└── README.md
+│   ├── components/             # Shared components
+│   │   ├── landing/            # Landing page sections
+│   │   │   ├── Hero.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── Features.jsx
+│   │   │   └── ...
+│   │   ├── workspace/          # Workspace features
+│   │   │   ├── Kanban.jsx
+│   │   │   ├── Chat.jsx
+│   │   │   ├── Wiki.jsx
+│   │   │   └── ...
+│   │   ├── AuthProvider.jsx    # Auth context & session
+│   │   ├── CommandPalette.jsx  # Ctrl+K navigation
+│   │   ├── ErrorBoundary.jsx   # Crash protection
+│   │   ├── NotificationMenu.jsx
+│   │   ├── PageNavbar.jsx
+│   │   ├── Skeleton.jsx        # Loading skeletons
+│   │   └── ...
+│   ├── pages/                  # Route pages
+│   │   ├── Dashboard.jsx
+│   │   ├── Explore.jsx
+│   │   ├── FindTeammates.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── Profile.jsx
+│   │   ├── Settings.jsx
+│   │   ├── Workspace.jsx
+│   │   ├── community/          # Forum, Events, Hackathons...
+│   │   ├── resources/          # Blog, Docs, API Ref...
+│   │   └── static/             # About, Privacy, Terms...
+│   ├── hooks/                  # Custom hooks
+│   ├── utils/                  # Utility functions
+│   │   └── supabaseClient.js   # Supabase client config
+│   ├── App.jsx                 # Landing page
+│   ├── main.jsx                # Entry point + routes
+│   └── index.css               # Global styles
+├── supabase/                   # SQL migration files
+├── .env.example                # Environment template
+├── vercel.json                 # Vercel SPA rewrite rules
+├── vite.config.js
+└── package.json
 ```
 
 ---
 
-## 🤝 Berkontribusi
-
-Kami sangat menyambut kontribusi dari komunitas! Untuk mulai berkontribusi:
-
-1. **Fork** repositori ini
-2. Buat branch fitur baru: `git checkout -b fitur/ nama-fitur`
-3. Commit perubahan: `git commit -m 'feat: tambah fitur baru'`
-4. Push ke branch: `git push origin fitur/nama-fitur`
-5. Buat **Pull Request**
-
-Baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lengkap.
-
-### Guidelines
-
-- 🧹 Pastikan kode bersih dan terformat
-- ✅ Test fitur sebelum submit PR
-- 📝 Commit message mengikutiConventional Commits
-- 🔧 Ikuti coding style yang ada di project
-
----
-
----
-
-## 📄 Lisensi
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-## 📞 Kontak
+## Screenshots
 
 <div align="center">
 
- Built with 💖 by **[Tim CollabFind](https://github.com/username/collabfind)**
+| Landing Page | Dashboard |
+|:---:|:---:|
+| ![Landing](https://collab-find.vercel.app/og-image.png) | ![Dashboard](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Dashboard) |
 
-[![Follow on GitHub](https://img.shields.io/github/followers/username?label=Follow&style=social)](https://github.com/username)
-[![Twitter Follow](https://img.shields.io/twitter/follow/username?label=Follow&style=social)](https://twitter.com/username)
-
- Jangan lupa ⭐ repositori ini jika membantu!
+| Explore Projects | Find Teammates |
+|:---:|:---:|
+| ![Explore](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Explore) | ![Teammates](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Teammates) |
 
 </div>
 
+> Ganti screenshot di atas dengan gambar asli setelah project di-deploy.
+
 ---
 
-<p align="center">
-  <a href="https://vercel.com">
-    <img src="https://img.shields.io/badge/Powered%20by-Vercel-black?style=for-the-badge&logo=vercel" alt="Powered by Vercel" />
-  </a>
-</p>
+## Berkontribusi
+
+Kontribusi sangat disambut! Berikut langkah-langkahnya:
+
+1. **Fork** repository ini
+2. Buat branch fitur: `git checkout -b fitur/nama-fitur`
+3. Commit perubahan: `git commit -m "feat: tambah fitur baru"`
+4. Push ke branch: `git push origin fitur/nama-fitur`
+5. Buat **Pull Request**
+
+### Panduan
+
+- Gunakan [Conventional Commits](https://www.conventionalcommits.org/) untuk commit message
+- Pastikan `npm run lint` pass sebelum submit PR
+- Test fitur baru secara manual sebelum request review
+- Ikuti coding style dan pattern yang sudah ada di project
+
+---
+
+## Roadmap
+
+- [x] Authentication (Email + OAuth)
+- [x] Project CRUD & Workspace
+- [x] Kanban Board & Team Chat
+- [x] Portfolio Generator
+- [x] Smart Match & Find Teammates
+- [x] Real-time Notifications
+- [x] Forum, Events & Blog
+- [x] Code Splitting & Performance
+- [ ] Unit & Integration Tests
+- [ ] Dark/Light Mode Toggle
+- [ ] Mobile App (React Native)
+- [ ] AI-powered Project Recommendations
+
+---
+
+## Lisensi
+
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+
+---
+
+<div align="center">
+
+**Dibuat oleh [Raihanhidayah12](https://github.com/Raihanhidayah12)**
+
+<a href="https://github.com/Raihanhidayah12"><img src="https://img.shields.io/github/followers/Raihanhidayah12?label=Follow&style=social" alt="Follow" /></a>
+
+<br />
+
+<a href="https://vercel.com">
+  <img src="https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel" alt="Vercel" />
+</a>
+
+<br />
+
+**Jangan lupa star repo ini jika bermanfaat!**
+
+</div>
