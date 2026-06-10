@@ -291,13 +291,13 @@ export default function Register() {
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-          <span style={{ fontSize: 12, color: 'rgba(148,163,184,0.5)' }}>or sign up with</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+        <div className="auth-divider">
+          <div className="auth-divider-line" />
+          <span className="auth-divider-text">or sign up with</span>
+          <div className="auth-divider-line" />
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="auth-oauth-row">
           <button
             type="button"
             onClick={() => handleOAuth('google')}
@@ -322,8 +322,8 @@ export default function Register() {
           Already have an account?{' '}
           <Link to="/login" className="auth-link">Sign in →</Link>
         </p>
-        <p className="auth-footer" style={{ marginTop: 8 }}>
-          <Link to="/" className="auth-link" style={{ color: 'rgba(148,163,184,0.5)', fontSize: 12 }}>← Back to Home</Link>
+        <p className="auth-footer auth-footer-back">
+          <Link to="/" className="auth-link auth-link--muted">← Back to Home</Link>
         </p>
       </div>
     </div>
