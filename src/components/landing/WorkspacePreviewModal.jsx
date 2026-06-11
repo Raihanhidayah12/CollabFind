@@ -2,39 +2,121 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  X, FolderOpen, BookOpen, LayoutDashboard,
-  Upload, FileText, CheckSquare, ArrowRight, Users,
+  X, FolderOpen, BookOpen, LayoutDashboard, Activity,
+  Upload, FileText, FileImage, FileCode, FileArchive,
+  CheckSquare, ArrowRight, Users, MessageSquare, Clock,
+  CheckCircle, Plus, Zap,
 } from 'lucide-react';
 
 const PREVIEW_SLIDES = [
+  {
+    id: 'boards',
+    icon: LayoutDashboard,
+    color: '#10B981',
+    label: 'Project Boards',
+    title: 'Kanban board dengan sprint & diskusi',
+    desc: 'Atur tugas di papan Kanban, tetapkan assignee & deadline, dan diskusikan langsung di setiap task lewat thread.',
+    preview: (
+      <div className="flex flex-col gap-2">
+        {/* Sprint header */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30 text-[10px] font-bold text-blue-300">Sprint 1</span>
+            <span className="text-[9px] text-slate-600">deadline 20 Jun</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-24 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+              <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-blue-500 to-emerald-400" />
+            </div>
+            <span className="text-[9px] font-bold text-emerald-400">50%</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'To-Do', color: '#94A3B8', tasks: [
+              { title: 'Notifikasi real-time', assignee: 'Rizky', thread: 2 },
+              { title: 'Testing & QA', assignee: 'Rizky', thread: 0 },
+            ]},
+            { label: 'In Progress', color: '#3B82F6', tasks: [
+              { title: 'Integrasi Supabase', assignee: 'Rina', thread: 5 },
+            ]},
+            { label: 'Done', color: '#10B981', tasks: [
+              { title: 'Setup project', assignee: 'Dimas', thread: 3 },
+              { title: 'Desain UI login', assignee: 'Rina', thread: 1 },
+            ]},
+          ].map((col) => (
+            <div key={col.label} className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: col.color }} />
+                <p className="text-[10px] font-bold text-slate-400">{col.label}</p>
+                <span className="text-[9px] text-slate-600">{col.tasks.length}</span>
+              </div>
+              {col.tasks.map((t) => (
+                <div key={t.title} className="px-2 py-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03]">
+                  <p className="text-[10px] text-slate-300 leading-snug mb-1">{t.title}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-0.5 text-[8px] text-purple-300">
+                      <Users size={7} /> {t.assignee}
+                    </span>
+                    {t.thread > 0 && (
+                      <span className="flex items-center gap-0.5 text-[8px] text-blue-400">
+                        <MessageSquare size={7} /> {t.thread}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
   {
     id: 'files',
     icon: FolderOpen,
     color: '#8B5CF6',
     label: 'File Storage',
-    title: 'Semua aset proyek di satu tempat',
-    desc: 'Upload dan bagikan mockup desain, dokumen riset, file kode, dan aset lainnya. Semua tersimpan aman dan bisa diakses kapan saja oleh seluruh tim.',
+    title: 'Semua aset proyek dengan folder otomatis',
+    desc: 'Upload file dan otomatis terkategorisi ke folder virtual berdasarkan tipe — gambar, dokumen, kode, dan lainnya.',
     preview: (
-      <div className="flex flex-col gap-2">
-        {[
-          { name: 'design-mockup.fig', size: '2.4 MB', type: 'fig', color: '#8B5CF6' },
-          { name: 'api-docs.pdf',       size: '845 KB', type: 'pdf', color: '#10B981' },
-          { name: 'assets.zip',         size: '12.1 MB', type: 'zip', color: '#F59E0B' },
-        ].map((f) => (
-          <div key={f.name} className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.07] bg-white/[0.03]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ background: `${f.color}18`, border: `1px solid ${f.color}30` }}>
-              <FolderOpen size={14} style={{ color: f.color }} />
+      <div className="flex gap-2 h-[130px]">
+        {/* Folder sidebar */}
+        <div className="w-24 flex flex-col gap-0.5 overflow-hidden">
+          {[
+            { label: 'Semua File', icon: FolderOpen, color: '#3B82F6', active: true },
+            { label: 'Gambar', icon: FileImage, color: '#8B5CF6' },
+            { label: 'Dokumen', icon: FileText, color: '#10B981' },
+            { label: 'Kode', icon: FileCode, color: '#3B82F6' },
+            { label: 'Arsip', icon: FileArchive, color: '#F59E0B' },
+          ].map((f) => (
+            <div key={f.label} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[9px] ${
+              f.active ? 'bg-blue-500/15 border border-blue-500/30 text-blue-300' : 'text-slate-500'
+            }`}>
+              <f.icon size={9} style={{ color: f.color }} /> {f.label}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate">{f.name}</p>
-              <p className="text-[10px] text-slate-500">{f.size}</p>
+          ))}
+        </div>
+        {/* File list */}
+        <div className="flex-1 flex flex-col gap-1.5 overflow-hidden">
+          {[
+            { name: 'design-mockup.fig', size: '2.4 MB', color: '#8B5CF6' },
+            { name: 'api-docs.pdf',       size: '845 KB', color: '#10B981' },
+            { name: 'app.js',             size: '12 KB',  color: '#3B82F6' },
+          ].map((f) => (
+            <div key={f.name} className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03]">
+              <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+                style={{ background: `${f.color}18`, border: `1px solid ${f.color}30` }}>
+                <FolderOpen size={10} style={{ color: f.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-semibold text-white truncate">{f.name}</p>
+                <p className="text-[8px] text-slate-500">{f.size}</p>
+              </div>
             </div>
-            <div className="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <Upload size={10} className="text-blue-400" />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     ),
   },
@@ -44,11 +126,10 @@ const PREVIEW_SLIDES = [
     color: '#06B6D4',
     label: 'Wiki',
     title: 'Dokumentasi tim yang rapi',
-    desc: 'Tulis code guidelines, jobdesk, rangkuman meeting, dan ide startup di halaman Wiki. Seperti Notion mini yang terintegrasi langsung dengan proyekmu.',
+    desc: 'Tulis code guidelines, jobdesk, rangkuman meeting, dan ide di halaman Wiki. Terintegrasi langsung dengan proyekmu.',
     preview: (
-      <div className="flex gap-3 h-[140px]">
-        {/* Sidebar */}
-        <div className="w-28 flex flex-col gap-1">
+      <div className="flex gap-3 h-[130px]">
+        <div className="w-24 flex flex-col gap-1">
           {['Code Guide', 'Jobdesk', 'Meeting Notes', 'Ideas'].map((p) => (
             <div key={p} className={`px-2 py-1.5 rounded-lg text-[10px] truncate ${
               p === 'Code Guide' ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-300' : 'text-slate-500'
@@ -57,7 +138,6 @@ const PREVIEW_SLIDES = [
             </div>
           ))}
         </div>
-        {/* Content */}
         <div className="flex-1 rounded-xl border border-white/[0.07] bg-white/[0.03] p-3 overflow-hidden">
           <p className="text-xs font-bold text-white mb-2">Code Guidelines</p>
           <div className="flex flex-col gap-1">
@@ -70,30 +150,35 @@ const PREVIEW_SLIDES = [
     ),
   },
   {
-    id: 'boards',
-    icon: LayoutDashboard,
-    color: '#10B981',
-    label: 'Project Boards',
-    title: 'Kanban board untuk progres tim',
-    desc: 'Buat dan atur kartu tugas di papan Kanban dengan kolom To-Do, In Progress, dan Done. Tetapkan deadline dan assignee agar semua tahu tanggung jawabnya.',
+    id: 'activity',
+    icon: Activity,
+    color: '#F59E0B',
+    label: 'Activity',
+    title: 'Timeline aktivitas tim secara real-time',
+    desc: 'Pantau semua aktivitas tim — task dibuat, dipindah, komentar baru, file diupload — semuanya di satu timeline.',
     preview: (
-      <div className="grid grid-cols-3 gap-2">
+      <div className="flex flex-col gap-2">
         {[
-          { label: 'To-Do', color: '#94A3B8', tasks: ['Setup Supabase', 'Desain Logo'] },
-          { label: 'In Progress', color: '#3B82F6', tasks: ['Landing Page'] },
-          { label: 'Done', color: '#10B981', tasks: ['Init Project', 'ERD Database'] },
-        ].map((col) => (
-          <div key={col.label} className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: col.color }} />
-              <p className="text-[10px] font-bold text-slate-400">{col.label}</p>
-              <span className="text-[9px] text-slate-600">{col.tasks.length}</span>
+          { action: 'completed', title: 'Setup project', user: 'Dimas', time: '2h lalu', color: '#10B981', icon: CheckCircle },
+          { action: 'commented', title: 'Integrasi Supabase', user: 'Rina', time: '3h lalu', color: '#3B82F6', icon: MessageSquare },
+          { action: 'uploaded', title: 'design-mockup.fig', user: 'Rina', time: '5h lalu', color: '#8B5CF6', icon: Upload },
+          { action: 'created', title: 'Notifikasi real-time', user: 'Rizky', time: '1d lalu', color: '#F59E0B', icon: Plus },
+        ].map((item) => (
+          <div key={item.title} className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: `${item.color}18`, border: `1px solid ${item.color}30` }}>
+              <item.icon size={10} style={{ color: item.color }} />
             </div>
-            {col.tasks.map((t) => (
-              <div key={t} className="px-2 py-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03]">
-                <p className="text-[10px] text-slate-300">{t}</p>
-              </div>
-            ))}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-white">
+                <span className="font-semibold">{item.user}</span>
+                <span className="text-slate-500"> {item.action} </span>
+                <span className="text-blue-300">{item.title}</span>
+              </p>
+            </div>
+            <span className="text-[8px] text-slate-600 flex-shrink-0 flex items-center gap-0.5">
+              <Clock size={7} /> {item.time}
+            </span>
           </div>
         ))}
       </div>
@@ -105,7 +190,6 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
   const navigate      = useNavigate();
   const [slide, setSlide] = useState(0);
 
-  // Auto-advance slides
   useEffect(() => {
     const interval = setInterval(() => {
       setSlide((s) => (s + 1) % PREVIEW_SLIDES.length);
@@ -113,7 +197,6 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
     return () => clearInterval(interval);
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -147,7 +230,6 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
         >
           {/* Header */}
           <div className="relative px-6 pt-6 pb-4 border-b border-white/[0.07]">
-            {/* Top glow */}
             <div
               className="absolute top-0 left-10 right-10 h-px"
               style={{ background: `linear-gradient(90deg, transparent, ${current.color}, transparent)` }}
@@ -178,14 +260,14 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
             </div>
 
             {/* Tab pills */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex flex-wrap gap-1.5 mt-4">
               {PREVIEW_SLIDES.map((s, i) => {
                 const Icon = s.icon;
                 return (
                   <button
                     key={s.id}
                     onClick={() => setSlide(i)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
                       slide === i
                         ? 'text-white border'
                         : 'text-slate-500 hover:text-slate-300 border border-transparent'
@@ -196,7 +278,7 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
                       color: s.color,
                     } : {}}
                   >
-                    <Icon size={11} /> {s.label}
+                    <Icon size={10} /> {s.label}
                   </button>
                 );
               })}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Save, Loader2, CheckCircle, X, Plus, GitBranch, Link as LinkIcon, Globe, ExternalLink, Link2, Zap } from 'lucide-react';
+import { Camera, Save, Loader2, CheckCircle, X, Plus, GitBranch, Link as LinkIcon, Globe, ExternalLink, Link2, Zap, Briefcase, DollarSign } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
@@ -27,6 +27,12 @@ export default function Profile() {
   const [links, setLinks] = useState({ github_url: '', linkedin_url: '', website_url: '' });
   const portfolioHref = links.website_url?.trim() || (portfolio?.username ? `/portfolio/${portfolio.username}` : '');
   const portfolioIsExternal = Boolean(links.website_url?.trim());
+  const [freelancer, setFreelancer] = useState({
+    is_freelancer: false,
+    hourly_rate: '',
+    availability: 'not_available',
+    service_categories: [],
+  });
 
   async function fetchProfile(userId) {
     try {
@@ -51,6 +57,12 @@ export default function Profile() {
         if (data.portofolio_url) {
           setLinks(l => ({ ...l, website_url: l.website_url || data.portofolio_url }));
         }
+        setFreelancer({
+          is_freelancer: data.is_freelancer || false,
+          hourly_rate: data.hourly_rate?.toString() || '',
+          availability: data.availability || 'not_available',
+          service_categories: Array.isArray(data.service_categories) ? data.service_categories : [],
+        });
       }
     } catch (err) {
       console.error(err);
@@ -115,6 +127,10 @@ export default function Profile() {
         avatar_url: formData.avatar_url?.trim() || null,
         location: formData.location || null,
         portofolio_url: links.website_url?.trim() || null,
+        is_freelancer: freelancer.is_freelancer,
+        hourly_rate: freelancer.hourly_rate ? parseInt(freelancer.hourly_rate) : null,
+        availability: freelancer.availability,
+        service_categories: freelancer.service_categories.length > 0 ? freelancer.service_categories : null,
       };
 
       const { error } = await supabase
@@ -392,6 +408,92 @@ export default function Profile() {
                   </div>
                   <p className="text-xs text-slate-600 mt-2">Pilih skill di atas atau ketik sendiri. Skill yang dipilih muncul sebagai tag di atas.</p>
                 </div>
+              </div>
+
+              {/* Freelancer / Open for Work Section */}
+              <div className="mt-8 pt-8 border-t border-white/[0.08]">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Briefcase size={16} className="text-purple-400" /> Open for Work
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Aktifkan untuk muncul di Freelance Marketplace dan menerima tawaran kerja.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFreelancer(f => ({ ...f, is_freelancer: !f.is_freelancer }))}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${freelancer.is_freelancer ? 'bg-green-500' : 'bg-white/[0.1]'}`}
+                  >
+                    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${freelancer.is_freelancer ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+
+                {freelancer.is_freelancer && (
+                  <div className="space-y-4 pl-0">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                          <span className="flex items-center gap-1"><DollarSign size={11} /> Hourly Rate (USD)</span>
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={freelancer.hourly_rate}
+                          onChange={e => setFreelancer(f => ({ ...f, hourly_rate: e.target.value }))}
+                          placeholder="45"
+                          className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5">Availability</label>
+                        <select
+                          value={freelancer.availability}
+                          onChange={e => setFreelancer(f => ({ ...f, availability: e.target.value }))}
+                          className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500/50 transition-colors text-sm appearance-none"
+                        >
+                          <option value="available" className="bg-[#0a0f1e]">Available</option>
+                          <option value="busy" className="bg-[#0a0f1e]">Busy</option>
+                          <option value="not_available" className="bg-[#0a0f1e]">Not Available</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-slate-300 mb-1.5">Service Categories</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Web Development', 'Mobile App', 'UI/UX Design', 'Data & Analytics', 'Writing', 'Marketing', 'DevOps', 'Blockchain'].map(cat => {
+                          const selected = freelancer.service_categories.includes(cat);
+                          return (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => setFreelancer(f => ({
+                                ...f,
+                                service_categories: selected
+                                  ? f.service_categories.filter(c => c !== cat)
+                                  : [...f.service_categories, cat]
+                              }))}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                selected
+                                  ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
+                                  : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:text-white hover:border-white/20'
+                              }`}
+                            >
+                              {selected ? '✓ ' : ''}{cat}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <Link
+                      to="/freelance/dashboard"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-purple-300 border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 transition-all"
+                    >
+                      <Briefcase size={12} /> Go to Freelance Dashboard
+                    </Link>
+                  </div>
+                )}
               </div>
 
               {/* Links & Portfolio Section */}

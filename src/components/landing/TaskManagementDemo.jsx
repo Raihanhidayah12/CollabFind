@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckSquare, Circle, Clock, User, Calendar,
-  ChevronRight, Zap, Plus, TrendingUp, Target,
+  ChevronRight, Zap, Plus, TrendingUp, Target, MessageSquare,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -10,12 +10,12 @@ import { Link } from 'react-router-dom';
 const SPRINT = { name: 'Sprint 1', end: '20 Jun 2025' };
 
 const INITIAL_TASKS = [
-  { id: 1, title: 'Desain UI login page',      status: 'done',        assignee: 'Rina',  deadline: '10 Jun', color: '#10B981' },
-  { id: 2, title: 'Buat REST API auth',         status: 'done',        assignee: 'Dimas', deadline: '11 Jun', color: '#10B981' },
-  { id: 3, title: 'Integrasi Supabase storage', status: 'in_progress', assignee: 'Rina',  deadline: '14 Jun', color: '#3B82F6' },
-  { id: 4, title: 'Halaman dashboard user',     status: 'in_progress', assignee: 'Dimas', deadline: '15 Jun', color: '#3B82F6' },
-  { id: 5, title: 'Notifikasi real-time',       status: 'todo',        assignee: 'Rizky', deadline: '18 Jun', color: '#94A3B8' },
-  { id: 6, title: 'Testing & QA',               status: 'todo',        assignee: 'Rizky', deadline: '20 Jun', color: '#94A3B8' },
+  { id: 1, title: 'Desain UI login page',      status: 'done',        assignee: 'Rina',  deadline: '10 Jun', color: '#10B981', threadCount: 4 },
+  { id: 2, title: 'Buat REST API auth',         status: 'done',        assignee: 'Dimas', deadline: '11 Jun', color: '#10B981', threadCount: 2 },
+  { id: 3, title: 'Integrasi Supabase storage', status: 'in_progress', assignee: 'Rina',  deadline: '14 Jun', color: '#3B82F6', threadCount: 7 },
+  { id: 4, title: 'Halaman dashboard user',     status: 'in_progress', assignee: 'Dimas', deadline: '15 Jun', color: '#3B82F6', threadCount: 1 },
+  { id: 5, title: 'Notifikasi real-time',       status: 'todo',        assignee: 'Rizky', deadline: '18 Jun', color: '#94A3B8', threadCount: 0 },
+  { id: 6, title: 'Testing & QA',               status: 'todo',        assignee: 'Rizky', deadline: '20 Jun', color: '#94A3B8', threadCount: 0 },
 ];
 
 const COLS = [
@@ -47,7 +47,15 @@ function TaskCard({ task, animating }) {
           : 'border-white/[0.07] bg-white/[0.03]'
       }`}
     >
-      <div className="text-xs font-semibold text-white leading-snug mb-1.5">{task.title}</div>
+      <div className="flex items-start justify-between gap-1 mb-1.5">
+        <div className="text-xs font-semibold text-white leading-snug">{task.title}</div>
+        {task.threadCount > 0 && (
+          <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-[9px] font-bold text-blue-300 flex-shrink-0">
+            <MessageSquare size={8} />
+            {task.threadCount}
+          </span>
+        )}
+      </div>
       <div className="flex items-center gap-2 flex-wrap">
         <span className="flex items-center gap-1 text-[10px] text-purple-300">
           <User size={8} /> {task.assignee}

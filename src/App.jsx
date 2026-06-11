@@ -17,6 +17,7 @@ import RoleMatcher from './components/landing/RoleMatcher';
 import CTA from './components/landing/CTA';
 import Footer from './components/landing/Footer';
 import LiveActivityFeed from './components/landing/LiveActivityFeed';
+import FreelanceMarketplaceSection from './components/landing/FreelanceMarketplace';
 import CollabFindBot from './components/CollabFindBot';
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Categories />
         <Features />
         <KanbanPreview />
+        <FreelanceMarketplaceSection />
         <ComparisonTable />
         <Testimonials />
         <RoleMatcher />

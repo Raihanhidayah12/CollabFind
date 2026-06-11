@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Folder, Users, Settings, User, Plus,
-  MessageSquare, Zap, Home, FileText, Calendar,
+  MessageSquare, Zap, Home, FileText, Calendar, Briefcase,
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
@@ -13,6 +13,9 @@ const NAV_ITEMS = [
   { label: 'Find Teammates', href: '/teammates', icon: Users, category: 'Navigation' },
   { label: 'Create Project', href: '/create-project', icon: Plus, category: 'Navigation' },
   { label: 'Chat', href: '/dashboard/chat', icon: MessageSquare, category: 'Navigation' },
+  { label: 'Freelance Marketplace', href: '/freelance', icon: Briefcase, category: 'Navigation' },
+  { label: 'Post a Job', href: '/freelance/post', icon: Briefcase, category: 'Navigation' },
+  { label: 'Freelance Dashboard', href: '/freelance/dashboard', icon: Briefcase, category: 'Navigation' },
   { label: 'My Profile', href: '/profile', icon: User, category: 'Navigation' },
   { label: 'Settings', href: '/settings', icon: Settings, category: 'Navigation' },
   { label: 'Portfolio Editor', href: '/dashboard/portfolio', icon: Zap, category: 'Navigation' },

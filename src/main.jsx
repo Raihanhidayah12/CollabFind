@@ -43,6 +43,12 @@ const ProductFeatures = lazy(() => import('./pages/ProductFeatures.jsx'))
 const FindTeammates = lazy(() => import('./pages/FindTeammates.jsx'))
 const PortfolioGeneratorLanding = lazy(() => import('./pages/PortfolioGeneratorLanding.jsx'))
 const ProjectInvitation = lazy(() => import('./pages/ProjectInvitation.jsx'))
+const FreelanceMarketplace = lazy(() => import('./pages/FreelanceMarketplace.jsx'))
+const PostJob = lazy(() => import('./pages/PostJob.jsx'))
+const JobDetail = lazy(() => import('./pages/JobDetail.jsx'))
+const MyProposals = lazy(() => import('./pages/MyProposals.jsx'))
+const ContractDetail = lazy(() => import('./pages/ContractDetail.jsx'))
+const FreelanceDashboard = lazy(() => import('./pages/FreelanceDashboard.jsx'))
 
 function PageLoader() {
   return (
@@ -97,6 +103,12 @@ createRoot(document.getElementById('root')).render(
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/changelog" element={<Changelog />} />
                 <Route path="/status" element={<Status />} />
+                <Route path="/freelance" element={<FreelanceMarketplace />} />
+                <Route path="/freelance/post" element={<PostJob />} />
+                <Route path="/freelance/job/:id" element={<JobDetail />} />
+                <Route path="/freelance/proposals" element={<MyProposals />} />
+                <Route path="/freelance/contracts/:id" element={<ContractDetail />} />
+                <Route path="/freelance/dashboard" element={<FreelanceDashboard />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>

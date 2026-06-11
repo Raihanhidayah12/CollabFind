@@ -71,6 +71,7 @@ function QuickActions() {
     { to: '/explore', icon: Search, label: 'Cari Proyek', gradient: 'from-slate-600/40 to-slate-700/40' },
     { to: '/teammates', icon: Users, label: 'Cari Teammate', gradient: 'from-purple-500/40 to-cyan-500/40' },
     { to: '/dashboard/chat', icon: MessageSquare, label: 'Chat', gradient: 'from-emerald-500/40 to-teal-500/40' },
+    { to: '/freelance', icon: Briefcase, label: 'Freelance', gradient: 'from-orange-500/40 to-pink-500/40' },
   ];
 
   return (
