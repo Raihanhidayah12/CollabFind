@@ -9,11 +9,11 @@ import SearchModal from './SearchModal';
 
 
 const navLinks = [
-  { label: 'Home', href: '#home' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Collaborators', href: '#collaborators' },
-  { label: 'Categories', href: '#categories' },
-  { label: 'Features', href: '#features' },
+  { label: 'Home',           href: '#home' },
+  { label: 'How It Works',   href: '#how-it-works' },
+  { label: 'Projects',       href: '#projects' },
+  { label: 'Features',       href: '#features' },
+  { label: 'Find Teammates', href: '/teammates', external: true },
 ];
 
 export default function Navbar() {
@@ -83,24 +83,26 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="
-                  px-4 py-2
-                  text-sm
-                  text-slate-400
-                  hover:text-white
-                  rounded-lg
-                  hover:bg-white/[0.06]
-                  transition-all duration-200
-                "
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.external ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="px-4 py-2 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-all duration-200"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="px-4 py-2 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-all duration-200"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </div>
 
           {/* Desktop Actions */}
@@ -254,23 +256,27 @@ className="
           >
             <div className="px-4 py-4 flex flex-col gap-2">
 
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className="
-                    px-4 py-3
-                    text-slate-300
-                    hover:text-white
-                    hover:bg-white/[0.06]
-                    rounded-lg
-                    transition-all
-                  "
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.external ? (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
 
               <div className="pt-4 mt-2 border-t border-white/[0.06]">
 

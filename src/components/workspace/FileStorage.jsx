@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, Download, Trash2, File, FileImage, FileText,
-  FileCode, FileArchive, AlertCircle, FolderOpen, X, Loader2, Eye, Lock,
+  FileCode, FileArchive, AlertCircle, FolderOpen, Folder, X, Loader2, Eye, Lock,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { logActivity } from '../../utils/activityLogger';
 
 // ── Konfigurasi ──────────────────────────────────────────────
 const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
@@ -19,6 +20,19 @@ const ALLOWED_EXTENSIONS = new Set([
 const IMG_EXTS  = new Set(['jpg','jpeg','png','gif','svg']);
 const CODE_EXTS = new Set(['js','ts','py','html','css']);
 const PDF_EXTS  = new Set(['pdf']);
+const DOC_EXTS  = new Set(['doc','docx','xls','xlsx','ppt','pptx']);
+const ARC_EXTS  = new Set(['zip','rar']);
+const DESIGN_EXTS = new Set(['fig','svg']);
+
+const FOLDERS = [
+  { id: 'all',      label: 'Semua File', icon: FolderOpen, exts: null,        color: '#3B82F6' },
+  { id: 'images',   label: 'Gambar',     icon: FileImage,  exts: IMG_EXTS,    color: '#8B5CF6' },
+  { id: 'docs',     label: 'Dokumen',    icon: FileText,   exts: DOC_EXTS,    color: '#10B981' },
+  { id: 'pdf',      label: 'PDF',        icon: FileText,   exts: PDF_EXTS,    color: '#EF4444' },
+  { id: 'code',     label: 'Kode',       icon: FileCode,   exts: CODE_EXTS,   color: '#3B82F6' },
+  { id: 'archives', label: 'Arsip',      icon: FileArchive, exts: ARC_EXTS,   color: '#F59E0B' },
+  { id: 'design',   label: 'Design',     icon: File,       exts: DESIGN_EXTS, color: '#EC4899' },
+];
 
 function isPreviewable(ext) {
   return IMG_EXTS.has(ext) || PDF_EXTS.has(ext) || CODE_EXTS.has(ext);
@@ -156,9 +170,10 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
   const [uploadProgress, setUploadProgress] = useState(0);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [previewFile, setPreviewFile]     = useState(null); // { file, url }
-  const [loadingPreview, setLoadingPreview] = useState(null); // file.id
+  const [previewFile, setPreviewFile]     = useState(null);
+  const [loadingPreview, setLoadingPreview] = useState(null);
   const [dragOver, setDragOver]   = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState('all');
   const fileInputRef = useRef(null);
 
   // ── Fetch list file ──────────────────────────────────────
@@ -270,6 +285,13 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     } else {
       addToast('File berhasil diunggah.', 'success');
       fetchFiles();
+      logActivity({
+        projectId,
+        userId: session.user.id,
+        action: 'file_uploaded',
+        entityType: 'file',
+        entityTitle: file.name,
+      });
     }
 
     setTimeout(() => setUploadProgress(0), 600);
@@ -353,143 +375,195 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     }
   }
 
+  // ── Filter files by folder ─────────────────────────────────
+  const activeFolder = FOLDERS.find(f => f.id === selectedFolder);
+  const filteredFiles = selectedFolder === 'all'
+    ? files
+    : files.filter(f => activeFolder?.exts?.has(getExt(f.file_name)));
+
+  // Count files per folder
+  const folderCounts = {};
+  FOLDERS.forEach(f => {
+    if (f.id === 'all') {
+      folderCounts[f.id] = files.length;
+    } else {
+      folderCounts[f.id] = files.filter(file => f.exts?.has(getExt(file.file_name))).length;
+    }
+  });
+
   // ── Render ────────────────────────────────────────────────
   return (
-    <div className="flex flex-col gap-5">
-
-      {/* Upload area — hidden when readOnly */}
-      {readOnly ? (
-        <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/8 text-amber-300">
-          <Lock size={15} className="flex-shrink-0" />
-          <p className="text-sm">Upload dinonaktifkan. Proyek ini sudah selesai dan kamu adalah kolaborator.</p>
-        </div>
-      ) : (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={onDrop}
-          onClick={() => !uploading && fileInputRef.current?.click()}
-          className={`relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
-            dragOver
-              ? 'border-blue-400/60 bg-blue-500/10'
-              : 'border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2] hover:bg-white/[0.04]'
-          }`}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            onChange={onFileInputChange}
-            accept={[...ALLOWED_EXTENSIONS].map((e) => `.${e}`).join(',')}
-          />
-
-          {uploading ? (
-            <>
-              <Loader2 size={28} className="text-blue-400 animate-spin" />
-              <p className="text-sm text-slate-400">Mengupload...</p>
-              <div className="w-48 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                  animate={{ width: `${uploadProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <p className="text-xs text-slate-500">{uploadProgress}%</p>
-            </>
-          ) : (
-            <>
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <Upload size={20} className="text-blue-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-white">Klik atau drag file ke sini</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Maks. 50 MB · JPG, PNG, PDF, ZIP, JS, TS, dan lainnya
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* File list */}
-      {loading ? (
-        <div className="flex flex-col gap-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-2xl bg-white/[0.03] animate-pulse border border-white/[0.05]" />
-          ))}
-        </div>
-      ) : files.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-14 text-center">
-          <FolderOpen size={36} className="text-slate-600" />
-          <p className="text-sm text-slate-500">Belum ada file yang diunggah.{!readOnly && ' Upload file pertamamu!'}</p>
-          {!readOnly && (
+    <div className="flex gap-4 min-h-[400px]">
+      {/* Folder sidebar */}
+      <div className="w-48 flex-shrink-0 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 p-3 flex flex-col gap-1 self-start">
+        <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 px-2 font-semibold">Folder</p>
+        {FOLDERS.map((folder) => {
+          const Icon = folder.icon;
+          const isActive = selectedFolder === folder.id;
+          return (
             <button
-              onClick={() => fileInputRef.current?.click()}
-              className="mt-1 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
+              key={folder.id}
+              onClick={() => setSelectedFolder(folder.id)}
+              className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition-all ${
+                isActive
+                  ? 'bg-white/[0.08] text-white font-medium border border-white/[0.1]'
+                  : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04] border border-transparent'
+              }`}
             >
-              <Upload size={14} /> Upload File
+              <Icon size={13} style={{ color: isActive ? folder.color : undefined }} />
+              <span className="truncate flex-1 text-left">{folder.label}</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                isActive ? 'bg-white/[0.08] text-slate-300' : 'text-slate-700'
+              }`}>
+                {folderCounts[folder.id] || 0}
+              </span>
             </button>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {files.map((file) => (
-            <motion.div
-              key={file.id}
-              layout
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="flex items-center gap-4 p-4 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 hover:border-white/[0.12] transition-all"
-            >
-              <FileIcon ext={file.file_type} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{file.file_name}</p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {formatBytes(file.file_size)} · {new Date(file.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </p>
-              </div>
+          );
+        })}
+      </div>
 
-              <div className="flex items-center gap-1 flex-shrink-0">
-                {isPreviewable(getExt(file.file_name)) && (
+      {/* Main content */}
+      <div className="flex-1 flex flex-col gap-5 min-w-0">
+
+        {/* Upload area */}
+        {readOnly ? (
+          <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/8 text-amber-300">
+            <Lock size={15} className="flex-shrink-0" />
+            <p className="text-sm">Upload dinonaktifkan. Proyek ini sudah selesai dan kamu adalah kolaborator.</p>
+          </div>
+        ) : (
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+            onClick={() => !uploading && fileInputRef.current?.click()}
+            className={`relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
+              dragOver
+                ? 'border-blue-400/60 bg-blue-500/10'
+                : 'border-white/[0.1] bg-white/[0.02] hover:border-white/[0.2] hover:bg-white/[0.04]'
+            }`}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={onFileInputChange}
+              accept={[...ALLOWED_EXTENSIONS].map((e) => `.${e}`).join(',')}
+            />
+
+            {uploading ? (
+              <>
+                <Loader2 size={28} className="text-blue-400 animate-spin" />
+                <p className="text-sm text-slate-400">Mengupload...</p>
+                <div className="w-48 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                    animate={{ width: `${uploadProgress}%` }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">{uploadProgress}%</p>
+              </>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                  <Upload size={20} className="text-blue-400" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-white">Klik atau drag file ke sini</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Maks. 50 MB · JPG, PNG, PDF, ZIP, JS, TS, dan lainnya
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* File list */}
+        {loading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-16 rounded-2xl bg-white/[0.03] animate-pulse border border-white/[0.05]" />
+            ))}
+          </div>
+        ) : filteredFiles.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-14 text-center">
+            <FolderOpen size={36} className="text-slate-600" />
+            <p className="text-sm text-slate-500">
+              {selectedFolder === 'all'
+                ? `Belum ada file yang diunggah.${!readOnly ? ' Upload file pertamamu!' : ''}`
+                : `Tidak ada file di folder "${activeFolder?.label}"`
+              }
+            </p>
+            {selectedFolder === 'all' && !readOnly && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-1 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
+              >
+                <Upload size={14} /> Upload File
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {filteredFiles.map((file) => (
+              <motion.div
+                key={file.id}
+                layout
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="flex items-center gap-4 p-4 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 hover:border-white/[0.12] transition-all"
+              >
+                <FileIcon ext={file.file_type} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white truncate">{file.file_name}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {formatBytes(file.file_size)} · {new Date(file.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  {isPreviewable(getExt(file.file_name)) && (
+                    <button
+                      onClick={() => handlePreview(file)}
+                      disabled={loadingPreview === file.id}
+                      title="Preview file"
+                      className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all disabled:opacity-40"
+                    >
+                      {loadingPreview === file.id
+                        ? <Loader2 size={15} className="animate-spin" />
+                        : <Eye size={15} />
+                      }
+                    </button>
+                  )}
                   <button
-                    onClick={() => handlePreview(file)}
-                    disabled={loadingPreview === file.id}
-                    title="Preview file"
-                    className="p-2 rounded-lg text-slate-400 hover:text-purple-400 hover:bg-purple-500/10 transition-all disabled:opacity-40"
+                    onClick={() => handleDownload(file)}
+                    title="Unduh file"
+                    className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
                   >
-                    {loadingPreview === file.id
-                      ? <Loader2 size={15} className="animate-spin" />
-                      : <Eye size={15} />
-                    }
+                    <Download size={15} />
                   </button>
-                )}
-                <button
-                  onClick={() => handleDownload(file)}
-                  title="Unduh file"
-                  className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
-                >
-                  <Download size={15} />
-                </button>
-                {!readOnly && (
-                  <button
-                    onClick={() => setConfirmDelete(file)}
-                    disabled={deletingId === file.id}
-                    title="Hapus file"
-                    className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {deletingId === file.id
-                      ? <Loader2 size={15} className="animate-spin" />
-                      : <Trash2 size={15} />
-                    }
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
+                  {!readOnly && (
+                    <button
+                      onClick={() => setConfirmDelete(file)}
+                      disabled={deletingId === file.id}
+                      title="Hapus file"
+                      className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {deletingId === file.id
+                        ? <Loader2 size={15} className="animate-spin" />
+                        : <Trash2 size={15} />
+                      }
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Preview modal */}
       <AnimatePresence>

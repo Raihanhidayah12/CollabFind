@@ -6,6 +6,7 @@ import {
   AlertCircle, Loader2, FileText, ChevronRight, Lock,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { logActivity } from '../../utils/activityLogger';
 
 // ── Toolbar actions untuk rich-text sederhana ────────────────
 const TOOLBAR_ACTIONS = [
@@ -145,6 +146,14 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
         setIsCreating(false);
         setIsEditing(false);
         addToast('Halaman berhasil dibuat.', 'success');
+        logActivity({
+          projectId,
+          userId: session.user.id,
+          action: 'wiki_edited',
+          entityType: 'wiki',
+          entityId: data.id,
+          entityTitle: data.title,
+        });
       }
     } else {
       const { data, error } = await supabase
@@ -165,6 +174,14 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
         setActivePage(data);
         setIsEditing(false);
         addToast('Halaman berhasil disimpan.', 'success');
+        logActivity({
+          projectId,
+          userId: session.user.id,
+          action: 'wiki_edited',
+          entityType: 'wiki',
+          entityId: data.id,
+          entityTitle: data.title,
+        });
       }
     }
 

@@ -1,20 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import CollabFindBot from '../components/CollabFindBot';
 import {
-  // eslint-disable-next-line no-unused-vars
   Zap, Bell,
   Users, FolderOpen, CheckCircle, Clock, ArrowRight,
   Plus, Sparkles, TrendingUp, Star, ExternalLink,
   MessageSquare, Loader2, UserPlus, Search,
+  Calendar, Activity, Eye, Wallet, Briefcase, Target,
+  AlertCircle, Mail, BarChart3,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
-import Features from '../components/landing/Features';
-import TrustedBy from '../components/landing/TrustedBy';
 import PageNavbar from '../components/PageNavbar';
-import Footer from '../components/landing/Footer';
+import AuthFooter from '../components/AuthFooter';
 import RatePlatform from '../components/RatePlatform';
+import OnboardingChecklist from '../components/OnboardingChecklist';
+import ChatInboxPreview from '../components/ChatInboxPreview';
+import Features from '../components/landing/Features';
+import ProjectProgressOverview from '../components/ProjectProgressOverview';
+import QuickStatusUpdate from '../components/QuickStatusUpdate';
+import AchievementsBadges from '../components/AchievementsBadges';
+import QuickSearch from '../components/QuickSearch';
+import WeeklyActivityChart from '../components/WeeklyActivityChart';
+import RecentVisitors from '../components/RecentVisitors';
+import ThemeToggle from '../components/ThemeToggle';
 
 /* ── helpers ─────────────────────────────────────────────── */
 const STATUS_STYLE = {
@@ -31,23 +41,255 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] },
 });
 
-/* ── Stat card (top row) ─────────────────────────────────── */
-function StatCard({ icon: Icon, label, value, color, delay }) {
+/* ── Stat card (top row) — clickable ──────────────────────── */
+function StatCard({ icon: Icon, label, value, color, delay, onClick }) {
+  const Comp = onClick ? 'button' : 'div';
   return (
     <motion.div {...fadeUp(delay)}
-      className="flex items-center gap-4 p-5 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70">
+      as={Comp}
+      onClick={onClick}
+      className={`flex items-center gap-4 p-5 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/70 ${onClick ? 'cursor-pointer hover:border-white/[0.14] hover:bg-[#0a0f1e]/90 transition-all group' : ''}`}>
       <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
         style={{ background: `${color}18`, border: `1px solid ${color}33` }}>
         <Icon size={20} style={{ color }} />
       </div>
-      <div>
+      <div className="flex-1 text-left">
         <div className="text-2xl font-extrabold text-white" style={{ fontFamily:"'Space Grotesk',sans-serif" }}>{value}</div>
         <div className="text-xs text-slate-500 mt-0.5">{label}</div>
       </div>
+      {onClick && (
+        <ArrowRight size={15} className="text-slate-600 group-hover:text-slate-400 transition-colors flex-shrink-0" />
+      )}
     </motion.div>
   );
 }
 
+/* ── Quick Actions Bar ───────────────────────────────────── */
+function QuickActions() {
+  const actions = [
+    { to: '/create-project', icon: Plus, label: 'Buat Proyek', gradient: 'from-blue-500 to-purple-600' },
+    { to: '/explore', icon: Search, label: 'Cari Proyek', gradient: 'from-slate-600/40 to-slate-700/40' },
+    { to: '/teammates', icon: Users, label: 'Cari Teammate', gradient: 'from-purple-500/40 to-cyan-500/40' },
+    { to: '/dashboard/chat', icon: MessageSquare, label: 'Chat', gradient: 'from-emerald-500/40 to-teal-500/40' },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {actions.map((a) => (
+        <Link key={a.to} to={a.to}
+          className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-gradient-to-r ${a.gradient} hover:opacity-90 transition-all shadow-lg`}>
+          <a.icon size={13} /> {a.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/* ── Skeleton Loader Grid ────────────────────────────────── */
+function SkeletonGrid({ count = 6, cols = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' }) {
+  return (
+    <div className={`grid ${cols} gap-4`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="p-5 rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/50 animate-pulse h-48" />
+      ))}
+    </div>
+  );
+}
+
+/* ── Recent Activity Feed ─────────────────────────────────── */
+function RecentActivityFeed({ activities, loading }) {
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[#0a0f1e]/50 animate-pulse h-16" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!activities || activities.length === 0) {
+    return (
+      <div className="text-center py-8 text-slate-500 text-sm">
+        Belum ada aktivitas terbaru.
+      </div>
+    );
+  }
+
+  const ICONS = {
+    message: { icon: MessageSquare, color: '#3B82F6' },
+    application: { icon: UserPlus, color: '#8B5CF6' },
+    task: { icon: Target, color: '#10B981' },
+    invitation: { icon: Mail, color: '#F59E0B' },
+  };
+
+  return (
+    <div className="space-y-3">
+      {activities.slice(0, 8).map((act, i) => {
+        const { icon: Icon, color } = ICONS[act.type] || ICONS.message;
+        const timeAgo = getTimeAgo(act.created_at);
+        return (
+          <motion.div key={act.id}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="flex items-start gap-3 p-3 rounded-xl border border-white/[0.05] bg-[#0a0f1e]/40 hover:bg-[#0a0f1e]/70 transition-all"
+          >
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: `${color}18`, border: `1px solid ${color}33` }}>
+              <Icon size={14} style={{ color }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-slate-300 leading-snug">{act.description}</p>
+              <p className="text-[10px] text-slate-600 mt-0.5">{timeAgo}</p>
+            </div>
+            {act.link && (
+              <Link to={act.link} className="text-[10px] text-blue-400 hover:text-blue-300 flex-shrink-0">
+                Lihat
+              </Link>
+            )}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function getTimeAgo(dateStr) {
+  if (!dateStr) return '';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Baru saja';
+  if (mins < 60) return `${mins}m lalu`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}j lalu`;
+  const days = Math.floor(hours / 24);
+  return `${days}h lalu`;
+}
+
+/* ── Upcoming Deadlines ───────────────────────────────────── */
+function UpcomingDeadlines({ tasks, loading }) {
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="p-3 rounded-xl bg-[#0a0f1e]/50 animate-pulse h-14" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!tasks || tasks.length === 0) {
+    return (
+      <div className="text-center py-6 text-slate-500 text-sm">
+        Tidak ada deadline mendatang.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {tasks.map((task, i) => {
+        const daysLeft = getDaysLeft(task.deadline);
+        const isUrgent = daysLeft <= 2;
+        const isPast = daysLeft < 0;
+        return (
+          <motion.div key={task.id}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+              isPast ? 'border-red-500/30 bg-red-500/5' :
+              isUrgent ? 'border-yellow-500/30 bg-yellow-500/5' :
+              'border-white/[0.05] bg-[#0a0f1e]/40'
+            }`}
+          >
+            <Calendar size={14} className={isPast ? 'text-red-400' : isUrgent ? 'text-yellow-400' : 'text-slate-500'} />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-slate-300 truncate">{task.title}</p>
+              <p className="text-[10px] text-slate-600">{task.projectTitle || 'Project'}</p>
+            </div>
+            <span className={`text-[10px] font-semibold flex-shrink-0 ${
+              isPast ? 'text-red-400' : isUrgent ? 'text-yellow-400' : 'text-slate-500'
+            }`}>
+              {isPast ? `${Math.abs(daysLeft)}h lalu` : daysLeft === 0 ? 'Hari ini' : `${daysLeft}h lagi`}
+            </span>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+function getDaysLeft(deadline) {
+  if (!deadline) return 999;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const dl = new Date(deadline);
+  dl.setHours(0, 0, 0, 0);
+  return Math.ceil((dl - now) / (1000 * 60 * 60 * 24));
+}
+
+
+/* ── Pending Invitations Badge ────────────────────────────── */
+function PendingInvitationsBadge({ invitations }) {
+  const navigate = useNavigate();
+  const pending = (invitations || []).filter(i => i.status === 'pending');
+  if (pending.length === 0) return null;
+
+  async function handleAccept(inviteId, projectId) {
+    await supabase
+      .from('invitations')
+      .update({ status: 'accepted', updated_at: new Date().toISOString() })
+      .eq('id', inviteId);
+    navigate(`/dashboard/workspace/${projectId}`);
+  }
+
+  async function handleDecline(inviteId) {
+    await supabase
+      .from('invitations')
+      .update({ status: 'declined', updated_at: new Date().toISOString() })
+      .eq('id', inviteId);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-yellow-500/20 bg-[#0a0f1e]/80 overflow-hidden"
+    >
+      <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Mail size={14} className="text-yellow-400" />
+          <h3 className="text-sm font-bold text-white">Undangan Masuk</h3>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-yellow-500/20 text-yellow-400">{pending.length}</span>
+        </div>
+      </div>
+      <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
+        {pending.slice(0, 4).map((inv) => (
+          <div key={inv.id} className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+            <p className="text-xs text-slate-300 font-medium truncate">{inv.projects?.title || 'Project'}</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Dari: {inv.inviter_name || 'User'}</p>
+            <div className="flex gap-1.5 mt-2">
+              <button
+                onClick={() => handleAccept(inv.id, inv.project_id)}
+                className="flex-1 py-1.5 rounded-lg text-[10px] font-semibold text-white bg-green-500/20 hover:bg-green-500/30 transition-all"
+              >
+                Terima
+              </button>
+              <button
+                onClick={() => handleDecline(inv.id)}
+                className="flex-1 py-1.5 rounded-lg text-[10px] font-semibold text-slate-400 border border-white/[0.08] hover:bg-white/[0.05] transition-all"
+              >
+                Tolak
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 /* ── Hero section (post-login) ───────────────────────────── */
 function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects, applications }) {
@@ -84,6 +326,11 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
               className="text-sm sm:text-base lg:text-lg text-slate-400 mb-8 max-w-xl leading-relaxed break-words">
               Kelola proyekmu, temukan kolaborator baru, dan akses workspace tim — semuanya di satu tempat.
             </motion.p>
+
+            {/* Quick Actions */}
+            <motion.div {...fadeUp(0.2)}>
+              <QuickActions />
+            </motion.div>
 
 
           </div>
@@ -187,18 +434,6 @@ function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects,
                   </motion.div>
                 )}
               </div>
-            </div>
-
-            {/* Bottom CTA */}
-            <div className="flex gap-2 py-3 px-3 border-t border-white/[0.06]">
-              <Link to="/create-project"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-400 hover:to-purple-500 transition-all">
-                <Plus size={13} /> Buat Proyek
-              </Link>
-              <Link to="/explore"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-semibold text-white bg-gradient-to-r from-slate-600/40 to-slate-700/40 rounded-lg hover:from-slate-600/60 hover:to-slate-700/60 transition-all">
-                <Search size={13} /> Cari
-              </Link>
             </div>
           </motion.div>
         </div>
@@ -935,6 +1170,13 @@ export default function Dashboard() {
   const [allProfiles, setAllProfiles]   = useState([]);
   const [loading, setLoading]           = useState(true);
 
+  // New state for sidebar
+  const [tasks, setTasks]               = useState([]);
+  const [tasksLoading, setTasksLoading] = useState(true);
+  const [pendingInvitations, setPendingInvitations] = useState([]);
+  const [activities, setActivities]     = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+
   /* ── 1. Get session ──────────────────────────────────────── */
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -961,6 +1203,7 @@ export default function Dashboard() {
         { data: allProj },
         { data: allProfs },
         { data: invitations },
+        { data: pendingInv },
       ] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', uid).single(),
         supabase.from('projects').select('*').eq('creator_id', uid).order('created_at', { ascending: false }),
@@ -970,46 +1213,97 @@ export default function Dashboard() {
         supabase.from('projects').select('*').neq('creator_id', uid).eq('status', 'open'),
         supabase.from('profiles').select('id, name, bio, skills, job_title, avatar_url').neq('id', uid).order('created_at', { ascending: false }).limit(24),
         supabase.from('invitations').select('*, projects(*)').eq('invitee_id', uid).eq('status', 'accepted'),
+        supabase.from('invitations').select('*, projects(title), inviter_id').eq('invitee_id', uid).eq('status', 'pending').order('created_at', { ascending: false }),
       ]);
+
+      // Fetch tasks from workspace_tasks table (may not exist in older schemas)
+      let allTasks = null;
+      try {
+        const tasksRes = await supabase
+          .from('workspace_tasks')
+          .select('id, title, deadline, status, project_id, assignee_id')
+          .eq('assignee_id', uid)
+          .neq('status', 'done')
+          .order('deadline', { ascending: true })
+          .limit(10);
+        if (!tasksRes.error && tasksRes.data) {
+          allTasks = tasksRes.data;
+        }
+      } catch {
+        // Table may not exist — silently skip
+      }
+
+      // Fetch inviter names for pending invitations
+      if (pendingInv && pendingInv.length > 0) {
+        const enriched = await Promise.all(
+          pendingInv.map(async (inv) => {
+            const { data: inviterProfile } = await supabase
+              .from('profiles')
+              .select('name')
+              .eq('id', inv.inviter_id)
+              .single();
+            return { ...inv, inviter_name: inviterProfile?.name || 'User' };
+          })
+        );
+        setPendingInvitations(enriched);
+      }
+
+      // Enrich tasks with project titles
+      if (allTasks && allTasks.length > 0) {
+        const projectIds = [...new Set(allTasks.map(t => t.project_id))];
+        const { data: projectData } = await supabase
+          .from('projects')
+          .select('id, title')
+          .in('id', projectIds);
+
+        const enrichedTasks = allTasks.map(t => ({
+          ...t,
+          projectTitle: projectData?.find(p => p.id === t.project_id)?.title || 'Project',
+        }));
+        setTasks(enrichedTasks);
+      }
+      setTasksLoading(false);
+
+      // Build activity feed from applications + invitations + messages
+      const activityItems = [];
+
+      if (apps) {
+        apps.slice(0, 4).forEach(app => {
+          const typeMap = { pending: 'application', accepted: 'application', rejected: 'application' };
+          activityItems.push({
+            id: `app-${app.id}`,
+            type: typeMap[app.status] || 'application',
+            description: app.status === 'pending'
+              ? `Lamaran kamu ke "${app.projects?.title}" masih pending`
+              : app.status === 'accepted'
+              ? `Lamaran kamu ke "${app.projects?.title}" diterima!`
+              : `Lamaran kamu ke "${app.projects?.title}" ditolak`,
+            created_at: app.created_at,
+            link: `/project/${app.project_id}`,
+          });
+        });
+      }
+
+      if (pendingInv) {
+        pendingInv.slice(0, 3).forEach(inv => {
+          activityItems.push({
+            id: `inv-${inv.id}`,
+            type: 'invitation',
+            description: `Undangan bergabung ke "${inv.projects?.title || 'project'}"`,
+            created_at: inv.created_at,
+            link: `/dashboard/workspace/${inv.project_id}`,
+          });
+        });
+      }
+
+      activityItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setActivities(activityItems.slice(0, 8));
+      setActivitiesLoading(false);
 
       if (prof)    setProfile(prof);
       if (apps)    setApplications(apps);
       if (feat)    setFeatured(feat);
       if (allProfs) setAllProfiles(allProfs);
-
-      // Convert project_collaborators entries matching this user's email into invitations
-      const userEmail = session.user.email?.toLowerCase();
-      if (userEmail) {
-        const { data: pendingCollabs } = await supabase
-          .from('project_collaborators')
-          .select('id, project_id')
-          .eq('email', userEmail)
-          .eq('status', 'invited');
-
-        if (pendingCollabs && pendingCollabs.length > 0) {
-          for (const collab of pendingCollabs) {
-            const { data: projectData } = await supabase
-              .from('projects')
-              .select('creator_id')
-              .eq('id', collab.project_id)
-              .single();
-
-            if (projectData) {
-              await supabase.from('invitations').insert({
-                inviter_id: projectData.creator_id,
-                invitee_id: uid,
-                project_id: collab.project_id,
-                status: 'pending'
-              });
-            }
-
-            await supabase
-              .from('project_collaborators')
-              .update({ status: 'converted' })
-              .eq('id', collab.id);
-          }
-        }
-      }
 
       // Merge own projects with accepted invitations
       let allMyProjects = proj || [];
@@ -1180,68 +1474,143 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Trusted By */}
-      <TrustedBy />
+      {/* Main 2-column layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
 
-      {/* Profile completion banner */}
-      {(!profile?.skills || profile.skills.length === 0) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="p-5 rounded-2xl border border-blue-500/25 bg-blue-500/8 flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <div className="text-sm font-semibold text-white mb-1">Lengkapi profilmu</div>
-              <div className="text-xs text-slate-400">Tambahkan skills agar sistem bisa merekomendasikan proyek dan menampilkanmu sebagai Top Collaborator.</div>
+          {/* ── Main content (left) ─────────────────────────── */}
+          <div className="flex-1 min-w-0 space-y-2">
+            {/* Profile completion banner (inline) */}
+            {(!profile?.skills || profile.skills.length === 0) && (
+              <div className="p-5 rounded-2xl border border-blue-500/25 bg-blue-500/8 flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="text-sm font-semibold text-white mb-1">Lengkapi profilmu</div>
+                  <div className="text-xs text-slate-400">Tambahkan skills agar sistem bisa merekomendasikan proyek dan menampilkanmu sebagai Top Collaborator.</div>
+                </div>
+                <Link to="/profile"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all flex-shrink-0">
+                  Edit Profil <ArrowRight size={14} />
+                </Link>
+              </div>
+            )}
+
+            {/* My Workspaces */}
+            {myProjects.length > 0 && <MyWorkspaces projects={myProjects} />}
+
+            {/* Active Collaborations */}
+            {applications.some(a => a.status === 'accepted') && <MyCollaborations applications={applications} />}
+
+            {/* Recommendations */}
+            <SkillBasedRecommendations
+              recommendations={recommendations}
+              teammateRecommendations={teammateRecommendations}
+              userSkills={userSkills}
+              session={session}
+              myProjects={myProjects}
+            />
+
+            {/* Featured Projects */}
+            {featured.length > 0 && <FeaturedSection featured={featured} />}
+
+            {/* Features */}
+            <Features
+              isDashboard={true}
+              firstWorkspaceId={firstWorkspaceId}
+              userSkills={userSkills}
+              recommendations={recommendations}
+              displayName={displayName}
+            />
+
+            {/* Top Collaborators */}
+            {collaborators.length > 0 && <TopCollaborators collaborators={collaborators} />}
+
+            {/* Find Teammates Preview */}
+            {allProfiles.length > 0 && <FindTeammatesPreview allProfiles={allProfiles} session={session} myProjects={myProjects} />}
+          </div>
+
+          {/* ── Sidebar (right, sticky) ─────────────────────── */}
+          <aside className="w-full lg:w-80 flex-shrink-0 space-y-4">
+            <div className="lg:sticky lg:top-20 space-y-4">
+              {/* Quick Search */}
+              <QuickSearch />
+
+              {/* Onboarding Checklist */}
+              <OnboardingChecklist profile={profile} myProjects={myProjects} />
+
+              {/* Quick Status Update */}
+              <QuickStatusUpdate session={session} />
+
+              {/* Pending Invitations */}
+              <PendingInvitationsBadge invitations={pendingInvitations} />
+
+              {/* Chat Inbox Preview */}
+              <ChatInboxPreview session={session} />
+
+              {/* Project Progress Overview */}
+              <ProjectProgressOverview myProjects={myProjects} />
+
+              {/* Weekly Activity Chart */}
+              <WeeklyActivityChart session={session} />
+
+              {/* Recent Activity Feed */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/80 overflow-hidden"
+              >
+                <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2">
+                  <Activity size={14} className="text-slate-400" />
+                  <h3 className="text-sm font-bold text-white">Aktivitas Terbaru</h3>
+                </div>
+                <div className="p-3 max-h-64 overflow-y-auto">
+                  <RecentActivityFeed activities={activities} loading={activitiesLoading} />
+                </div>
+              </motion.div>
+
+              {/* Upcoming Deadlines */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/80 overflow-hidden"
+              >
+                <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2">
+                  <Calendar size={14} className="text-red-400" />
+                  <h3 className="text-sm font-bold text-white">Deadline Mendatang</h3>
+                </div>
+                <div className="p-3 max-h-64 overflow-y-auto">
+                  <UpcomingDeadlines tasks={tasks} loading={tasksLoading} />
+                </div>
+              </motion.div>
+
+              {/* Recent Visitors */}
+              <RecentVisitors session={session} />
+
+              {/* Achievements */}
+              <AchievementsBadges
+                profile={profile}
+                myProjects={myProjects}
+                applications={applications}
+                session={session}
+              />
+
+              {/* Theme Toggle */}
+              <ThemeToggle />
             </div>
-            <Link to="/profile"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all flex-shrink-0">
-              Edit Profil <ArrowRight size={14} />
-            </Link>
-          </div>
+          </aside>
         </div>
-      )}
+      </div>
 
-      {/* My Workspaces */}
-      {myProjects.length > 0 && <MyWorkspaces projects={myProjects} />}
-
-      {/* Active Collaborations */}
-      {applications.some(a => a.status === 'accepted') && <MyCollaborations applications={applications} />}
-
-      {/* Recommendations */}
-      <SkillBasedRecommendations 
-        recommendations={recommendations} 
-        teammateRecommendations={teammateRecommendations} 
-        userSkills={userSkills} 
-        session={session} 
-        myProjects={myProjects} 
-      />
-
-      {/* Featured Projects */}
-      {featured.length > 0 && <FeaturedSection featured={featured} />}
-
-      {/* Features */}
-      <Features 
-        isDashboard={true} 
-        firstWorkspaceId={firstWorkspaceId} 
-        userSkills={userSkills} 
-        recommendations={recommendations} 
-        displayName={displayName} 
-      />
-
-      {/* Top Collaborators */}
-      {collaborators.length > 0 && <TopCollaborators collaborators={collaborators} />}
-
-{/* Find Teammates Preview */}
-      {allProfiles.length > 0 && <FindTeammatesPreview allProfiles={allProfiles} session={session} myProjects={myProjects} />}
-
-      {/* Rate Platform Section - for collecting user testimonials and ratings */}
-      <section className="py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-xl mx-auto">
-            <RatePlatform session={session} />
-          </div>
+      {/* Rate Platform — compact inline, not a full section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-lg mx-auto">
+          <RatePlatform session={session} />
         </div>
-      </section>
+      </div>
 
-      <Footer />
+      <AuthFooter />
+      <CollabFindBot isDashboard={true} />
     </div>
   );
 }

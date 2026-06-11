@@ -19,7 +19,8 @@ export default function Profile() {
     job_title: '',
     bio: '',
     skills: [],
-    avatar_url: ''
+    avatar_url: '',
+    location: ''
   });
   const [customSkill, setCustomSkill] = useState('');
   const [portfolio, setPortfolio] = useState(null);
@@ -43,7 +44,8 @@ export default function Profile() {
           job_title: data.job_title || '',
           bio: data.bio || '',
           skills: Array.isArray(data.skills) ? data.skills : (data.skills ? data.skills : []),
-          avatar_url: data.avatar_url || ''
+          avatar_url: data.avatar_url || '',
+          location: data.location || ''
         });
         // Backward compatibility: old data used profiles.portofolio_url for personal portfolio links.
         if (data.portofolio_url) {
@@ -111,6 +113,7 @@ export default function Profile() {
         bio: formData.bio || null,
         skills: skillsArray.length > 0 ? skillsArray : null,
         avatar_url: formData.avatar_url?.trim() || null,
+        location: formData.location || null,
         portofolio_url: links.website_url?.trim() || null,
       };
 
@@ -278,6 +281,19 @@ export default function Profile() {
                     placeholder="Tell others a bit about yourself, your experience, and what you're looking for..."
                     className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors resize-none"
                   ></textarea>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Location</label>
+                  <input 
+                    type="text" 
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="e.g. Jakarta, Indonesia"
+                    className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors"
+                  />
+                  <p className="text-xs text-slate-500 mt-1.5">Where are you based? This helps teammates find you by region.</p>
                 </div>
                 
                 <div>

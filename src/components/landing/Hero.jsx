@@ -141,66 +141,161 @@ export default function Hero() {
                 <div className="w-3 h-3 rounded-full bg-green-500/60" />
               </div>
               <div className="flex-1 mx-4 h-6 rounded-md bg-white/[0.04] flex items-center px-3">
-                <span className="text-xs text-slate-600">app.collabfind.io/dashboard</span>
+                <span className="text-xs text-slate-600">app.collabfind.io/workspace</span>
               </div>
             </div>
 
-            {/* Mock dashboard content */}
-            <div className="p-6 grid grid-cols-12 gap-4 min-h-[320px]">
-              {/* Sidebar */}
-              <div className="col-span-2 flex flex-col gap-3">
-                {['Dashboard','Projects','Team','Chat','Tasks','Portfolio'].map((item, i) => (
-                  <div key={item} className={`h-7 rounded-lg text-xs flex items-center px-3 ${i === 0 ? 'bg-blue-500/20 text-blue-400' : 'text-slate-600 hover:bg-white/[0.04]'}`}>
-                    {item}
+            {/* Mock workspace content */}
+            <div className="p-5">
+              {/* Workspace header */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/25 flex items-center justify-center">
+                  <Users size={12} className="text-blue-400" />
+                </div>
+                <div>
+                  <div className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">Workspace</div>
+                  <div className="text-xs font-bold text-white">E-Commerce App</div>
+                </div>
+              </div>
+
+              {/* Tab navigation */}
+              <div className="flex gap-1 p-1 rounded-lg bg-white/[0.04] border border-white/[0.06] w-fit mb-4">
+                {['File Storage', 'Wiki', 'Project Boards', 'Activity'].map((tab, i) => (
+                  <div key={tab} className={`px-3 py-1.5 rounded-md text-[10px] font-medium flex items-center gap-1.5 ${i === 2 ? 'bg-white/[0.09] text-white' : 'text-slate-600'}`}>
+                    {tab}
                   </div>
                 ))}
               </div>
 
-              {/* Main area — Kanban */}
-              <div className="col-span-7 grid grid-cols-3 gap-3">
-                {[
-                  { title: 'To Do', color: 'border-slate-600', items: ['Design system', 'API docs', 'Auth flow'] },
-                  { title: 'In Progress', color: 'border-blue-500/50', items: ['Landing page', 'DB schema'] },
-                  { title: 'Done', color: 'border-green-500/50', items: ['Wireframes', 'Setup repo', 'CI/CD'] },
-                ].map((col) => (
-                  <div key={col.title} className="flex flex-col gap-2">
-                    <div className={`text-xs font-semibold text-slate-400 pb-1 border-b ${col.color}`}>{col.title}</div>
-                    {col.items.map((task) => (
-                      <div key={task} className="p-2 rounded-lg bg-white/[0.04] border border-white/[0.06] text-xs text-slate-400 hover:bg-white/[0.07] transition-colors">
-                        {task}
-                      </div>
-                    ))}
+              {/* Sprint tabs */}
+              <div className="flex items-center gap-2 mb-3">
+                {['Backlog', 'Sprint 1', 'Sprint 2'].map((sp, i) => (
+                  <div key={sp} className={`px-3 py-1 rounded-full text-[9px] font-semibold border ${i === 1 ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white/[0.04] border-white/[0.09] text-slate-500'}`}>
+                    {sp}
                   </div>
                 ))}
+                <div className="ml-auto px-3 py-1 rounded-full text-[9px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+                  + Sprint Baru
+                </div>
               </div>
 
-              {/* Right — Team & Chat */}
-              <div className="col-span-3 flex flex-col gap-3">
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="text-xs text-slate-500 mb-2">Team</div>
-                  {['Raihan','Kezia','Budi','Sari'].map((name, i) => (
-                    <div key={name} className="flex items-center gap-2 py-1">
-                      <div className={`w-5 h-5 rounded-full text-[9px] flex items-center justify-center font-bold text-white`}
-                        style={{ background: ['#3B82F6','#8B5CF6','#06B6D4','#10B981'][i] }}>
-                        {name[0]}
+              {/* Progress bar */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] text-slate-600">Progress Sprint 1</span>
+                  <span className="text-[9px] font-bold text-slate-400">67%</span>
+                </div>
+                <div className="w-full bg-white/[0.04] h-1 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500" style={{ width: '67%' }} />
+                </div>
+                <span className="text-[8px] text-slate-700">4 dari 6 tugas selesai</span>
+              </div>
+
+              {/* Main area — Kanban + Activity */}
+              <div className="grid grid-cols-12 gap-3 min-h-[220px]">
+                {/* Kanban board */}
+                <div className="col-span-8 grid grid-cols-3 gap-2">
+                  {[
+                    {
+                      title: 'To Do', color: '#94A3B8',
+                      items: [
+                        { name: 'API docs', assignee: 'B', deadline: '20 Jun', threads: 0 },
+                        { name: 'Auth flow', assignee: 'S', deadline: '22 Jun', threads: 3 },
+                      ],
+                    },
+                    {
+                      title: 'In Progress', color: '#3B82F6',
+                      items: [
+                        { name: 'Landing page', assignee: 'R', deadline: '18 Jun', threads: 5 },
+                        { name: 'DB schema', assignee: 'K', deadline: '19 Jun', threads: 2 },
+                      ],
+                    },
+                    {
+                      title: 'Done', color: '#10B981',
+                      items: [
+                        { name: 'Wireframes', assignee: 'K', deadline: null, threads: 4 },
+                        { name: 'Setup repo', assignee: 'R', deadline: null, threads: 1 },
+                        { name: 'CI/CD pipeline', assignee: 'B', deadline: null, threads: 0 },
+                      ],
+                    },
+                  ].map((col) => (
+                    <div key={col.title} className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-1.5 px-1">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: col.color }} />
+                        <span className="text-[9px] font-bold text-slate-400">{col.title}</span>
+                        <span className="ml-auto px-1.5 py-0.5 rounded-full text-[8px] font-bold border" style={{ color: col.color, background: `${col.color}15`, borderColor: `${col.color}35` }}>
+                          {col.items.length}
+                        </span>
                       </div>
-                      <span className="text-xs text-slate-500">{name}</span>
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-green-400" />
+                      <div className="flex flex-col gap-1.5 p-2 rounded-xl border border-white/[0.06] min-h-[120px]" style={{ background: `${col.color}06` }}>
+                        {col.items.map((task) => (
+                          <div key={task.name} className="p-2 rounded-lg bg-[#0d1226] border border-white/[0.07] hover:border-white/[0.14] transition-colors">
+                            <div className="text-[10px] font-semibold text-white leading-snug mb-1">{task.name}</div>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {task.assignee && (
+                                <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-[7px] text-purple-300">
+                                  {task.assignee}
+                                </span>
+                              )}
+                              {task.deadline && (
+                                <span className="px-1 py-0.5 rounded bg-slate-500/10 border border-slate-500/20 text-[7px] text-slate-400">
+                                  {task.deadline}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 mt-1.5 text-[8px] text-slate-600">
+                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                              <span>Diskusi</span>
+                              {task.threads > 0 && (
+                                <span className="px-1 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[7px] font-bold">{task.threads}</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex-1 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="text-xs text-slate-500 mb-2">Live Chat</div>
-                  {[
-                    { name: 'Raihan', msg: 'API is ready!', color: '#3B82F6' },
-                    { name: 'Kezia', msg: 'Merging PR now', color: '#8B5CF6' },
-                    { name: 'Budi', msg: 'Tests passing', color: '#06B6D4' },
-                  ].map((m) => (
-                    <div key={m.name} className="mb-2">
-                      <span className="text-[10px] font-bold" style={{ color: m.color }}>{m.name}: </span>
-                      <span className="text-[10px] text-slate-500">{m.msg}</span>
-                    </div>
-                  ))}
+
+                {/* Right — Activity Timeline */}
+                <div className="col-span-4 flex flex-col gap-2">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">Hari ini</div>
+                    {[
+                      { user: 'R', name: 'Raihan', action: 'membuat task', detail: '"Auth flow"', color: '#10B981', icon: '+' },
+                      { user: 'K', name: 'Kezia', action: 'memindahkan task', detail: '→ In Progress', color: '#3B82F6', icon: '→' },
+                      { user: 'B', name: 'Budi', action: 'menambahkan komentar', detail: 'di "DB schema"', color: '#8B5CF6', icon: '💬' },
+                    ].map((a, i) => (
+                      <div key={i} className="flex items-start gap-2 py-1.5">
+                        <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold flex-shrink-0" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>
+                          {a.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] font-semibold text-white">{a.name}</span>
+                          <span className="text-[8px] text-slate-500"> {a.action} </span>
+                          <span className="text-[8px] text-white font-medium">{a.detail}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex-1 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">Kemarin</div>
+                    {[
+                      { user: 'S', name: 'Sari', action: 'mengupload file', detail: '"mockup.fig"', color: '#06B6D4', icon: '↑' },
+                      { user: 'R', name: 'Raihan', action: 'mengedit wiki', detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
+                    ].map((a, i) => (
+                      <div key={i} className="flex items-start gap-2 py-1.5">
+                        <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold flex-shrink-0" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>
+                          {a.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] font-semibold text-white">{a.name}</span>
+                          <span className="text-[8px] text-slate-500"> {a.action} </span>
+                          <span className="text-[8px] text-white font-medium">{a.detail}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

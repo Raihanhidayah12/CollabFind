@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Zap, FolderOpen, BookOpen, LayoutDashboard,
+  Zap, FolderOpen, BookOpen, LayoutDashboard, Activity,
   ArrowLeft, Users, Lock,
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
@@ -10,13 +10,15 @@ import PageNavbar from '../components/PageNavbar';
 import FileStorage from '../components/workspace/FileStorage';
 import Wiki from '../components/workspace/Wiki';
 import ProjectBoards from '../components/workspace/ProjectBoards';
+import ActivityTimeline from '../components/workspace/ActivityTimeline';
 import RateTeammatesModal from '../components/workspace/RateTeammatesModal';
 import Toast, { useToast } from '../components/workspace/Toast';
 
 const TABS = [
-  { id: 'files',  label: 'File Storage',   icon: FolderOpen },
-  { id: 'wiki',   label: 'Wiki',            icon: BookOpen },
-  { id: 'boards', label: 'Project Boards',  icon: LayoutDashboard },
+  { id: 'files',    label: 'File Storage',    icon: FolderOpen },
+  { id: 'wiki',     label: 'Wiki',            icon: BookOpen },
+  { id: 'boards',   label: 'Project Boards',  icon: LayoutDashboard },
+  { id: 'activity', label: 'Activity',        icon: Activity },
 ];
 
 export default function Workspace() {
@@ -213,6 +215,9 @@ export default function Workspace() {
           )}
           {activeTab === 'boards' && (
             <ProjectBoards projectId={projectId} session={session} addToast={addToast} readOnly={!isOwner} />
+          )}
+          {activeTab === 'activity' && (
+            <ActivityTimeline projectId={projectId} session={session} />
           )}
         </motion.div>
       </div>

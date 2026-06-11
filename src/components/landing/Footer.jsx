@@ -1,33 +1,19 @@
-import { Zap, GitBranch, Globe, Briefcase, Camera } from 'lucide-react';
+import { useState } from 'react';
+import { Zap, GitBranch, Globe, Briefcase, Camera, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const links = {
-  Product:    [
-    { label: 'Features',           to: '/features' },
-    { label: 'Explore Projects',   to: '/explore' },
-    { label: 'Find Teammates',     to: '/teammates' },
-    { label: 'Portfolio Generator',to: '/portfolio-generator' },
+  Platform: [
+    { label: 'Explore Projects',    to: '/explore' },
+    { label: 'Find Teammates',      to: '/teammates' },
+    { label: 'Features',            to: '/features' },
+    { label: 'Portfolio Generator', to: '/portfolio-generator' },
+    { label: 'Hackathons',          to: '/hackathons' },
   ],
-  Resources:  [
-    { label: 'Documentation', to: '/docs' },
-    { label: 'API Reference',  to: '/api' },
-    { label: 'Blog',           to: '/blog' },
-    { label: 'Changelog',      to: '/changelog' },
-    { label: 'Status',         to: '/status' },
-  ],
-  Community:  [
-    { label: 'Discord',      to: '/discord' },
-    { label: 'Forum',        to: '/forum' },
-    { label: 'Events',       to: '/events' },
-    { label: 'Hackathons',   to: '/hackathons' },
-    { label: 'Newsletter',   to: '/newsletter' },
-  ],
-  Company:    [
-    { label: 'About Us',        to: '/about' },
-    { label: 'Careers',         to: '/careers' },
-    { label: 'Press Kit',       to: '/press' },
-    { label: 'Privacy Policy',  to: '/privacy' },
-    { label: 'Terms of Service',to: '/terms' },
+  Company: [
+    { label: 'About Us',         to: '/about' },
+    { label: 'Privacy Policy',   to: '/privacy' },
+    { label: 'Terms of Service', to: '/terms' },
   ],
 };
 
@@ -39,14 +25,26 @@ const socials = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubmitted(true);
+      setEmail('');
+    }
+  };
+
   return (
     <footer className="border-t border-white/[0.06] bg-[#030712]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         {/* Top */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
-          {/* Brand */}
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
+
+          {/* Brand col — spans 2 */}
+          <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_16px_rgba(59,130,246,0.4)]">
                 <Zap size={16} className="text-white" />
@@ -55,10 +53,13 @@ export default function Footer() {
                 Collab<span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Find</span>
               </span>
             </Link>
+
             <p className="text-sm text-slate-500 leading-relaxed mb-5 max-w-xs">
-              The collaboration platform for students, developers, and creators to build amazing projects together.
+              Platform kolaborasi untuk pelajar, developer, dan kreator yang ingin build hal-hal keren bersama.
             </p>
-            <div className="flex gap-3">
+
+            {/* Social icons */}
+            <div className="flex gap-2 mb-6">
               {socials.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
@@ -69,6 +70,30 @@ export default function Footer() {
                   <Icon size={15} />
                 </a>
               ))}
+            </div>
+
+            {/* Newsletter */}
+            <div>
+              <p className="text-xs font-semibold text-slate-400 mb-2">Dapat update terbaru</p>
+              {submitted ? (
+                <p className="text-xs text-green-400">Terima kasih! Kamu sudah terdaftar.</p>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email kamu..."
+                    className="flex-1 min-w-0 px-3 py-2 text-xs rounded-lg border border-white/[0.08] bg-white/[0.04] text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.07] transition-all"
+                  />
+                  <button
+                    type="submit"
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-blue-500/30 hover:bg-blue-500/50 border border-blue-500/30 transition-all flex-shrink-0"
+                  >
+                    <ArrowRight size={13} />
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
@@ -87,6 +112,30 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          {/* Get started CTA col */}
+          <div className="flex flex-col gap-3">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mulai Sekarang</h4>
+            <Link
+              to="/register"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all duration-300"
+            >
+              Daftar Gratis <ArrowRight size={14} />
+            </Link>
+            <Link
+              to="/explore"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-200"
+            >
+              Explore Projects
+            </Link>
+            <div className="mt-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-xs text-slate-500">Platform aktif & online</span>
+              </div>
+              <p className="text-[11px] text-slate-600">No credit card required · Gratis selamanya untuk fitur dasar</p>
+            </div>
+          </div>
         </div>
 
         {/* Bottom */}
@@ -95,9 +144,7 @@ export default function Footer() {
             © {new Date().getFullYear()} CollabFind. All rights reserved.
           </p>
           <div className="flex items-center gap-1 text-xs text-slate-600">
-            Built with
-            <span className="mx-1">⚡</span>
-            React, Vite, Tailwind CSS & Supabase
+            Built with ⚡ React, Vite, Tailwind CSS &amp; Supabase
           </div>
         </div>
       </div>

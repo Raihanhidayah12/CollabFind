@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, MoreHorizontal, Trash2, Edit3, AlertCircle,
-  Loader2, Calendar, User, ChevronRight, X, Save, Lock,
+  Loader2, Calendar, User, ChevronRight, X, Save, Lock, MessageSquare,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import SprintForm from './SprintForm';
+import TaskThread from './TaskThread';
+import { logActivity } from '../../utils/activityLogger';
 
 // ── Konfigurasi kolom ────────────────────────────────────────
 const COLUMNS = [
@@ -75,7 +77,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
       />
 
       {/* Deadline & Assignee */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
           <label className="text-xs text-slate-500 mb-1 block">Deadline</label>
           <input
@@ -135,7 +137,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
 }
 
 // ── Task Card ────────────────────────────────────────────────
-function TaskCard({ task, teamMembers, onMove, onEdit, onDelete, readOnly = false, canEdit = true }) {
+function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, onOpenThread, readOnly = false, canEdit = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const assigneeName = teamMembers.find((m) => m.id === task.assignee_id)?.name || null;
   const pastDeadline = isPastDeadline(task.deadline);
@@ -148,7 +150,7 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete, readOnly = fals
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="relative p-3 rounded-xl border border-white/[0.07] bg-[#0d1226] hover:border-white/[0.14] transition-all group"
+      className="relative p-2.5 sm:p-3 rounded-xl border border-white/[0.07] bg-[#0d1226] hover:border-white/[0.14] transition-all group"
     >
       {/* Header kartu */}
       <div className="flex items-start justify-between gap-2">
@@ -156,7 +158,7 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete, readOnly = fals
         <div className="relative flex-shrink-0">
           <button
             onClick={() => setMenuOpen((p) => !p)}
-            className="p-1 rounded-lg text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100"
+            className="p-1 rounded-lg text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100 sm:opacity-100"
           >
             <MoreHorizontal size={14} />
           </button>
@@ -226,12 +228,26 @@ function TaskCard({ task, teamMembers, onMove, onEdit, onDelete, readOnly = fals
           </span>
         )}
       </div>
+
+      {/* Thread button */}
+      <button
+        onClick={() => onOpenThread(task)}
+        className="flex items-center gap-1.5 mt-2 px-2 py-1 rounded-lg text-[10px] text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
+      >
+        <MessageSquare size={10} />
+        <span>Diskusi</span>
+        {threadCount > 0 && (
+          <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[9px] font-bold">
+            {threadCount}
+          </span>
+        )}
+      </button>
     </motion.div>
   );
 }
 
 // ── Kolom Kanban ─────────────────────────────────────────────
-function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, readOnly = false, canEdit = true }) {
+function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, onOpenThread, readOnly = false, canEdit = true }) {
   const [adding, setAdding]     = useState(false);
   const [saving, setSaving]     = useState(false);
 
@@ -243,11 +259,11 @@ function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMo
   }
 
   return (
-    <div className="flex flex-col gap-3 min-w-0">
+    <div className="flex flex-col gap-2 sm:gap-3 min-w-0">
       {/* Header kolom */}
       <div className="flex items-center gap-2 px-1">
         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: col.color }} />
-        <h3 className="text-sm font-bold text-white flex-1" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
+        <h3 className="text-xs sm:text-sm font-bold text-white flex-1 truncate" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
           {col.label}
         </h3>
         <span
@@ -260,7 +276,7 @@ function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMo
 
       {/* Body kolom */}
       <div
-        className="flex-1 flex flex-col gap-2 p-3 rounded-2xl border border-white/[0.06] min-h-[200px]"
+        className="flex-1 flex flex-col gap-2 p-2 sm:p-3 rounded-2xl border border-white/[0.06] min-h-[150px] sm:min-h-[200px]"
         style={{ background: `${col.color}06` }}
       >
         <AnimatePresence>
@@ -278,9 +294,11 @@ function KanbanColumn({ col, tasks, teamMembers, sprints, selectedSprintId, onMo
                 key={task.id}
                 task={task}
                 teamMembers={teamMembers}
+                threadCount={threadCounts[task.id] || 0}
                 onMove={onMove}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onOpenThread={onOpenThread}
                 readOnly={readOnly}
                 canEdit={canEdit}
               />
@@ -335,6 +353,8 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
   const [savingEdit, setSavingEdit]     = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [threadCounts, setThreadCounts] = useState({});
+  const [threadModalTask, setThreadModalTask] = useState(null);
 
   // ── Fetch data ───────────────────────────────────────────
   const fetchAll = useCallback(async () => {
@@ -390,6 +410,21 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       setTeamMembers([]);
     }
 
+    // Fetch thread counts for all tasks
+    if (tasksData && tasksData.length > 0) {
+      const taskIds = tasksData.map(t => t.id);
+      const { data: threadCountsData } = await supabase
+        .from('workspace_task_threads')
+        .select('task_id')
+        .in('task_id', taskIds);
+
+      const counts = {};
+      (threadCountsData || []).forEach(t => {
+        counts[t.task_id] = (counts[t.task_id] || 0) + 1;
+      });
+      setThreadCounts(counts);
+    }
+
     setLoading(false);
   }, [projectId]);
 
@@ -440,12 +475,21 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       addToast('Gagal menambah tugas. Silakan coba lagi.', 'error');
     } else {
       setTasks((prev) => [...prev, newTask]);
+      logActivity({
+        projectId,
+        userId: session.user.id,
+        action: 'task_created',
+        entityType: 'task',
+        entityId: newTask.id,
+        entityTitle: newTask.title,
+      });
     }
   }
 
   // ── Pindah task (optimistic) ─────────────────────────────
   async function handleMove(task, newStatus) {
     const prevTasks = tasks;
+    const oldStatus = task.status;
     setTasks((prev) =>
       prev.map((t) => t.id === task.id ? { ...t, status: newStatus } : t)
     );
@@ -459,6 +503,16 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       setTasks(prevTasks);
       console.error('Move error:', error);
       addToast('Gagal memperbarui status tugas. Silakan coba lagi.', 'error');
+    } else {
+      logActivity({
+        projectId,
+        userId: session.user.id,
+        action: 'task_moved',
+        entityType: 'task',
+        entityId: task.id,
+        entityTitle: task.title,
+        details: { old_status: oldStatus, new_status: newStatus },
+      });
     }
   }
 
@@ -480,6 +534,14 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       setTasks((prev) => prev.map((t) => t.id === updated.id ? updated : t));
       setEditingTask(null);
       addToast('Tugas berhasil diperbarui.', 'success');
+      logActivity({
+        projectId,
+        userId: session.user.id,
+        action: 'task_edited',
+        entityType: 'task',
+        entityId: updated.id,
+        entityTitle: updated.title,
+      });
     }
   }
 
@@ -498,6 +560,14 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
     } else {
       setTasks((prev) => prev.filter((t) => t.id !== task.id));
       addToast('Tugas berhasil dihapus.', 'success');
+      logActivity({
+        projectId,
+        userId: session.user.id,
+        action: 'task_deleted',
+        entityType: 'task',
+        entityId: task.id,
+        entityTitle: task.title,
+      });
     }
   }
 
@@ -511,7 +581,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
   // ── Render ────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {COLUMNS.map((col) => (
           <div key={col.id} className="flex flex-col gap-3">
             <div className="h-7 w-24 rounded-lg bg-white/[0.04] animate-pulse" />
@@ -583,19 +653,21 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
         <p className="text-[10px] text-slate-600 mt-1">{doneTasks} dari {totalTasks} tugas selesai</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}
             col={col}
             tasks={tasks.filter((t) => t.status === col.id && (selectedSprint ? t.sprint_id === selectedSprint.id : !t.sprint_id))}
             teamMembers={teamMembers}
+            threadCounts={threadCounts}
             sprints={sprints}
             selectedSprintId={selectedSprint?.id || null}
             onMove={handleMove}
             onEdit={(task) => setEditingTask(task)}
             onDelete={(task) => setConfirmDelete(task)}
             onAddTask={handleAddTask}
+            onOpenThread={(task) => setThreadModalTask(task)}
             readOnly={readOnly}
             canEdit={isOwner}
           />
@@ -725,6 +797,20 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
               />
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Task Thread modal */}
+      <AnimatePresence>
+        {threadModalTask && (
+          <TaskThread
+            task={threadModalTask}
+            session={session}
+            teamMembers={teamMembers}
+            projectId={projectId}
+            onClose={() => setThreadModalTask(null)}
+            addToast={addToast}
+          />
         )}
       </AnimatePresence>
     </>
