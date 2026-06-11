@@ -29,11 +29,10 @@ Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator
 ## Daftar Isi
 
 - [Fitur Utama](#fitur-utama)
-- [Workspace](#workspace)
-- [Komunitas](#komunitas)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Struktur Proyek](#struktur-proyek)
+- [Screenshots](#screenshots)
 - [Roadmap](#roadmap)
 - [Berkontribusi](#berkontribusi)
 - [Lisensi](#lisensi)
@@ -49,23 +48,23 @@ Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator
 ### Smart Match
 Algoritma cerdas yang mencocokkan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi.
 
-### Workspace Kolaboratif
-Ruang kerja terintegrasi dengan **Kanban Board**, **Team Chat**, **File Storage**, dan **Wiki**.
+### Freelance Marketplace
+Marketplace terintegrasi untuk menghubungkan freelancer dengan klien — mulai dari posting pekerjaan, proposal, kontrak, hingga milestone delivery.
 
-### Portfolio Generator
-Builder portofolio dinamis untuk showcase hasil karya secara profesional.
+### Workspace Kolaboratif
+Ruang kerja terintegrasi dengan **Kanban Board**, **Team Chat**, **File Storage**, **Wiki**, dan **Activity Timeline**.
 
     </td>
     <td width="50%" valign="top">
 
 ### Eksplorasi Proyek
-Temukan dan ikuti proyek dari berbagai kategori dan industri.
+Temukan dan ikuti proyek dari berbagai kategori dan industri dengan pencarian cerdas.
+
+### Portfolio Generator
+Builder portofolio dinamis untuk showcase hasil karya secara profesional langsung dari profil.
 
 ### Forum & Komunitas
 Diskusi real-time, hackathon, events, dan newsletter komunitas.
-
-### Task Management
-Sprint planning dengan task assignment dan progress tracking.
 
     </td>
   </tr>
@@ -73,9 +72,12 @@ Sprint planning dengan task assignment dan progress tracking.
 
 **Dan masih banyak lagi:**
 
+- **Freelance Contracts & Milestones** — Kelola kontrak, milestone delivery, dan pembayaran freelance
 - **OAuth Login** — Sign in dengan Google atau GitHub
 - **Real-time Notifications** — Notifikasi invitation dan update proyek secara langsung
 - **Command Palette** — Tekan `Ctrl+K` untuk navigasi cepat (pengguna terdaftar)
+- **Sprint & Task Management** — Sprint planning dengan task assignment, deadline, dan progress tracking
+- **Task Thread Discussion** — Diskusi per tugas dengan @mention rekan tim
 - **Error Boundary** — Crash protection di setiap halaman
 - **Code Splitting** — Lazy loading untuk performa optimal
 - **Responsive Design** — Tampilan optimal di desktop, tablet, dan mobile
@@ -141,6 +143,7 @@ VITE_SUPABASE_PROJECT_ID=your-project-ref
 Jalankan SQL berikut di **Supabase SQL Editor** untuk membuat tabel yang dibutuhkan:
 
 - `supabase/create_project_collaborators.sql` — Tabel invitation by email
+- `supabase/migrations/20260612_freelance_marketplace.sql` — Tabel freelance (jobs, proposals, contracts, milestones)
 
 Pastikan tabel-tabel utama (`profiles`, `projects`, `invitations`) sudah ada sesuai skema aplikasi.
 
@@ -181,12 +184,21 @@ CollabFind/
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Footer.jsx
 │   │   │   ├── Features.jsx
+│   │   │   ├── FreelanceMarketplace.jsx
 │   │   │   └── ...
 │   │   ├── workspace/          # Workspace features
-│   │   │   ├── Kanban.jsx
-│   │   │   ├── Chat.jsx
+│   │   │   ├── ProjectBoards.jsx
+│   │   │   ├── FileStorage.jsx
+│   │   │   ├── TeamChat.jsx
 │   │   │   ├── Wiki.jsx
 │   │   │   └── ...
+│   │   ├── freelance/          # Freelance marketplace components
+│   │   │   ├── JobCard.jsx
+│   │   │   ├── FreelancerCard.jsx
+│   │   │   ├── ProposalCard.jsx
+│   │   │   ├── MilestoneTracker.jsx
+│   │   │   ├── SubmitProposalModal.jsx
+│   │   │   └── FreelanceFilters.jsx
 │   │   ├── AuthProvider.jsx    # Auth context & session
 │   │   ├── CommandPalette.jsx  # Ctrl+K navigation
 │   │   ├── ErrorBoundary.jsx   # Crash protection
@@ -203,6 +215,12 @@ CollabFind/
 │   │   ├── Profile.jsx
 │   │   ├── Settings.jsx
 │   │   ├── Workspace.jsx
+│   │   ├── FreelanceMarketplace.jsx
+│   │   ├── PostJob.jsx
+│   │   ├── JobDetail.jsx
+│   │   ├── MyProposals.jsx
+│   │   ├── ContractDetail.jsx
+│   │   ├── FreelanceDashboard.jsx
 │   │   ├── community/          # Forum, Events, Hackathons...
 │   │   ├── resources/          # Blog, Docs, API Ref...
 │   │   └── static/             # About, Privacy, Terms...
@@ -213,6 +231,8 @@ CollabFind/
 │   ├── main.jsx                # Entry point + routes
 │   └── index.css               # Global styles
 ├── supabase/                   # SQL migration files
+│   └── migrations/
+│       └── 20260612_freelance_marketplace.sql
 ├── .env.example                # Environment template
 ├── vercel.json                 # Vercel SPA rewrite rules
 ├── vite.config.js
@@ -229,9 +249,13 @@ CollabFind/
 |:---:|:---:|
 | ![Landing](https://collab-find.vercel.app/og-image.png) | ![Dashboard](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Dashboard) |
 
-| Explore Projects | Find Teammates |
+| Explore Projects | Freelance Marketplace |
 |:---:|:---:|
-| ![Explore](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Explore) | ![Teammates](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Teammates) |
+| ![Explore](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Explore) | ![Freelance](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Freelance+Marketplace) |
+
+| Workspace | Find Teammates |
+|:---:|:---:|
+| ![Workspace](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Workspace) | ![Teammates](https://via.placeholder.com/600x350/0a0f1e/00D2FF?text=Teammates) |
 
 </div>
 
@@ -267,11 +291,13 @@ Kontribusi sangat disambut! Berikut langkah-langkahnya:
 - [x] Smart Match & Find Teammates
 - [x] Real-time Notifications
 - [x] Forum, Events & Blog
+- [x] Freelance Marketplace (Jobs, Proposals, Contracts, Milestones)
 - [x] Code Splitting & Performance
 - [ ] Unit & Integration Tests
 - [ ] Dark/Light Mode Toggle
 - [ ] Mobile App (React Native)
 - [ ] AI-powered Project Recommendations
+- [ ] Stripe Payment Integration for Freelance
 
 ---
 
