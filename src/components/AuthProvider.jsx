@@ -38,6 +38,25 @@ async function syncOAuthProfile(session) {
     await supabase
       .from('profiles')
       .upsert(updates, { onConflict: 'id' });
+
+    // Process referral for first-time OAuth users
+    const refCode = localStorage.getItem('collabfind_ref');
+    if (refCode) {
+      const { data: referrer } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('referral_code', refCode)
+        .single();
+
+      if (referrer && referrer.id !== session.user.id) {
+        const { error } = await supabase.from('referrals').insert({
+          referrer_id: referrer.id,
+          referred_id: session.user.id,
+        });
+        if (error) console.warn('OAuth referral insert failed:', error.message);
+      }
+      localStorage.removeItem('collabfind_ref');
+    }
   } catch (err) {
     console.error('OAuth profile sync error:', err);
   }
