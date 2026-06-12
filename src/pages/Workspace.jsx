@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -21,7 +22,8 @@ const TABS = [
   { id: 'activity', label: 'Activity',        icon: Activity },
 ];
 
-export default function Workspace() {
+export default function Workspace() { 
+  const { t } = useLanguage();
   const { projectId } = useParams();
   const navigate      = useNavigate();
 
@@ -98,7 +100,7 @@ export default function Workspace() {
   // ── Loading ───────────────────────────────────────────────
   if (access === null) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
       </div>
     );
@@ -107,7 +109,7 @@ export default function Workspace() {
   // ── 403 — Akses ditolak ───────────────────────────────────
   if (access === false) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center p-6" style={{ fontFamily: "'Manrope',sans-serif" }}>
+      <div className="bg-[#050816] flex items-center justify-center p-6" style={{ fontFamily: "'Manrope',sans-serif" }}>
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-red-600/6 rounded-full blur-[120px]" />
         </div>
@@ -142,7 +144,7 @@ export default function Workspace() {
   const accentColor = project?.accent_color || '#3B82F6';
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />

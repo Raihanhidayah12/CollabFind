@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { motion } from 'framer-motion';
 import { Zap, Star, Wrench, ArrowUp, CheckCircle2 } from 'lucide-react';
 import PageNavbar from '../../components/PageNavbar';
@@ -64,9 +65,10 @@ const typeConfig = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Changelog() {
+export default function Changelog() { 
+  const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Changelog', href: null }]} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">

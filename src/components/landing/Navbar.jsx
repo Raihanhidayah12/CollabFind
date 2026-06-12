@@ -6,23 +6,24 @@ import UserMenu from '../UserMenu';
 import NotificationMenu from '../NotificationMenu';
 import { useAuth } from '../AuthProvider';
 import SearchModal from './SearchModal';
+import LanguageSwitcher from '../LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 
 const navLinks = [
-  { label: 'Home',           href: '#home' },
-  { label: 'How It Works',   href: '#how-it-works' },
-  { label: 'Projects',       href: '#projects' },
-  { label: 'Features',       href: '#features' },
-  { label: 'Find Teammates', href: '/teammates', external: true },
+  { labelKey: 'nav.home',           href: '#home' },
+  { labelKey: 'nav.howItWorks',     href: '#how-it-works' },
+  { labelKey: 'nav.projects',       href: '#projects' },
+  { labelKey: 'nav.features',       href: '#features' },
+  { labelKey: 'nav.findTeammates',  href: '/teammates', external: true },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  // Use shared auth context - already initialized from localStorage
   const { session } = useAuth();
-
+  const { t } = useLanguage();
   const location = useLocation();
 
   useEffect(() => {
@@ -86,20 +87,20 @@ export default function Navbar() {
             {navLinks.map((link) =>
               link.external ? (
                 <Link
-                  key={link.label}
+                  key={link.labelKey}
                   to={link.href}
                   className="px-4 py-2 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-all duration-200"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </Link>
               ) : (
                 <a
-                  key={link.label}
+                  key={link.labelKey}
                   href={link.href}
                   onClick={(e) => handleNavClick(e, link.href)}
                   className="px-4 py-2 text-sm text-slate-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-all duration-200"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                 </a>
               )
             )}
@@ -122,6 +123,8 @@ export default function Navbar() {
               <Search size={18} />
             </button>
 
+            <LanguageSwitcher />
+
             {session ? (
               <>
                 <Link
@@ -140,7 +143,7 @@ export default function Navbar() {
                   "
                 >
                   <Plus size={16} />
-                  Post Project
+                  {t('nav.postProject')}
                 </Link>
 
                 <NotificationMenu session={session} />
@@ -159,7 +162,7 @@ export default function Navbar() {
                     transition-colors
                   "
                 >
-                  Login
+                  {t('nav.login')}
                 </Link>
 
                 <Link
@@ -180,7 +183,7 @@ export default function Navbar() {
                     transition-all duration-300
                   "
                 >
-                  Sign Up
+                  {t('nav.signUp')}
                 </Link>
               </>
             )}
@@ -259,24 +262,28 @@ className="
               {navLinks.map((link) =>
                 link.external ? (
                   <Link
-                    key={link.label}
+                    key={link.labelKey}
                     to={link.href}
                     onClick={() => setOpen(false)}
                     className="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 ) : (
                   <a
-                    key={link.label}
+                    key={link.labelKey}
                     href={link.href}
                     onClick={(e) => handleNavClick(e, link.href)}
                     className="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/[0.06] rounded-lg transition-all"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </a>
                 )
               )}
+
+              <div className="px-4 py-2">
+                <LanguageSwitcher />
+              </div>
 
               <div className="pt-4 mt-2 border-t border-white/[0.06]">
 
@@ -297,7 +304,7 @@ className="
                       "
                     >
                       <Plus size={16} />
-                      Post Project
+                      {t('nav.postProject')}
                     </Link>
 
                     <div className="flex items-center gap-3">
@@ -322,7 +329,7 @@ className="
                         transition-all
                       "
                     >
-                      Login
+                      {t('nav.login')}
                     </Link>
 
                     <Link
@@ -340,7 +347,7 @@ className="
                         to-purple-600
                       "
                     >
-                      Sign Up
+                      {t('nav.signUp')}
                     </Link>
                   </div>
                 )}

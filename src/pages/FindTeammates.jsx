@@ -6,6 +6,7 @@ import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 import { SkeletonCard } from '../components/Skeleton';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function firstName(name) {
   return (name || 'Builder').split(' ')[0];
@@ -13,6 +14,7 @@ function firstName(name) {
 
 export default function FindTeammates() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [session, setSession] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
@@ -135,7 +137,7 @@ await supabase.from('messages').insert({
   }
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] text-white font-['Manrope',sans-serif]">
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Find Teammates' }]} homePath="/dashboard" />
 
       <main className="relative pt-28 pb-16 overflow-hidden">
@@ -152,10 +154,10 @@ await supabase.from('messages').insert({
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
               <div>
                 <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                  Find <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Teammates</span>
+                  {t('tm.title')} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('tm.titleHighlight')}</span>
                 </h1>
                 <p className="text-slate-400 mt-3 max-w-2xl">
-                  Temukan developer, designer, dan builder yang terbuka untuk diajak membangun proyek baru.
+                  {t('tm.subtitle')}
                 </p>
               </div>
               {session ? (

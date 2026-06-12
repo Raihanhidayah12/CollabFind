@@ -25,6 +25,7 @@ import QuickSearch from '../components/QuickSearch';
 import WeeklyActivityChart from '../components/WeeklyActivityChart';
 import RecentVisitors from '../components/RecentVisitors';
 import ThemeToggle from '../components/ThemeToggle';
+import { useLanguage } from '../i18n/LanguageContext';
 
 /* ── helpers ─────────────────────────────────────────────── */
 const STATUS_STYLE = {
@@ -66,12 +67,13 @@ function StatCard({ icon: Icon, label, value, color, delay, onClick }) {
 
 /* ── Quick Actions Bar ───────────────────────────────────── */
 function QuickActions() {
+  const { t } = useLanguage();
   const actions = [
-    { to: '/create-project', icon: Plus, label: 'Buat Proyek', gradient: 'from-blue-500 to-purple-600' },
-    { to: '/explore', icon: Search, label: 'Cari Proyek', gradient: 'from-slate-600/40 to-slate-700/40' },
-    { to: '/teammates', icon: Users, label: 'Cari Teammate', gradient: 'from-purple-500/40 to-cyan-500/40' },
-    { to: '/dashboard/chat', icon: MessageSquare, label: 'Chat', gradient: 'from-emerald-500/40 to-teal-500/40' },
-    { to: '/freelance', icon: Briefcase, label: 'Freelance', gradient: 'from-orange-500/40 to-pink-500/40' },
+    { to: '/create-project', icon: Plus, label: t('dash.createProject'), gradient: 'from-blue-500 to-purple-600' },
+    { to: '/explore', icon: Search, label: t('dash.searchProjects'), gradient: 'from-slate-600/40 to-slate-700/40' },
+    { to: '/teammates', icon: Users, label: t('dash.findTeammates'), gradient: 'from-purple-500/40 to-cyan-500/40' },
+    { to: '/dashboard/chat', icon: MessageSquare, label: t('dash.chat'), gradient: 'from-emerald-500/40 to-teal-500/40' },
+    { to: '/freelance', icon: Briefcase, label: t('dash.freelance'), gradient: 'from-orange-500/40 to-pink-500/40' },
   ];
 
   return (
@@ -112,7 +114,7 @@ function RecentActivityFeed({ activities, loading }) {
   if (!activities || activities.length === 0) {
     return (
       <div className="text-center py-8 text-slate-500 text-sm">
-        Belum ada aktivitas terbaru.
+        No recent activity yet.
       </div>
     );
   }
@@ -294,8 +296,9 @@ function PendingInvitationsBadge({ invitations }) {
 
 /* ── Hero section (post-login) ───────────────────────────── */
 function AuthHero({ displayName, myProjectsCount, applicationsCount, myProjects, applications }) {
+  const { t } = useLanguage();
   const hour     = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? t('dash.goodMorning') : hour < 17 ? t('dash.goodAfternoon') : t('dash.goodEvening');
   const [expandProjects, setExpandProjects] = useState(false);
   const [expandApps, setExpandApps]         = useState(false);
 
@@ -1159,6 +1162,7 @@ function FindTeammatesPreview({ allProfiles, session, myProjects }) {
    ════════════════════════════════════════════════════════════ */
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [session, setSession]           = useState(null);
   const [profile, setProfile]           = useState(null);
@@ -1442,20 +1446,20 @@ export default function Dashboard() {
 
   /* ── Stats ───────────────────────────────────────────────── */
   const stats = [
-    { icon: FolderOpen,  label: 'My Projects',  value: myProjects.length,                                            color: '#3B82F6', delay: 0.05 },
-    { icon: Users,       label: 'Applications', value: applications.length,                                          color: '#8B5CF6', delay: 0.10 },
-    { icon: CheckCircle, label: 'Accepted',      value: applications.filter(a => a.status === 'accepted').length,    color: '#10B981', delay: 0.15 },
-    { icon: Clock,       label: 'Pending',       value: applications.filter(a => a.status === 'pending').length,     color: '#F59E0B', delay: 0.20 },
+    { icon: FolderOpen,  label: t('dash.myProjects'),  value: myProjects.length,                                            color: '#3B82F6', delay: 0.05 },
+    { icon: Users,       label: t('dash.applications'), value: applications.length,                                          color: '#8B5CF6', delay: 0.10 },
+    { icon: CheckCircle, label: t('dash.accepted'),      value: applications.filter(a => a.status === 'accepted').length,    color: '#10B981', delay: 0.15 },
+    { icon: Clock,       label: t('dash.pending'),       value: applications.filter(a => a.status === 'pending').length,     color: '#F59E0B', delay: 0.20 },
   ];
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+    <div className="bg-[#050816] flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily:"'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily:"'Manrope',sans-serif" }}>
 
       <PageNavbar breadcrumbs={[{ label: 'Dashboard' }]} homePath="/dashboard" />
 
@@ -1485,12 +1489,12 @@ export default function Dashboard() {
             {(!profile?.skills || profile.skills.length === 0) && (
               <div className="p-5 rounded-2xl border border-blue-500/25 bg-blue-500/8 flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <div className="text-sm font-semibold text-white mb-1">Lengkapi profilmu</div>
-                  <div className="text-xs text-slate-400">Tambahkan skills agar sistem bisa merekomendasikan proyek dan menampilkanmu sebagai Top Collaborator.</div>
+                  <div className="text-sm font-semibold text-white mb-1">Complete your profile</div>
+                  <div className="text-xs text-slate-400">Add skills so the system can recommend projects and show you as a Top Collaborator.</div>
                 </div>
                 <Link to="/profile"
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all flex-shrink-0">
-                  Edit Profil <ArrowRight size={14} />
+                  Edit Profile <ArrowRight size={14} />
                 </Link>
               </div>
             )}

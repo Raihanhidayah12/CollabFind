@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import AuthParticles from '../components/AuthParticles';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -12,11 +13,10 @@ export default function ResetPassword() {
   const [error, setError]         = useState('');
   const [ready, setReady]         = useState(false);
   const [done, setDone]           = useState(false);
+  const { t } = useLanguage();
 
-  // Supabase sends the token in the URL hash — we need to let it process
   useEffect(() => {
     console.log('ResetPassword useEffect triggered');
-    // Give Supabase time to parse the hash and set the session
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('onAuthStateChange event:', event, 'session:', session);
       if (event === 'PASSWORD_RECOVERY') {
@@ -24,7 +24,6 @@ export default function ResetPassword() {
       }
     });
 
-    // Also check if already in recovery session
     supabase.auth.getSession().then(({ data }) => {
       console.log('getSession data:', data);
       if (data.session) setReady(true);
@@ -37,8 +36,8 @@ export default function ResetPassword() {
     e.preventDefault();
     setError('');
 
-    if (password !== confirm) return setError('Passwords do not match.');
-    if (password.length < 6)  return setError('Password must be at least 6 characters.');
+    if (password !== confirm) return setError(t('reset.notMatch'));
+    if (password.length < 6)  return setError(t('reset.tooShort'));
 
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
@@ -51,7 +50,6 @@ export default function ResetPassword() {
     setLoading(false);
   };
 
-  /* ── Success ── */
   if (done) return (
     <div className="auth-page">
       <div className="auth-bg" />
@@ -64,20 +62,19 @@ export default function ResetPassword() {
           <div className="auth-success-ring">
             <div className="auth-success-ring-inner">✓</div>
           </div>
-          <h1 className="auth-title">Password <span>Updated!</span></h1>
+          <h1 className="auth-title">{t('reset.updatedTitle')} <span>{t('reset.updatedTitleHighlight')}</span></h1>
           <p className="auth-subtitle" style={{ marginBottom: 24 }}>
-            Your password has been changed successfully.<br />
-            Redirecting to sign in...
+            {t('reset.updatedMessage')}<br />
+            {t('reset.redirecting')}
           </p>
           <Link to="/login" className="auth-btn auth-btn-primary" style={{ display: 'block', textAlign: 'center' }}>
-            Sign In Now →
+            {t('reset.signInNow')}
           </Link>
         </div>
       </div>
     </div>
   );
 
-  /* ── Not ready (token not yet processed) ── */
   if (!ready) return (
     <div className="auth-page">
       <div className="auth-bg" />
@@ -85,12 +82,11 @@ export default function ResetPassword() {
       <div className="auth-orb auth-orb-2" />
       <div className="auth-card" style={{ textAlign: 'center' }}>
         <div className="auth-spinner" style={{ margin: '0 auto 16px', width: 24, height: 24, borderWidth: 3 }} />
-        <p className="auth-subtitle">Verifying reset link...</p>
+        <p className="auth-subtitle">{t('reset.verifying')}</p>
       </div>
     </div>
   );
 
-  /* ── Form ── */
   return (
     <div className="auth-page">
       <div className="auth-bg" />
@@ -105,8 +101,8 @@ export default function ResetPassword() {
           <span className="auth-logo-text">CollabFind</span>
         </Link>
 
-        <h1 className="auth-title">New <span>Password</span></h1>
-        <p className="auth-subtitle">Choose a strong password for your account.</p>
+        <h1 className="auth-title">{t('reset.newTitle')} <span>{t('reset.newTitleHighlight')}</span></h1>
+        <p className="auth-subtitle">{t('reset.subtitle')}</p>
 
         <form onSubmit={handleReset} className="auth-form">
           {error && (
@@ -117,7 +113,7 @@ export default function ResetPassword() {
           )}
 
           <div className="auth-field">
-            <label className="auth-label">New Password</label>
+            <label className="auth-label">{t('reset.newPassword')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -127,7 +123,7 @@ export default function ResetPassword() {
               <input
                 type={showPw ? 'text' : 'password'}
                 className="auth-input"
-                placeholder="Min. 6 characters"
+                placeholder={t('reset.minChars')}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 autoComplete="new-password"
@@ -140,7 +136,7 @@ export default function ResetPassword() {
           </div>
 
           <div className="auth-field">
-            <label className="auth-label">Confirm Password</label>
+            <label className="auth-label">{t('auth.confirmPassword')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -153,7 +149,7 @@ export default function ResetPassword() {
                   confirm && confirm !== password ? 'auth-input--error' :
                   confirm && confirm === password ? 'auth-input--ok' : ''
                 }`}
-                placeholder="Repeat new password"
+                placeholder={t('reset.repeatPassword')}
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
                 autoComplete="new-password"
@@ -161,7 +157,7 @@ export default function ResetPassword() {
               />
               {confirm && (
                 <span className="auth-pw-toggle" style={{ pointerEvents: 'none' }}>
-                  {confirm === password ? 'Match' : 'Mismatch'}
+                  {confirm === password ? t('reset.match') : t('reset.mismatch')}
                 </span>
               )}
             </div>
@@ -169,15 +165,15 @@ export default function ResetPassword() {
 
           <button type="submit" className="auth-btn auth-btn-primary" disabled={loading}>
             {loading
-              ? <><span className="auth-spinner" /> Updating password...</>
-              : 'Update Password →'
+              ? <><span className="auth-spinner" /> {t('reset.updating')}</>
+              : t('reset.updatePassword')
             }
           </button>
         </form>
 
         <p className="auth-footer" style={{ marginTop: 16 }}>
           <Link to="/login" className="auth-link" style={{ color: 'rgba(148,163,184,0.5)', fontSize: 12 }}>
-            ← Back to Sign In
+            {t('forgot.backToSignIn')}
           </Link>
         </p>
       </div>

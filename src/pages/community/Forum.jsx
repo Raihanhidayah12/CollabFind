@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -51,7 +52,8 @@ function PostCard({ post }) {
   );
 }
 
-export default function Forum() {
+export default function Forum() { 
+  const { t } = useLanguage();
   const [posts,    setPosts]    = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [active,   setActive]   = useState('all');
@@ -109,7 +111,7 @@ export default function Forum() {
   const filtered = active === 'all' ? posts : posts.filter(p => p.category === active);
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Forum', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 

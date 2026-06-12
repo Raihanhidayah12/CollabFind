@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, X, Calendar, User, Tag, Zap, Loader2 } from 'lucide-react';
@@ -197,7 +198,8 @@ function EmptyState({ category }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Blog() {
+export default function Blog() { 
+  const { t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -234,7 +236,7 @@ export default function Blog() {
   }, [fetchPosts]);
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Blog', href: null }]} />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">

@@ -1,18 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check, X, Minus, Zap } from 'lucide-react';
-
-const FEATURES = [
-  { label: 'Project matching berbasis skill', collabfind: true,  github: false, upwork: false, discord: false },
-  { label: 'Workspace kolaborasi terintegrasi', collabfind: true,  github: 'partial', upwork: false, discord: false },
-  { label: 'Kanban & task management',         collabfind: true,  github: 'partial', upwork: false, discord: false },
-  { label: 'Real-time team chat',              collabfind: true,  github: false, upwork: false, discord: true },
-  { label: 'Portfolio generator otomatis',     collabfind: true,  github: false, upwork: false, discord: false },
-  { label: 'Smart teammate recommendation',   collabfind: true,  github: false, upwork: false, discord: false },
-  { label: 'Gratis untuk semua fitur dasar',   collabfind: true,  github: true,  upwork: false, discord: true },
-  { label: 'Fokus untuk pelajar & builder',    collabfind: true,  github: false, upwork: false, discord: false },
-  { label: 'Version control & code hosting',  collabfind: false, github: true,  upwork: false, discord: false },
-  { label: 'Freelance marketplace',           collabfind: false, github: false, upwork: true,  discord: false },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const PLATFORMS = [
   { key: 'collabfind', label: 'CollabFind', color: '#3B82F6', highlight: true },
@@ -44,8 +32,25 @@ function Cell({ value, isCollabFind }) {
 }
 
 export default function ComparisonTable() {
+  const { t } = useLanguage();
+
+  const FEATURES = [
+    { label: t('cmp.f1'),  collabfind: true,  github: false,    upwork: false, discord: false },
+    { label: t('cmp.f2'),  collabfind: true,  github: 'partial', upwork: false, discord: false },
+    { label: t('cmp.f3'),  collabfind: true,  github: 'partial', upwork: false, discord: false },
+    { label: t('cmp.f4'),  collabfind: true,  github: false,    upwork: false, discord: true },
+    { label: t('cmp.f5'),  collabfind: true,  github: false,    upwork: false, discord: false },
+    { label: t('cmp.f6'),  collabfind: true,  github: false,    upwork: false, discord: false },
+    { label: t('cmp.f7'),  collabfind: true,  github: false,    upwork: true,  discord: false },
+    { label: t('cmp.f8'),  collabfind: true,  github: false,    upwork: false, discord: true },
+    { label: t('cmp.f9'),  collabfind: true,  github: false,    upwork: false, discord: false },
+    { label: t('cmp.f10'), collabfind: true,  github: true,     upwork: false, discord: true },
+    { label: t('cmp.f11'), collabfind: true,  github: false,    upwork: false, discord: false },
+    { label: t('cmp.f12'), collabfind: false, github: true,     upwork: false, discord: false },
+  ];
+
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="comparison-section py-24 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/6 rounded-full blur-[140px]" />
       </div>
@@ -58,14 +63,14 @@ export default function ComparisonTable() {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-medium mb-4">
-            <Zap size={12} /> Why CollabFind?
+            <Zap size={12} /> {t('cmp.badge')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Beda dari platform{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">lainnya</span>
+            {t('cmp.title')}{' '}
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('cmp.titleHighlight')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            CollabFind satu-satunya platform yang dibangun khusus untuk kolaborasi project — bukan sekadar coding platform atau chat tool.
+            {t('cmp.subtitle')}
           </p>
         </motion.div>
 
@@ -79,7 +84,7 @@ export default function ComparisonTable() {
           {/* Header row */}
           <div className="grid bg-white/[0.03] border-b border-white/[0.06]"
             style={{ gridTemplateColumns: '1fr repeat(4, minmax(0, 1fr))' }}>
-            <div className="p-4 text-xs text-slate-600 uppercase tracking-wider font-medium">Fitur</div>
+            <div className="p-4 text-xs text-slate-600 uppercase tracking-wider font-medium">{t('cmp.featureHeader')}</div>
             {PLATFORMS.map((p) => (
               <div
                 key={p.key}
@@ -130,9 +135,9 @@ export default function ComparisonTable() {
           viewport={{ once: true }}
           className="flex items-center justify-center gap-6 mt-5 text-xs text-slate-600"
         >
-          <span className="flex items-center gap-1.5"><Check size={12} className="text-green-400" /> Tersedia</span>
-          <span className="flex items-center gap-1.5"><Minus size={12} className="text-yellow-600" /> Sebagian</span>
-          <span className="flex items-center gap-1.5"><X size={12} className="text-slate-700" /> Tidak ada</span>
+          <span className="flex items-center gap-1.5"><Check size={12} className="text-green-400" /> {t('cmp.available')}</span>
+          <span className="flex items-center gap-1.5"><Minus size={12} className="text-yellow-600" /> {t('cmp.partial')}</span>
+          <span className="flex items-center gap-1.5"><X size={12} className="text-slate-700" /> {t('cmp.unavailable')}</span>
         </motion.div>
       </div>
     </section>

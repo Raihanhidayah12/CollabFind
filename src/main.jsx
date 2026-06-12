@@ -9,6 +9,7 @@ import ToastContainer from './components/ToastContainer.jsx'
 import { AuthProvider } from './components/AuthProvider.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import CommandPalette from './components/CommandPalette.jsx'
+import { LanguageProvider } from './i18n/LanguageContext.jsx'
 
 const Login = lazy(() => import('./pages/Login.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
@@ -60,6 +61,7 @@ function PageLoader() {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <LanguageProvider>
     <BrowserRouter>
       <NotificationProvider>
         <AuthProvider>
@@ -115,5 +117,6 @@ createRoot(document.getElementById('root')).render(
         </AuthProvider>
       </NotificationProvider>
     </BrowserRouter>
+    </LanguageProvider>
   </StrictMode>,
 )

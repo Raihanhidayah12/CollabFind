@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const AVATAR_COLORS = ['#3B82F6','#8B5CF6','#06B6D4','#10B981','#F59E0B','#EC4899'];
 
@@ -26,6 +27,7 @@ function CardSkeleton() {
 export default function Collaborators() {
   const [users, setUsers]     = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetch() {
@@ -76,13 +78,13 @@ export default function Collaborators() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-medium mb-4">
-            <Star size={12} /> Top Rated
+            <Star size={12} /> {t('collab.badge')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Top <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Collaborators</span>
+            {t('collab.title')} <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">{t('collab.titleHighlight')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Work with the best — browse profiles of highly-rated builders.
+            {t('collab.subtitle')}
           </p>
         </motion.div>
 
@@ -92,8 +94,8 @@ export default function Collaborators() {
             : users.length === 0
             ? (
               <div className="col-span-3 text-center text-slate-600 py-12">
-                No collaborators yet. Be the first to{' '}
-                <a href="/register" className="text-blue-400 hover:underline">join</a>!
+                {t('collab.noCollabs')}{' '}
+                <a href="/register" className="text-blue-400 hover:underline">{t('collab.join')}</a>!
               </div>
             )
             : users.map((u, i) => {
@@ -132,8 +134,8 @@ export default function Collaborators() {
                         {initial}
                       </div>
                       <div>
-                        <div className="font-bold text-white text-sm group-hover:text-blue-300 transition-colors">{u.name || 'Anonymous'}</div>
-                        <div className="text-xs text-slate-500">{u.job_title || u.role || 'Member'}</div>
+                        <div className="font-bold text-white text-sm group-hover:text-blue-300 transition-colors">{u.name || t('collab.anonymous')}</div>
+                        <div className="text-xs text-slate-500">{u.job_title || u.role || t('collab.member')}</div>
                       </div>
                     </div>
 
@@ -149,7 +151,7 @@ export default function Collaborators() {
 
                     <div>
                       <div className="flex justify-between text-xs text-slate-600 mb-1.5">
-                        <span>Collaboration Score</span>
+                        <span>{t('collab.score')}</span>
                         <span style={{ color }}>{score}/100</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-white/[0.05] overflow-hidden">

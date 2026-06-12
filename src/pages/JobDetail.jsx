@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -40,7 +41,8 @@ function formatBudget(min, max, type) {
   return `${range} (${type === 'hourly' ? '/hr' : 'fixed'})`;
 }
 
-export default function JobDetail() {
+export default function JobDetail() { 
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
@@ -154,7 +156,7 @@ export default function JobDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <Loader2 size={24} className="text-blue-500 animate-spin" />
       </div>
     );
@@ -162,7 +164,7 @@ export default function JobDetail() {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-lg font-bold text-white mb-2">Job not found</h2>
           <Link to="/freelance" className="text-blue-400 text-sm hover:underline">Back to Marketplace</Link>
@@ -175,7 +177,7 @@ export default function JobDetail() {
   const isOwner = session?.user.id === job.client_id;
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
       </div>

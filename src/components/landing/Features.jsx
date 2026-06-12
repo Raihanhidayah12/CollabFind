@@ -6,6 +6,7 @@ import {
   Zap, Code2, Settings, Globe, Shield, Bell, Layout,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 import SmartMatchDemo from './SmartMatchDemo';
 import ChatDemo from './ChatDemo';
 import WorkspacePreviewModal from './WorkspacePreviewModal';
@@ -31,6 +32,7 @@ function SkeletonCard() {
 
 export default function Features({ isDashboard = false, firstWorkspaceId = null, userSkills, recommendations, displayName }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showDemo, setShowDemo] = useState(false);
@@ -66,20 +68,20 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
     if (firstWorkspaceId) {
       navigate(`/dashboard/workspace/${firstWorkspaceId}`);
     } else {
-      alert('Anda belum memiliki workspace. Silakan buat proyek baru atau gabung ke proyek yang ada terlebih dahulu.');
+      alert(t('feat.noWorkspace'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const getDashboardAction = (title) => {
     switch (title) {
-      case 'Smart Project Matching': return { label: 'Lihat Rekomendasi', action: () => scrollTo('recommendations') };
-      case 'Team Collaboration Workspace': return { label: 'Buka Workspace', action: handleWorkspaceAction };
-      case 'Real-time Chat': return { label: 'Buka Chat', link: '/dashboard/chat' };
-      case 'Task Management': return { label: 'Buka Papan', action: handleWorkspaceAction };
-      case 'Portfolio Generator': return { label: 'Edit Portfolio', link: '/dashboard/portfolio' };
-      case 'Skill-Based Recommendations': return { label: 'Lihat Rekomendasi', action: () => scrollTo('recommendations') };
-      default: return { label: 'Buka Fitur', action: handleWorkspaceAction };
+      case 'Smart Project Matching': return { label: t('feat.viewRecommendations'), action: () => scrollTo('recommendations') };
+      case 'Team Collaboration Workspace': return { label: t('feat.openWorkspace'), action: handleWorkspaceAction };
+      case 'Real-time Chat': return { label: t('feat.openChat'), link: '/dashboard/chat' };
+      case 'Task Management': return { label: t('feat.openBoard'), action: handleWorkspaceAction };
+      case 'Portfolio Generator': return { label: t('feat.editPortfolio'), link: '/dashboard/portfolio' };
+      case 'Skill-Based Recommendations': return { label: t('feat.viewRecommendations'), action: () => scrollTo('recommendations') };
+      default: return { label: t('feat.openFeature'), action: handleWorkspaceAction };
     }
   };
 
@@ -98,16 +100,16 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-medium mb-4">
-            <Sparkles size={12} /> {isDashboard ? 'Semua Fitur Aktif' : 'Platform Features'}
+            <Sparkles size={12} /> {isDashboard ? t('feat.badgeDashboard') : t('feat.badge')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            {isDashboard ? 'Tools yang kamu butuhkan untuk ' : 'Everything you need to '}
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">ship</span>
+            {isDashboard ? t('feat.headingDashboard') : t('feat.heading')}{' '}
+            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{t('feat.ship')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
             {isDashboard
-              ? 'Karena kamu sudah login, semua fitur di bawah ini bisa langsung kamu gunakan.'
-              : 'A complete suite of tools designed for distributed teams building real products together.'}
+              ? t('feat.subtitleDashboard')
+              : t('feat.subtitle')}
           </p>
         </motion.div>
 
@@ -151,7 +153,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={() => setShowDemo(true)}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors self-start"
                     >
-                      <Sparkles size={12} /> Lihat Cara Kerja →
+                      <Sparkles size={12} /> {t('feat.seeHowItWorks')} →
                     </button>
                   )}
 
@@ -161,7 +163,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={(e) => { e.stopPropagation(); setShowSkillDemo(true); }}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors self-start"
                     >
-                      <Sparkles size={12} /> Lihat Cara Kerja →
+                      <Sparkles size={12} /> {t('feat.seeHowItWorks')} →
                     </button>
                   )}
 
@@ -171,7 +173,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={(e) => { e.stopPropagation(); setShowWorkspaceModal(true); }}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors self-start"
                     >
-                      <Users size={12} /> Lihat Preview →
+                      <Users size={12} /> {t('feat.seePreview')} →
                     </button>
                   )}
 
@@ -181,7 +183,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={(e) => { e.stopPropagation(); setShowChatDemo(true); }}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors self-start"
                     >
-                      <MessageSquare size={12} /> Lihat Cara Kerja →
+                      <MessageSquare size={12} /> {t('feat.seeHowItWorks')} →
                     </button>
                   )}
 
@@ -191,7 +193,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={(e) => { e.stopPropagation(); setShowTaskDemo(true); }}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors self-start"
                     >
-                      <CheckSquare size={12} /> Lihat Cara Kerja →
+                      <CheckSquare size={12} /> {t('feat.seeHowItWorks')} →
                     </button>
                   )}
 
@@ -201,7 +203,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       onClick={(e) => { e.stopPropagation(); setShowPortfolioDemo(true); }}
                       className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors self-start"
                     >
-                      <Layout size={12} /> Lihat Cara Kerja →
+                      <Layout size={12} /> {t('feat.seeHowItWorks')} →
                     </button>
                   )}
 
@@ -228,7 +230,7 @@ export default function Features({ isDashboard = false, firstWorkspaceId = null,
                       state={{ from: '/dashboard' }}
                       className="mt-4 flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl text-xs font-semibold text-white border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.09] transition-all self-start"
                     >
-                      Coba Langsung <Zap size={12} />
+                      {t('feat.tryNow')} <Zap size={12} />
                     </Link>
                   )}
 

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, RefreshCw, Zap, Globe, Database, HardDrive } from 'lucide-react';
@@ -167,7 +168,8 @@ function OverallBanner({ services }) {
 
 const REFRESH_INTERVAL = 30; // seconds
 
-export default function Status() {
+export default function Status() { 
+  const { t } = useLanguage();
   const [services, setServices] = useState(
     SERVICE_DEFS.map((s) => ({ ...s, status: STATUS.CHECKING, responseMs: null, error: null }))
   );
@@ -229,7 +231,7 @@ export default function Status() {
   }, [lastChecked]);
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Status', href: null }]} />
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">

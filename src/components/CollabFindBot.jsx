@@ -2,69 +2,26 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, RotateCcw, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-// ─── System prompt — batasi ke konteks CollabFind ─────────────────────────────
-const SYSTEM_PROMPT = `Kamu adalah asisten virtual CollabFind bernama "ColBot". CollabFind adalah platform kolaborasi untuk developer, designer, dan kreator yang ingin build project nyata bersama.
-
-ATURAN PENTING yang harus selalu kamu ikuti:
-1. Kamu HANYA boleh menjawab pertanyaan yang berkaitan dengan CollabFind dan fitur-fiturnya.
-2. Jika user bertanya di luar topik CollabFind (cuaca, berita, politik, hiburan, resep, crypto, coding tutorial umum, matematika, dll), tolak dengan sopan dan arahkan kembali ke topik CollabFind.
-3. Jawab dalam Bahasa Indonesia yang ramah, singkat, dan helpful.
-4. Jangan pernah keluar dari peran sebagai asisten CollabFind.
-5. Jangan sebut nama AI model yang kamu gunakan.
-
-FITUR-FITUR COLLABFIND yang kamu ketahui:
-- **Explore Projects**: Jelajahi ratusan project aktif, filter by kategori/skill/status
-- **Find Teammates**: Cari developer, designer, PM berdasarkan skill dan ketersediaan
-- **Smart Match**: Algoritma matching otomatis berdasarkan skill profile pengguna
-- **Workspace**: Kanban board, wiki project, file storage, sprint planning per project
-- **Real-time Chat**: Team chat terintegrasi di setiap workspace project
-- **Portfolio Generator**: Buat portofolio profesional otomatis dari project yang dikerjakan
-- **Notifications**: Notifikasi real-time untuk invite, pesan, update task
-- **Rating System**: Rating kolaborasi antar anggota tim setelah project selesai
-- **Hackathons & Events**: Komunitas dan event rutin untuk builder
-
-CARA MENGGUNAKAN:
-- Daftar: klik Sign Up di navbar, isi nama/email/password, verifikasi email
-- Buat project: login → Post Project → isi detail → publish
-- Cari project: halaman /explore
-- Cari teammate: halaman /teammates
-- Workspace: Dashboard → klik project → Workspace
-- Portfolio: /dashboard/portfolio
-- Gratis untuk semua fitur dasar, tidak perlu kartu kredit
-
-Saat memberikan jawaban yang relevan, sebutkan nama fitur atau halaman secara langsung tanpa menggunakan simbol garis miring. Link navigasi akan ditampilkan otomatis sebagai tombol terpisah.
-
-Format jawaban: maksimal 3-4 kalimat, to the point, ramah. Boleh pakai emoji sesekali agar lebih friendly.
-PENTING: JANGAN pernah gunakan format markdown apapun. Dilarang pakai bintang dua untuk bold, garis miring untuk link atau path, atau simbol formatting lainnya. Tulis semua sebagai teks polos biasa.`;
-
-const QUICK_QUESTIONS = [
-  'Apa itu CollabFind?',
-  'Cara daftar?',
-  'Cara buat project?',
-  'Cara cari teammate?',
-  'Gratis atau berbayar?',
-  'Apa itu Portfolio Generator?',
-];
-
 // ─── Extract link suggestions from bot response ───────────────────────────────
-function extractLinks(text) {
+function extractLinks(text, t) {
   const linkMap = [
-    { pattern: /\/register|daftar|sign up/i,       label: 'Daftar Gratis',        to: '/register' },
-    { pattern: /\/login|masuk|login/i,              label: 'Login',                to: '/login' },
-    { pattern: /\/explore|jelajahi project/i,       label: 'Explore Projects',     to: '/explore' },
-    { pattern: /\/teammates|cari teammate/i,        label: 'Find Teammates',       to: '/teammates' },
-    { pattern: /\/dashboard\/portfolio|portfolio/i, label: 'Portfolio Generator',  to: '/dashboard/portfolio' },
-    { pattern: /\/features|fitur/i,                 label: 'Lihat Fitur',          to: '/features' },
-    { pattern: /\/create-project|buat project/i,    label: 'Buat Project',         to: '/create-project' },
-    { pattern: /\/hackathons|hackathon/i,           label: 'Hackathons',           to: '/hackathons' },
-    { pattern: /\/profile|profil/i,                 label: 'Edit Profil',          to: '/profile' },
-    { pattern: /\/dashboard(?!\/)|dashboard/i,      label: 'Dashboard',            to: '/dashboard' },
-    { pattern: /\/settings|pengaturan/i,            label: 'Settings',             to: '/settings' },
+    { pattern: /\/register|daftar|sign up/i,       label: t('bot.linkRegister'),      to: '/register' },
+    { pattern: /\/login|masuk|login/i,              label: t('bot.linkLogin'),          to: '/login' },
+    { pattern: /\/explore|jelajahi project/i,       label: t('bot.linkExplore'),        to: '/explore' },
+    { pattern: /\/teammates|cari teammate/i,        label: t('bot.linkTeammates'),      to: '/teammates' },
+    { pattern: /\/dashboard\/portfolio|portfolio/i, label: t('bot.linkPortfolio'),      to: '/dashboard/portfolio' },
+    { pattern: /\/features|fitur/i,                 label: t('bot.linkFeatures'),       to: '/features' },
+    { pattern: /\/create-project|buat project/i,    label: t('bot.linkCreateProject'),  to: '/create-project' },
+    { pattern: /\/hackathons|hackathon/i,           label: t('bot.linkHackathons'),     to: '/hackathons' },
+    { pattern: /\/profile|profil/i,                 label: t('bot.linkProfile'),        to: '/profile' },
+    { pattern: /\/dashboard(?!\/)|dashboard/i,      label: t('bot.linkDashboard'),      to: '/dashboard' },
+    { pattern: /\/settings|pengaturan/i,            label: t('bot.linkSettings'),       to: '/settings' },
   ];
 
   const found = [];
@@ -80,9 +37,9 @@ function extractLinks(text) {
 }
 
 // ─── Call Groq API ──────────────────────────────────────────────────────────
-async function callGroq(history) {
+async function callGroq(history, systemPrompt, errorFallback) {
   const messages = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: systemPrompt },
     ...history.map((msg) => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.text,
@@ -110,7 +67,7 @@ async function callGroq(history) {
   }
 
   const data = await res.json();
-  return data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa menjawab saat ini.';
+  return data.choices?.[0]?.message?.content || errorFallback;
 }
 
 // ─── Message bubble ────────────────────────────────────────────────────────────
@@ -153,7 +110,7 @@ function Bubble({ msg }) {
         )}
         {isBot && msg.error && (
           <div className="flex items-center gap-1.5 text-[11px] text-red-400">
-            <AlertCircle size={11} /> Gagal terhubung — coba lagi
+            <AlertCircle size={11} /> {msg.errorText}
           </div>
         )}
       </div>
@@ -189,9 +146,20 @@ function TypingDots() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function CollabFindBot({ isDashboard = false }) {
+  const { t } = useLanguage();
+
   const WELCOME_TEXT = isDashboard
-    ? 'Halo! Saya ColBot, asisten CollabFind 🤖 Tanya apa saja soal workspace, fitur, atau cara pakai platform — saya siap bantu!'
-    : 'Halo! 👋 Saya ColBot, asisten CollabFind. Tanya apa saja tentang platform ini — cara daftar, buat project, cari teammate, dan lainnya!';
+    ? t('bot.welcomeDashboard')
+    : t('bot.welcome');
+
+  const QUICK_QUESTIONS = [
+    t('bot.q1'),
+    t('bot.q2'),
+    t('bot.q3'),
+    t('bot.q4'),
+    t('bot.q5'),
+    t('bot.q6'),
+  ];
 
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -203,7 +171,6 @@ export default function CollabFindBot({ isDashboard = false }) {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Keep a clean history array for Gemini context (exclude welcome msg)
   const historyRef = useRef([]);
 
   useEffect(() => {
@@ -232,12 +199,11 @@ export default function CollabFindBot({ isDashboard = false }) {
     historyRef.current = [...historyRef.current, { role: 'user', text: userText }];
 
     try {
-      const reply = await callGroq(historyRef.current);
-      const links = extractLinks(reply);
+      const reply = await callGroq(historyRef.current, t('bot.systemPrompt'), t('bot.apiError'));
+      const links = extractLinks(reply, t);
 
       historyRef.current = [...historyRef.current, { role: 'model', text: reply }];
 
-      // Keep context window lean (last 10 turns)
       if (historyRef.current.length > 20) {
         historyRef.current = historyRef.current.slice(-20);
       }
@@ -253,9 +219,10 @@ export default function CollabFindBot({ isDashboard = false }) {
         {
           id: Date.now() + 1,
           role: 'bot',
-          text: 'Maaf, saya sedang tidak bisa terhubung. Coba lagi dalam beberapa saat ya! 🙏',
+          text: t('bot.errorFallback'),
           links: [],
           error: true,
+          errorText: t('bot.connectionError'),
         },
       ]);
     } finally {
@@ -286,7 +253,7 @@ export default function CollabFindBot({ isDashboard = false }) {
               exit={{ opacity: 0, y: 4, scale: 0.95 }}
               className="px-4 py-2.5 rounded-2xl bg-[#0a0f1e]/95 border border-white/[0.1] text-xs text-slate-300 shadow-xl max-w-[200px] text-center"
             >
-              Ada yang ingin ditanyakan? 💬
+              {t('bot.askPrompt')}
             </motion.div>
           )}
         </AnimatePresence>
@@ -334,11 +301,11 @@ export default function CollabFindBot({ isDashboard = false }) {
                 <p className="text-sm font-bold text-white">ColBot</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[11px] text-slate-500">Asisten CollabFind · AI</span>
+                  <span className="text-[11px] text-slate-500">{t('bot.subtitle')}</span>
                 </div>
               </div>
               <div className="ml-auto flex gap-1">
-                <button onClick={reset} className="p-2 rounded-lg text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all" title="Reset chat">
+                <button onClick={reset} className="p-2 rounded-lg text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all" title={t('bot.resetChat')}>
                   <RotateCcw size={14} />
                 </button>
                 <button onClick={() => setOpen(false)} className="p-2 rounded-lg text-slate-600 hover:text-slate-300 hover:bg-white/[0.06] transition-all">
@@ -362,7 +329,7 @@ export default function CollabFindBot({ isDashboard = false }) {
             {messages.length <= 1 && !typing && (
               <div className="px-4 pb-3 flex-shrink-0">
                 <p className="text-[11px] text-slate-600 mb-2 flex items-center gap-1">
-                  <Sparkles size={10} /> Pertanyaan populer
+                  <Sparkles size={10} /> {t('bot.popularQuestions')}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK_QUESTIONS.map((q) => (
@@ -385,7 +352,7 @@ export default function CollabFindBot({ isDashboard = false }) {
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Tanya tentang CollabFind..."
+                  placeholder={t('bot.placeholder')}
                   className="flex-1 min-w-0 px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-sm text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.09] transition-all"
                   disabled={typing}
                 />
@@ -400,7 +367,7 @@ export default function CollabFindBot({ isDashboard = false }) {
                 </motion.button>
               </div>
               <p className="text-[10px] text-slate-700 mt-2 text-center">
-                Powered by Groq AI · Khusus topik CollabFind
+                {t('bot.poweredBy')}
               </p>
             </form>
           </motion.div>

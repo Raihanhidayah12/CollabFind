@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
@@ -142,7 +143,8 @@ function StepDots({ current, total }) {
 }
 
 // ============================================================
-export default function CreateProject() {
+export default function CreateProject() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   // form state

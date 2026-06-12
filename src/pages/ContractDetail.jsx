@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -16,7 +17,8 @@ const STATUS_STYLE = {
   cancelled: { label: 'Cancelled', cls: 'text-slate-400 bg-slate-400/10 border-slate-400/20' },
 };
 
-export default function ContractDetail() {
+export default function ContractDetail() { 
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const [contract, setContract] = useState(null);
@@ -110,7 +112,7 @@ export default function ContractDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <Loader2 size={24} className="text-blue-500 animate-spin" />
       </div>
     );
@@ -118,7 +120,7 @@ export default function ContractDetail() {
 
   if (!contract) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-lg font-bold text-white mb-2">Contract not found</h2>
           <Link to="/freelance" className="text-blue-400 text-sm hover:underline">Back to Marketplace</Link>
@@ -136,7 +138,7 @@ export default function ContractDetail() {
   const paidAmount = milestones.filter(m => m.status === 'paid' || m.status === 'approved').reduce((sum, m) => sum + m.amount, 0);
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
       </div>

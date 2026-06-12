@@ -2,24 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, FolderOpen, Star, Zap } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-const FALLBACK = [
-  { icon: Users,      color: '#3B82F6', text: 'Ardi baru join project', project: 'React Native E-Commerce', time: '2 menit lalu' },
-  { icon: FolderOpen, color: '#8B5CF6', text: 'Kezia membuat project baru', project: 'AI Study Buddy', time: '4 menit lalu' },
-  { icon: Star,       color: '#F59E0B', text: 'Budi mendapat rating bintang 5 di', project: 'DevConnect App', time: '7 menit lalu' },
-  { icon: Zap,        color: '#10B981', text: 'Tim Sari baru saja ship', project: 'Open Source Dashboard', time: '11 menit lalu' },
-  { icon: Users,      color: '#06B6D4', text: 'Reza bergabung dengan tim di', project: 'Flutter Fintech App', time: '13 menit lalu' },
-  { icon: FolderOpen, color: '#EC4899', text: 'Nadia memposting project baru', project: 'UI Kit for Startups', time: '18 menit lalu' },
-  { icon: Star,       color: '#F59E0B', text: 'Haikal menyelesaikan milestone di', project: 'Machine Learning API', time: '21 menit lalu' },
-  { icon: Zap,        color: '#3B82F6', text: 'Tim Dika baru saja launch', project: 'Social Media Tracker', time: '25 menit lalu' },
-];
+function getFallback(t) {
+  return [
+    { icon: Users,      color: '#3B82F6', text: `Ardi ${t('live.joinedProject')}`, project: 'React Native E-Commerce', time: `2 ${t('live.minutesAgo')}` },
+    { icon: FolderOpen, color: '#8B5CF6', text: `Kezia ${t('live.createdProject')}`, project: 'AI Study Buddy', time: `4 ${t('live.minutesAgo')}` },
+    { icon: Star,       color: '#F59E0B', text: `Budi ${t('live.gotRating')}`, project: 'DevConnect App', time: `7 ${t('live.minutesAgo')}` },
+    { icon: Zap,        color: '#10B981', text: `Tim Sari ${t('live.shipped')}`, project: 'Open Source Dashboard', time: `11 ${t('live.minutesAgo')}` },
+    { icon: Users,      color: '#06B6D4', text: `Reza ${t('live.joinedTeam')}`, project: 'Flutter Fintech App', time: `13 ${t('live.minutesAgo')}` },
+    { icon: FolderOpen, color: '#EC4899', text: `Nadia ${t('live.postedProject')}`, project: 'UI Kit for Startups', time: `18 ${t('live.minutesAgo')}` },
+    { icon: Star,       color: '#F59E0B', text: `Haikal ${t('live.completedMilestone')}`, project: 'Machine Learning API', time: `21 ${t('live.minutesAgo')}` },
+    { icon: Zap,        color: '#3B82F6', text: `Tim Dika ${t('live.launched')}`, project: 'Social Media Tracker', time: `25 ${t('live.minutesAgo')}` },
+  ];
+}
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
-  if (diff < 60) return `${diff} detik lalu`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
-  return `${Math.floor(diff / 86400)} hari lalu`;
+  if (diff < 60) return `${diff}${t('live.secondsAgo')}`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}${t('live.minutesAgo')}`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}${t('live.hoursAgo')}`;
+  return `${Math.floor(diff / 86400)}${t('live.daysAgo')}`;
 }
 
 export default function LiveActivityFeed() {
@@ -27,6 +30,7 @@ export default function LiveActivityFeed() {
   const [visible, setVisible] = useState([]);
   const queueRef = useRef([]);
   const timerRef = useRef(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetchActivities() {
@@ -45,37 +49,34 @@ export default function LiveActivityFeed() {
 
       const items = [];
 
-      // Applications → "X baru join project Y"
       if (apps && apps.length > 0) {
         apps.forEach((a) => {
-          const name = a.profiles?.name || 'Seseorang';
+          const name = a.profiles?.name || t('live.someone');
           const project = a.projects?.title || 'sebuah project';
           items.push({
             icon: Users,
             color: '#3B82F6',
-            text: `${name} baru bergabung dengan`,
+            text: `${name} ${t('live.joinedProject')}`,
             project,
-            time: timeAgo(a.created_at),
+            time: timeAgo(a.created_at, t),
           });
         });
       }
 
-      // New projects → "X membuat project baru Y"
       if (projects && projects.length > 0) {
         projects.forEach((p) => {
-          const name = p.profiles?.name || 'Seseorang';
+          const name = p.profiles?.name || t('live.someone');
           items.push({
             icon: FolderOpen,
             color: '#8B5CF6',
-            text: `${name} membuat project baru`,
+            text: `${name} ${t('live.createdProject')}`,
             project: p.title,
-            time: timeAgo(p.created_at),
+            time: timeAgo(p.created_at, t),
           });
         });
       }
 
-      // Sort by recency (items already have human-readable time, sort by source date)
-      const allItems = items.length >= 4 ? items : FALLBACK;
+      const allItems = items.length >= 4 ? items : getFallback(t);
 
       // Shuffle slightly for variety
       const shuffled = allItems.sort(() => Math.random() - 0.4);
@@ -83,7 +84,7 @@ export default function LiveActivityFeed() {
     }
 
     fetchActivities();
-  }, []);
+  }, [t]);
 
   // Start rotating feed once data is ready
   useEffect(() => {

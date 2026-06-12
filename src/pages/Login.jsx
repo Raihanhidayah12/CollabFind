@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import AuthParticles from '../components/AuthParticles';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
+  const { t } = useLanguage();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -53,10 +55,10 @@ export default function Login() {
         </Link>
 
         <h1 className="auth-title">
-          Welcome <span>back</span>
+          {t('auth.welcomeBack')} <span>{t('auth.welcomeBackHighlight')}</span>
         </h1>
         <p className="auth-subtitle">
-          Sign in to your Mission Control and keep building.
+          {t('auth.loginSubtitle')}
         </p>
 
         <form onSubmit={handleLogin} className="auth-form">
@@ -70,7 +72,7 @@ export default function Login() {
 
           {/* Email */}
           <div className="auth-field">
-            <label className="auth-label">Email Address</label>
+            <label className="auth-label">{t('auth.email')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -91,7 +93,7 @@ export default function Login() {
 
           {/* Password */}
           <div className="auth-field">
-            <label className="auth-label">Password</label>
+            <label className="auth-label">{t('auth.password')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -126,9 +128,9 @@ export default function Login() {
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
               />
-              Remember me
+              {t('auth.rememberMe')}
             </label>
-            <Link to="/forgot-password" className="auth-link">Forgot password?</Link>
+            <Link to="/forgot-password" className="auth-link">{t('auth.forgotPassword')}</Link>
           </div>
 
           <button
@@ -139,11 +141,11 @@ export default function Login() {
             {loading ? (
               <>
                 <span className="auth-spinner" />
-                Signing in...
+                {t('auth.signIn')}...
               </>
             ) : (
               <>
-                Sign In
+                {t('auth.signIn')}
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                 </svg>
@@ -154,7 +156,7 @@ export default function Login() {
 
         <div className="auth-divider">
           <div className="auth-divider-line" />
-          <span className="auth-divider-text">or continue with</span>
+          <span className="auth-divider-text">{t('auth.orContinueWith')}</span>
           <div className="auth-divider-line" />
         </div>
 
@@ -180,11 +182,11 @@ export default function Login() {
         </div>
 
         <p className="auth-footer">
-          No account yet?{' '}
-          <Link to="/register" className="auth-link">Create one free →</Link>
+          {t('auth.noAccount')}{' '}
+          <Link to="/register" className="auth-link">{t('auth.createAccount')} →</Link>
         </p>
         <p className="auth-footer auth-footer-back">
-          <Link to="/" className="auth-link auth-link--muted">← Back to Home</Link>
+          <Link to="/" className="auth-link auth-link--muted">← {t('common.back')}</Link>
         </p>
       </div>
     </div>

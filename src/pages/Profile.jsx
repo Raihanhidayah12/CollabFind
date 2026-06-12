@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Save, Loader2, CheckCircle, X, Plus, GitBranch, Link as LinkIcon, Globe, ExternalLink, Link2, Zap, Briefcase, DollarSign } from 'lucide-react';
@@ -7,7 +8,8 @@ import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 import { SkeletonCard } from '../components/Skeleton';
 
-export default function Profile() {
+export default function Profile() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -161,7 +163,7 @@ export default function Profile() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Profile' }]} homePath="/dashboard" />
       <main className="flex-1 pt-28 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,7 +178,7 @@ export default function Profile() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Profile' }]} homePath="/dashboard" />
       
       <main className="flex-1 pt-28 pb-16">

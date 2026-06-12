@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { Zap, GitBranch, Globe, Briefcase, Camera, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-const links = {
+const linkGroups = {
   Platform: [
-    { label: 'Explore Projects',    to: '/explore' },
-    { label: 'Find Teammates',      to: '/teammates' },
-    { label: 'Features',            to: '/features' },
-    { label: 'Portfolio Generator', to: '/portfolio-generator' },
-    { label: 'Hackathons',          to: '/hackathons' },
+    { labelKey: 'footer.exploreProjects',   to: '/explore' },
+    { labelKey: 'footer.findTeammates',     to: '/teammates' },
+    { labelKey: 'footer.features',          to: '/features' },
+    { labelKey: 'footer.portfolioGenerator', to: '/portfolio-generator' },
+    { labelKey: 'footer.hackathons',        to: '/hackathons' },
   ],
   Company: [
-    { label: 'About Us',         to: '/about' },
-    { label: 'Privacy Policy',   to: '/privacy' },
-    { label: 'Terms of Service', to: '/terms' },
+    { labelKey: 'footer.aboutUs',         to: '/about' },
+    { labelKey: 'footer.privacyPolicy',   to: '/privacy' },
+    { labelKey: 'footer.termsOfService',  to: '/terms' },
   ],
 };
 
@@ -27,6 +28,7 @@ const socials = [
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-sm text-slate-500 leading-relaxed mb-5 max-w-xs">
-              Platform kolaborasi untuk pelajar, developer, dan kreator yang ingin build hal-hal keren bersama.
+              {t('footer.tagline')}
             </p>
 
             {/* Social icons */}
@@ -74,16 +76,16 @@ export default function Footer() {
 
             {/* Newsletter */}
             <div>
-              <p className="text-xs font-semibold text-slate-400 mb-2">Dapat update terbaru</p>
+              <p className="text-xs font-semibold text-slate-400 mb-2">{t('footer.newsletterTitle')}</p>
               {submitted ? (
-                <p className="text-xs text-green-400">Terima kasih! Kamu sudah terdaftar.</p>
+                <p className="text-xs text-green-400">{t('footer.newsletterSuccess')}</p>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email kamu..."
+                    placeholder={t('footer.newsletterPlaceholder')}
                     className="flex-1 min-w-0 px-3 py-2 text-xs rounded-lg border border-white/[0.08] bg-white/[0.04] text-slate-300 placeholder-slate-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/[0.07] transition-all"
                   />
                   <button
@@ -98,14 +100,14 @@ export default function Footer() {
           </div>
 
           {/* Link columns */}
-          {Object.entries(links).map(([section, items]) => (
+          {Object.entries(linkGroups).map(([section, items]) => (
             <div key={section}>
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">{section}</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">{t(`footer.${section.toLowerCase()}`)}</h4>
               <ul className="flex flex-col gap-2.5">
                 {items.map((item) => (
-                  <li key={item.label}>
+                  <li key={item.labelKey}>
                     <Link to={item.to} className="text-sm text-slate-500 hover:text-slate-300 transition-colors duration-200">
-                      {item.label}
+                      {t(item.labelKey)}
                     </Link>
                   </li>
                 ))}
@@ -115,25 +117,25 @@ export default function Footer() {
 
           {/* Get started CTA col */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mulai Sekarang</h4>
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('footer.getStarted')}</h4>
             <Link
               to="/register"
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all duration-300"
             >
-              Daftar Gratis <ArrowRight size={14} />
+              {t('nav.signUp')} <ArrowRight size={14} />
             </Link>
             <Link
               to="/explore"
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-200"
             >
-              Explore Projects
+              {t('hero.exploreProjects')}
             </Link>
             <div className="mt-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-xs text-slate-500">Platform aktif & online</span>
+                <span className="text-xs text-slate-500">{t('common.success')}</span>
               </div>
-              <p className="text-[11px] text-slate-600">No credit card required · Gratis selamanya untuk fitur dasar</p>
+              <p className="text-[11px] text-slate-600">{t('cta.noCreditCard')}</p>
             </div>
           </div>
         </div>
@@ -141,10 +143,10 @@ export default function Footer() {
         {/* Bottom */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-white/[0.05] gap-4">
           <p className="text-xs text-slate-600">
-            © {new Date().getFullYear()} CollabFind. All rights reserved.
+            © {new Date().getFullYear()} CollabFind. {t('footer.rights')}
           </p>
           <div className="flex items-center gap-1 text-xs text-slate-600">
-            Built with ⚡ React, Vite, Tailwind CSS &amp; Supabase
+            {t('footer.builtWith')}
           </div>
         </div>
       </div>

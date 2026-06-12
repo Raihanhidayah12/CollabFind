@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -32,7 +33,8 @@ function StatCard({ icon: Icon, label, value, color, delay }) {
   );
 }
 
-export default function FreelanceDashboard() {
+export default function FreelanceDashboard() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,14 +88,14 @@ export default function FreelanceDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <Loader2 size={24} className="text-blue-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/3 right-0 w-[400px] h-[400px] bg-purple-600/8 rounded-full blur-[100px]" />

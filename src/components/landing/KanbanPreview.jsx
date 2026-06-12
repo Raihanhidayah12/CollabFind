@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout, LayoutDashboard, BookOpen, FolderOpen, Activity, MessageSquare } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // ─── Kanban data ────────────────────────────────────────────────────────────
 const columns = [
@@ -58,30 +59,31 @@ const TABS = [
 
 // ─── Panel components ─────────────────────────────────────────────────────────
 function KanbanPanel() {
+  const { t } = useLanguage();
   return (
     <div className="p-5">
       {/* Sprint navigation */}
       <div className="flex items-center gap-2 mb-4">
-        {['Backlog', 'Sprint 1', 'Sprint 2'].map((sp, i) => (
+        {[t('kanban.backlog'), t('kanban.sprint1'), t('kanban.sprint2')].map((sp, i) => (
           <div key={sp} className={`px-3 py-1 rounded-full text-[10px] font-semibold border ${i === 1 ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white/[0.04] border-white/[0.09] text-slate-500'}`}>
             {sp}
           </div>
         ))}
         <div className="ml-auto px-3 py-1 rounded-full text-[10px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
-          + Sprint Baru
+          {t('kanban.sprintNew')}
         </div>
       </div>
 
       {/* Progress bar */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] text-slate-600">Progress Sprint 1</span>
+          <span className="text-[10px] text-slate-600">{t('kanban.progress')}</span>
           <span className="text-[10px] font-bold text-slate-400">60%</span>
         </div>
         <div className="w-full bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
           <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500" style={{ width: '60%' }} />
         </div>
-        <span className="text-[9px] text-slate-700">3 dari 5 tugas selesai</span>
+        <span className="text-[9px] text-slate-700">{t('kanban.tasksDone')}</span>
       </div>
 
       {/* Kanban columns */}
@@ -118,7 +120,7 @@ function KanbanPanel() {
                   </div>
                   <div className="flex items-center gap-1.5 mt-2 text-[9px] text-slate-600">
                     <MessageSquare size={9} />
-                    <span>Diskusi</span>
+                    <span>{t('kanban.discussion')}</span>
                     {card.threads > 0 && (
                       <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[8px] font-bold">{card.threads}</span>
                     )}
@@ -134,24 +136,25 @@ function KanbanPanel() {
 }
 
 function FileStoragePanel() {
+  const { t } = useLanguage();
   const folders = [
-    { name: 'Design Assets', files: 12, color: '#F59E0B', icon: '📁' },
-    { name: 'Backend Code', files: 8, color: '#10B981', icon: '📁' },
-    { name: 'Documentation', files: 5, color: '#8B5CF6', icon: '📁' },
-    { name: 'Presentations', files: 3, color: '#3B82F6', icon: '📁' },
+    { name: t('kanban.designAssets'), files: 12, color: '#F59E0B', icon: '📁' },
+    { name: t('kanban.backendCode'), files: 8, color: '#10B981', icon: '📁' },
+    { name: t('kanban.documentation'), files: 5, color: '#8B5CF6', icon: '📁' },
+    { name: t('kanban.presentations'), files: 3, color: '#3B82F6', icon: '📁' },
   ];
   const recentFiles = [
-    { name: 'wireframe-v3.fig', size: '4.2 MB', type: 'Figma', color: '#EC4899', time: '2j lalu' },
-    { name: 'api-docs.md', size: '128 KB', type: 'Markdown', color: '#6B7280', time: '5j lalu' },
-    { name: 'db-schema.sql', size: '34 KB', type: 'SQL', color: '#10B981', time: 'Kemarin' },
-    { name: 'pitch-deck.pdf', size: '2.1 MB', type: 'PDF', color: '#F59E0B', time: 'Kemarin' },
+    { name: t('kanban.wireframeFile'), size: '4.2 MB', type: 'Figma', color: '#EC4899', time: `2${t('kanban.hoursAgoShort')}` },
+    { name: t('kanban.apiDocsFile'), size: '128 KB', type: 'Markdown', color: '#6B7280', time: `5${t('kanban.hoursAgoShort')}` },
+    { name: t('kanban.dbSchemaFile'), size: '34 KB', type: 'SQL', color: '#10B981', time: t('kanban.yesterday') },
+    { name: t('kanban.pitchDeckFile'), size: '2.1 MB', type: 'PDF', color: '#F59E0B', time: t('kanban.yesterday') },
   ];
 
   return (
     <div className="flex h-[340px]">
       {/* Sidebar */}
       <div className="w-44 border-r border-white/[0.06] p-3 flex flex-col gap-1 flex-shrink-0">
-        <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 px-1">Folder</p>
+        <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 px-1">{t('kanban.folder')}</p>
         {folders.map((f) => (
           <div key={f.name} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-slate-500 hover:text-slate-300 hover:bg-white/[0.04] cursor-pointer transition-colors">
             <span>{f.icon}</span>
@@ -164,9 +167,9 @@ function FileStoragePanel() {
       {/* Main area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between">
-          <span className="text-xs font-semibold text-slate-400">File Terbaru</span>
+          <span className="text-xs font-semibold text-slate-400">{t('kanban.recentFiles')}</span>
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-[10px] font-semibold text-blue-300 cursor-pointer">
-            <FolderOpen size={10} /> Upload
+            <FolderOpen size={10} /> {t('kanban.upload')}
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
@@ -194,8 +197,8 @@ function FileStoragePanel() {
         </div>
         <div className="px-4 py-2 border-t border-white/[0.06]">
           <div className="flex items-center justify-between text-[10px] text-slate-600">
-            <span>28 file · 6.5 MB digunakan</span>
-            <span className="text-blue-400">dari 1 GB</span>
+            <span>{t('kanban.fileUsage')}</span>
+            <span className="text-blue-400">{t('kanban.ofStorage')}</span>
           </div>
           <div className="mt-1.5 h-1 rounded-full bg-white/[0.06] overflow-hidden">
             <div className="h-full w-[7%] rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" />
@@ -207,11 +210,12 @@ function FileStoragePanel() {
 }
 
 function WikiPanel() {
+  const { t } = useLanguage();
   return (
     <div className="flex h-[340px]">
       {/* Sidebar pages */}
       <div className="w-44 border-r border-white/[0.06] p-3 flex flex-col gap-1 flex-shrink-0 overflow-y-auto">
-        <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 px-1">Halaman</p>
+        <p className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 px-1">{t('kanban.pages')}</p>
         {wikiPages.map((page) => (
           <div key={page.title}
             className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-colors ${page.active ? 'bg-purple-500/20 text-purple-300 font-medium' : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'}`}>
@@ -229,9 +233,13 @@ function WikiPanel() {
           transition={{ duration: 0.3 }}
         >
           <h3 className="text-sm font-bold text-white mb-1">{wikiContent.title}</h3>
-          <p className="text-[10px] text-slate-600 mb-4">{wikiContent.updated}</p>
+          <p className="text-[10px] text-slate-600 mb-4">{t('kanban.updated')}</p>
           <div className="flex flex-col gap-4">
-            {wikiContent.sections.map((sec, i) => (
+            {[
+              { heading: t('kanban.aboutProject'), body: t('kanban.aboutDesc') },
+              { heading: t('kanban.team'), body: t('kanban.teamDesc') },
+              { heading: t('kanban.targetLaunch'), body: t('kanban.targetLaunchDesc') },
+            ].map((sec, i) => (
               <motion.div key={sec.heading}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -248,27 +256,28 @@ function WikiPanel() {
   );
 }
 
-// ─── Activity panel data ──────────────────────────────────────────────────────
-const activityData = {
-  'Hari ini': [
-    { user: 'A', name: 'Ardi', action: 'membuat task', detail: '"Auth flow"', color: '#10B981', icon: '+' },
-    { user: 'S', name: 'Sari', action: 'memindahkan task', detail: '→ In Progress', color: '#3B82F6', icon: '→' },
-    { user: 'K', name: 'Kevin', action: 'menambahkan komentar', detail: 'di "DB schema"', color: '#8B5CF6', icon: '💬' },
-    { user: 'D', name: 'Dina', action: 'mengedit task', detail: '"API docs"', color: '#F59E0B', icon: '✎' },
-  ],
-  'Kemarin': [
-    { user: 'R', name: 'Raihan', action: 'mengupload file', detail: '"wireframe-v3.fig"', color: '#06B6D4', icon: '↑' },
-    { user: 'A', name: 'Ardi', action: 'mengedit wiki', detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
-    { user: 'S', name: 'Sari', action: 'menghapus task', detail: '"Old prototype"', color: '#EF4444', icon: '✕' },
-  ],
-};
-
 function ActivityPanel() {
+  const { t } = useLanguage();
+
+  const activityDataLocalized = {
+    [t('kanban.today')]: [
+      { user: 'A', name: 'Ardi', action: t('mock.createdTask'), detail: '"Auth flow"', color: '#10B981', icon: '+' },
+      { user: 'S', name: 'Sari', action: t('mock.movedTask'), detail: '→ In Progress', color: '#3B82F6', icon: '→' },
+      { user: 'K', name: 'Kevin', action: t('mock.addedComment'), detail: 'di "DB schema"', color: '#8B5CF6', icon: '💬' },
+      { user: 'D', name: 'Dina', action: t('mock.editedWiki'), detail: '"API docs"', color: '#F59E0B', icon: '✎' },
+    ],
+    [t('kanban.yesterday')]: [
+      { user: 'R', name: 'Raihan', action: t('mock.uploadedFile'), detail: '"wireframe-v3.fig"', color: '#06B6D4', icon: '↑' },
+      { user: 'A', name: 'Ardi', action: t('mock.editedWiki'), detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
+      { user: 'S', name: 'Sari', action: 'deleted task', detail: '"Old prototype"', color: '#EF4444', icon: '✕' },
+    ],
+  };
+
   return (
     <div className="p-5">
       {/* Filter */}
       <div className="flex items-center gap-2 mb-4">
-        {['Semua', 'Task', 'Komentar', 'File', 'Wiki'].map((f, i) => (
+        {[t('kanban.allFilter'), t('kanban.taskFilter'), t('kanban.commentFilter'), t('kanban.fileFilter'), t('kanban.wikiFilter')].map((f, i) => (
           <div key={f} className={`px-2.5 py-1 rounded-lg text-[10px] font-medium ${i === 0 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'text-slate-600 hover:text-slate-400'}`}>
             {f}
           </div>
@@ -277,7 +286,7 @@ function ActivityPanel() {
 
       {/* Timeline */}
       <div className="flex flex-col gap-4">
-        {Object.entries(activityData).map(([dateLabel, items]) => (
+        {Object.entries(activityDataLocalized).map(([dateLabel, items]) => (
           <div key={dateLabel}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{dateLabel}</span>
@@ -310,7 +319,7 @@ function ActivityPanel() {
                     </p>
                   </div>
                   <span className="text-[9px] text-slate-700 flex-shrink-0">
-                    {i === 0 ? '5m lalu' : i === 1 ? '23m lalu' : i === 2 ? '1j lalu' : '3j lalu'}
+                    {i === 0 ? `5${t('live.minutesAgo')}` : i === 1 ? `23${t('live.minutesAgo')}` : i === 2 ? `1${t('live.hoursAgo')}` : `3${t('live.hoursAgo')}`}
                   </span>
                 </motion.div>
               ))}
@@ -325,6 +334,7 @@ function ActivityPanel() {
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function KanbanPreview() {
   const [activeTab, setActiveTab] = useState('kanban');
+  const { t } = useLanguage();
 
   return (
     <section className="kanban-section py-24 relative overflow-hidden">
@@ -338,14 +348,14 @@ export default function KanbanPreview() {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-medium mb-4">
-            <Layout size={12} /> Workspace Preview
+            <Layout size={12} /> {t('kanban.workspacePreview')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Semua tools dalam{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">satu workspace</span>
+            {t('kanban.heading')}{' '}
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('kanban.headingHighlight')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Project boards, diskusi per task, wiki, file storage, dan activity timeline — semua tersedia tanpa perlu tool tambahan.
+            {t('kanban.subtitle')}
           </p>
         </motion.div>
 

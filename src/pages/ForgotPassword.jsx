@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import AuthParticles from '../components/AuthParticles';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ForgotPassword() {
   const [email, setEmail]     = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const [sent, setSent]       = useState(false);
+  const { t } = useLanguage();
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -23,7 +25,6 @@ export default function ForgotPassword() {
     setLoading(false);
   };
 
-  /* ── Sent screen ── */
   if (sent) return (
     <div className="auth-page">
       <div className="auth-bg" />
@@ -37,10 +38,10 @@ export default function ForgotPassword() {
             <div className="auth-success-ring-inner">📬</div>
           </div>
           <h1 className="auth-title">
-            Check your <span>email</span>
+            {t('forgot.checkEmail')} <span>{t('forgot.checkEmailHighlight')}</span>
           </h1>
           <p className="auth-subtitle" style={{ marginBottom: 8 }}>
-            We sent a reset link to
+            {t('forgot.sentMessage')}
           </p>
           <p style={{
             color: 'var(--cyan)',
@@ -52,7 +53,7 @@ export default function ForgotPassword() {
             {email}
           </p>
           <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.6)', marginBottom: 32 }}>
-            Didn't receive it? Check your spam folder or try again in a few minutes.
+            {t('forgot.spamHint')}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
@@ -60,10 +61,10 @@ export default function ForgotPassword() {
               className="auth-btn auth-btn-primary"
               onClick={() => { setSent(false); setEmail(''); }}
             >
-              Try another email
+              {t('forgot.tryAnother')}
             </button>
             <Link to="/login" className="auth-link" style={{ textAlign: 'center' }}>
-              ← Back to Sign In
+              {t('forgot.backToSignIn')}
             </Link>
           </div>
         </div>
@@ -71,7 +72,6 @@ export default function ForgotPassword() {
     </div>
   );
 
-  /* ── Form ── */
   return (
     <div className="auth-page">
       <div className="auth-bg" />
@@ -86,16 +86,14 @@ export default function ForgotPassword() {
           <span className="auth-logo-text">CollabFind</span>
         </Link>
 
-
         <h1 className="auth-title" style={{ marginTop: 20 }}>
-          Reset your <span>password</span>
+          {t('forgot.title')} <span>{t('forgot.titleHighlight')}</span>
         </h1>
         <p className="auth-subtitle">
-          Enter your email and we'll send a secure reset link — valid for 60 minutes.
+          {t('forgot.subtitle')}
         </p>
 
         <form onSubmit={handleReset} className="auth-form">
-
           {error && (
             <div className="auth-alert auth-alert--error">
               <span className="auth-alert-icon">⚠</span>
@@ -104,7 +102,7 @@ export default function ForgotPassword() {
           )}
 
           <div className="auth-field">
-            <label className="auth-label">Email Address</label>
+            <label className="auth-label">{t('auth.email')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -123,16 +121,12 @@ export default function ForgotPassword() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="auth-btn auth-btn-primary"
-            disabled={loading}
-          >
+          <button type="submit" className="auth-btn auth-btn-primary" disabled={loading}>
             {loading ? (
-              <><span className="auth-spinner" /> Sending link...</>
+              <><span className="auth-spinner" /> {t('forgot.sending')}</>
             ) : (
               <>
-                Send Reset Link
+                {t('forgot.sendLink')}
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                 </svg>
@@ -142,8 +136,8 @@ export default function ForgotPassword() {
         </form>
 
         <p className="auth-footer">
-          Remembered it?{' '}
-          <Link to="/login" className="auth-link">Sign in →</Link>
+          {t('forgot.remembered')}{' '}
+          <Link to="/login" className="auth-link">{t('auth.signIn')} →</Link>
         </p>
       </div>
     </div>

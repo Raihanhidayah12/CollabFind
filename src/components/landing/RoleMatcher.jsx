@@ -2,33 +2,37 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Code2, Palette, Briefcase, ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const QUESTIONS = [
   {
     id: 'role',
-    question: 'Kamu paling sering berperan sebagai?',
+    questionKey: 'rm.q1',
+    fallbackQ: 'What role do you usually take?',
     options: [
-      { value: 'developer', label: 'Developer', icon: Code2, color: '#3B82F6', desc: 'Frontend, Backend, atau Fullstack' },
-      { value: 'designer', label: 'Designer', icon: Palette, color: '#8B5CF6', desc: 'UI/UX, Graphic, atau Motion' },
-      { value: 'pm', label: 'Project Manager', icon: Briefcase, color: '#10B981', desc: 'Scrum Master, Product Owner, dll' },
+      { value: 'developer', labelKey: 'rm.q1opt1Label', fallbackLabel: 'Developer', icon: Code2, color: '#3B82F6', descKey: 'rm.q1opt1Desc', fallbackDesc: 'Frontend, Backend, or Fullstack' },
+      { value: 'designer', labelKey: 'rm.q1opt2Label', fallbackLabel: 'Designer', icon: Palette, color: '#8B5CF6', descKey: 'rm.q1opt2Desc', fallbackDesc: 'UI/UX, Graphic, or Motion' },
+      { value: 'pm', labelKey: 'rm.q1opt3Label', fallbackLabel: 'Project Manager', icon: Briefcase, color: '#10B981', descKey: 'rm.q1opt3Desc', fallbackDesc: 'Scrum Master, Product Owner, etc.' },
     ],
   },
   {
     id: 'goal',
-    question: 'Apa tujuan utamamu bergabung?',
+    questionKey: 'rm.q2',
+    fallbackQ: 'What is your main goal for joining?',
     options: [
-      { value: 'build', label: 'Build sesuatu yang keren', icon: Sparkles, color: '#F59E0B', desc: 'Punya ide dan butuh tim' },
-      { value: 'join', label: 'Gabung project yang ada', icon: ArrowRight, color: '#06B6D4', desc: 'Mau kontribusi ke project aktif' },
-      { value: 'learn', label: 'Belajar sambil praktek', icon: Code2, color: '#EC4899', desc: 'Cari pengalaman nyata' },
+      { value: 'build', labelKey: 'rm.q2opt1Label', fallbackLabel: 'Build something cool', icon: Sparkles, color: '#F59E0B', descKey: 'rm.q2opt1Desc', fallbackDesc: 'Have an idea and need a team' },
+      { value: 'join', labelKey: 'rm.q2opt2Label', fallbackLabel: 'Join an existing project', icon: ArrowRight, color: '#06B6D4', descKey: 'rm.q2opt2Desc', fallbackDesc: 'Want to contribute to an active project' },
+      { value: 'learn', labelKey: 'rm.q2opt3Label', fallbackLabel: 'Learn by doing', icon: Code2, color: '#EC4899', descKey: 'rm.q2opt3Desc', fallbackDesc: 'Looking for real experience' },
     ],
   },
   {
     id: 'time',
-    question: 'Berapa jam/minggu kamu bisa dedikasikan?',
+    questionKey: 'rm.q3',
+    fallbackQ: 'How many hours/week can you commit?',
     options: [
-      { value: 'light', label: '1–5 jam', icon: null, color: '#10B981', desc: 'Part-time, santai' },
-      { value: 'medium', label: '6–15 jam', icon: null, color: '#3B82F6', desc: 'Serius tapi fleksibel' },
-      { value: 'heavy', label: '15+ jam', icon: null, color: '#8B5CF6', desc: 'All-in, prioritas utama' },
+      { value: 'light', labelKey: 'rm.q3opt1Label', fallbackLabel: '1–5 hours', icon: null, color: '#10B981', descKey: 'rm.q3opt1Desc', fallbackDesc: 'Part-time, relaxed' },
+      { value: 'medium', labelKey: 'rm.q3opt2Label', fallbackLabel: '6–15 hours', icon: null, color: '#3B82F6', descKey: 'rm.q3opt2Desc', fallbackDesc: 'Serious but flexible' },
+      { value: 'heavy', labelKey: 'rm.q3opt3Label', fallbackLabel: '15+ hours', icon: null, color: '#8B5CF6', descKey: 'rm.q3opt3Desc', fallbackDesc: 'All-in, top priority' },
     ],
   },
 ];
@@ -74,6 +78,7 @@ export default function RoleMatcher() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [done, setDone] = useState(false);
+  const { t } = useLanguage();
 
   const currentQ = QUESTIONS[step];
 
@@ -97,7 +102,7 @@ export default function RoleMatcher() {
   const result = resultKey ? (RESULTS[resultKey] || RESULTS['developer-build-medium']) : null;
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="role-matcher-section py-24 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-600/8 rounded-full blur-[120px]" />
       </div>
@@ -110,14 +115,14 @@ export default function RoleMatcher() {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-medium mb-4">
-            <Sparkles size={12} /> Role Matcher
+            <Sparkles size={12} /> {t('rm.badge', 'Role Matcher')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Cari tahu kamu cocok di{' '}
-            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">mana</span>
+            {t('rm.heading', 'Find out where you fit')}{' '}
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{t('rm.headingHighlight', 'best')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Jawab 3 pertanyaan singkat, kami tunjukkan project dan peran yang paling cocok untukmu.
+            {t('rm.subtitle', 'Answer 3 quick questions, we show the projects and roles that best match you.')}
           </p>
         </motion.div>
 
@@ -140,8 +145,8 @@ export default function RoleMatcher() {
             {!done ? (
               <motion.div key={`q-${step}`} {...fadeUp}>
                 <div className="p-8 rounded-3xl border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
-                  <p className="text-xs text-slate-500 mb-2">Pertanyaan {step + 1} dari {QUESTIONS.length}</p>
-                  <h3 className="text-xl font-bold text-white mb-6">{currentQ.question}</h3>
+                  <p className="text-xs text-slate-500 mb-2">{t('rm.questionOf', 'Question')} {step + 1} {t('rm.of', 'of')} {QUESTIONS.length}</p>
+                  <h3 className="text-xl font-bold text-white mb-6">{t(currentQ.questionKey, currentQ.fallbackQ)}</h3>
                   <div className="flex flex-col gap-3">
                     {currentQ.options.map((opt) => {
                       const Icon = opt.icon;
@@ -166,12 +171,12 @@ export default function RoleMatcher() {
                               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-bold"
                               style={{ background: `${opt.color}18`, border: `1px solid ${opt.color}33`, color: opt.color }}
                             >
-                              {opt.label.split('–')[0]}
+                              {t(opt.labelKey, opt.fallbackLabel).split('–')[0]}
                             </div>
                           )}
                           <div>
-                            <p className="text-sm font-semibold text-white group-hover:text-blue-200 transition-colors">{opt.label}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{opt.desc}</p>
+                            <p className="text-sm font-semibold text-white group-hover:text-blue-200 transition-colors">{t(opt.labelKey, opt.fallbackLabel)}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{t(opt.descKey, opt.fallbackDesc)}</p>
                           </div>
                           <ArrowRight size={16} className="ml-auto text-slate-600 group-hover:text-slate-300 group-hover:translate-x-1 transition-all" />
                         </motion.button>
@@ -195,23 +200,23 @@ export default function RoleMatcher() {
                       className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-4"
                       style={{ background: `${result.color}22`, color: result.color, border: `1px solid ${result.color}44` }}
                     >
-                      <Sparkles size={11} /> {result.tag}
+                      <Sparkles size={11} /> {t(result.tagKey, result.fallbackTag)}
                     </div>
-                    <h3 className="text-3xl font-extrabold text-white mb-3">{result.title}</h3>
-                    <p className="text-slate-400 mb-8 max-w-sm mx-auto leading-relaxed">{result.desc}</p>
+                    <h3 className="text-3xl font-extrabold text-white mb-3">{t(result.titleKey, result.fallbackTitle)}</h3>
+                    <p className="text-slate-400 mb-8 max-w-sm mx-auto leading-relaxed">{t(result.descKey, result.fallbackDesc)}</p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                       <Link
                         to="/explore"
                         className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 shadow-[0_0_24px_rgba(139,92,246,0.35)] hover:shadow-[0_0_36px_rgba(139,92,246,0.5)] transition-all duration-300"
                       >
-                        Lihat Project yang Cocok
+                        {t('rm.viewMatches', 'See Matching Projects')}
                         <ArrowRight size={16} />
                       </Link>
                       <button
                         onClick={reset}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] bg-white/[0.03] hover:bg-white/[0.07] transition-all duration-200"
                       >
-                        <RotateCcw size={14} /> Coba Lagi
+                        <RotateCcw size={14} /> {t('rm.tryAgain', 'Try Again')}
                       </button>
                     </div>
                   </div>

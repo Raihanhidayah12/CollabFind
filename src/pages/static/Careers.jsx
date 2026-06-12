@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -263,7 +264,8 @@ function ApplyModal({ role, session, onClose }) {
 }
 
 // ── Main Page ────────────────────────────────────────────────
-export default function Careers() {
+export default function Careers() { 
+  const { t } = useLanguage();
   const [roles,       setRoles]       = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [session,     setSession]     = useState(null);
@@ -286,7 +288,7 @@ export default function Careers() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Careers', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 

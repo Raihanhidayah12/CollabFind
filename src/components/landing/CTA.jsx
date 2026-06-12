@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function CTA() {
+  const { t } = useLanguage();
   return (
     <section className="cta-section py-24 relative overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,19 +38,18 @@ export default function CTA() {
 
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-sm font-medium mb-6">
-              <Users size={14} /> 15,000+ builders already joined
+              <Users size={14} /> {t('cta.badge')}
             </div>
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5 tracking-tight leading-[1.1]">
-              Ready to build your{' '}
+              {t('cta.title')}{' '}
               <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                next big project?
+                {t('cta.titleHighlight')}
               </span>
             </h2>
 
             <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
-              Join thousands of students, developers, designers and creators who are
-              already collaborating and building portfolio-worthy projects.
+              {t('cta.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -56,17 +57,17 @@ export default function CTA() {
                 to="/register"
                 className="group flex items-center gap-2 px-8 py-4 text-base font-bold text-white rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.6)] transition-all duration-300"
               >
-                Start Collaborating
+                {t('cta.startCollaborating')}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 to="/discord"
                 className="px-8 py-4 text-base font-semibold text-slate-300 hover:text-white rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300">
-                Join Community →
+                {t('cta.joinCommunity')} →
               </Link>
             </div>
 
-            <p className="text-xs text-slate-600 mt-6">No credit card required · Free forever plan available</p>
+            <p className="text-xs text-slate-600 mt-6">{t('cta.noCreditCard')}</p>
           </div>
         </motion.div>
       </div>

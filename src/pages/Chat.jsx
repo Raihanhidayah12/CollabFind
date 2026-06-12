@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState, useRef, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -670,7 +671,8 @@ function ChannelSettingsModal({ conv, onUpdate, onDelete, onClose }) {
 }
 
 /* ── Main Chat page ───────────────────────────────────────── */
-export default function Chat() {
+export default function Chat() { 
+  const { t } = useLanguage();
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -887,13 +889,13 @@ export default function Chat() {
   };
 
   if (!session || loading) return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+    <div className="bg-[#050816] flex items-center justify-center">
       <Loader2 size={24} className="text-blue-400 animate-spin" />
     </div>
   );
 
   return (
-    <div className="h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="flex-1 min-h-0 bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Real-time Chat' }]} homePath="/dashboard" />
 
       <div className="flex flex-1 overflow-hidden pt-16">

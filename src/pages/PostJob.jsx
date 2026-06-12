@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,7 +73,8 @@ function SkillTagInput({ value, onChange }) {
   );
 }
 
-export default function PostJob() {
+export default function PostJob() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -132,7 +134,7 @@ export default function PostJob() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
           <div className="w-16 h-16 rounded-full bg-green-500/15 border-2 border-green-500/30 flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={28} className="text-green-400" />
@@ -145,7 +147,7 @@ export default function PostJob() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
       </div>

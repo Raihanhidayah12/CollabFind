@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const FALLBACK_ORGS = [
   { id: 'f1',  name: 'Universitas Indonesia',    initial: 'UI' },
@@ -17,6 +18,7 @@ const FALLBACK_ORGS = [
 
 export default function TrustedBy() {
   const [orgs, setOrgs] = useState([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase
@@ -44,7 +46,7 @@ export default function TrustedBy() {
         viewport={{ once: true }}
         className="text-center text-xs text-slate-600 uppercase tracking-widest mb-8"
       >
-        Dipercaya oleh pelajar &amp; kreator dari
+        {t('trust.tagline', 'Trusted by students & creators from')}
       </motion.p>
 
       <div className="relative">

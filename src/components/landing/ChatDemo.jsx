@@ -2,12 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageSquare, ArrowRight, Zap } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-
-const CHAT_SEQUENCE = [
-  { sender: 'Alex', isMine: false, text: 'Hey team, I just pushed the new API endpoints!', delay: 1000 },
-  { sender: 'You', isMine: true, text: 'Awesome! Let me review the PR real quick.', delay: 3000 },
-  { sender: 'Alex', isMine: false, text: 'Cool, let me know if you need help with testing.', delay: 5500 },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 function TypingIndicator() {
   return (
@@ -19,11 +14,17 @@ function TypingIndicator() {
   );
 }
 
-function ChatAnimation({ onClose, isLoggedIn }) {
+function ChatAnimation({ onClose, isLoggedIn, t }) {
   const [visibleMessages, setVisibleMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showCTA, setShowCTA] = useState(false);
   const containerRef = useRef(null);
+
+  const CHAT_SEQUENCE = [
+    { sender: 'Alex', isMine: false, text: t('chatDemo.msg1'), delay: 1000 },
+    { sender: 'You', isMine: true, text: t('chatDemo.msg2'), delay: 3000 },
+    { sender: 'Alex', isMine: false, text: t('chatDemo.msg3'), delay: 5500 },
+  ];
 
   useEffect(() => {
     let timeouts = [];
@@ -31,23 +32,19 @@ function ChatAnimation({ onClose, isLoggedIn }) {
     setIsTyping(false);
     setShowCTA(false);
 
-    // Initial typing
     timeouts.push(setTimeout(() => setIsTyping(true), 300));
 
     CHAT_SEQUENCE.forEach((msg, index) => {
-      // Tampilkan pesan
       timeouts.push(setTimeout(() => {
         setVisibleMessages(prev => [...prev, msg]);
         setIsTyping(false);
       }, msg.delay));
 
-      // Jika ada pesan berikutnya, tampilkan typing indicator sebelum pesan itu muncul
       if (index < CHAT_SEQUENCE.length - 1) {
         timeouts.push(setTimeout(() => {
           setIsTyping(true);
         }, msg.delay + 500));
       } else {
-        // Setelah pesan terakhir, tampilkan CTA
         timeouts.push(setTimeout(() => {
           setShowCTA(true);
         }, msg.delay + 1000));
@@ -55,7 +52,7 @@ function ChatAnimation({ onClose, isLoggedIn }) {
     });
 
     return () => timeouts.forEach(clearTimeout);
-  }, []);
+  }, [t]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -100,7 +97,7 @@ function ChatAnimation({ onClose, isLoggedIn }) {
             className="flex flex-col items-start"
           >
             <span className="text-[10px] text-slate-500 mb-1 ml-1">
-              {visibleMessages.length % 2 === 0 ? 'Alex is typing...' : 'You are typing...'}
+              {visibleMessages.length % 2 === 0 ? `Alex ${t('chatDemo.isTypizing')}` : t('chatDemo.youTyping')}
             </span>
             <TypingIndicator />
           </motion.div>
@@ -126,7 +123,7 @@ function ChatAnimation({ onClose, isLoggedIn }) {
                 }}
               >
                 <Zap size={14} />
-                Buka Chat Sekarang
+                {t('chatDemo.openChatNow')}
                 <ArrowRight size={14} />
               </Link>
             ) : (
@@ -141,7 +138,7 @@ function ChatAnimation({ onClose, isLoggedIn }) {
                 }}
               >
                 <Zap size={14} />
-                Coba Chat Sendiri
+                {t('chatDemo.tryChat')}
                 <ArrowRight size={14} />
               </Link>
             )}
@@ -153,6 +150,7 @@ function ChatAnimation({ onClose, isLoggedIn }) {
 }
 
 export default function ChatDemo({ onClose, isLoggedIn = false }) {
+  const { t } = useLanguage();
   return (
     <AnimatePresence>
       <motion.div
@@ -188,11 +186,11 @@ export default function ChatDemo({ onClose, isLoggedIn = false }) {
               <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
                 Real-time Chat
               </h3>
-              <p className="text-xs text-slate-500">Demo — Komunikasi instan</p>
+              <p className="text-xs text-slate-500">{t('chatDemo.subtitle')}</p>
             </div>
           </div>
 
-          <ChatAnimation onClose={onClose} isLoggedIn={isLoggedIn} />
+          <ChatAnimation onClose={onClose} isLoggedIn={isLoggedIn} t={t} />
         </motion.div>
       </motion.div>
     </AnimatePresence>

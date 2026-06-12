@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { motion } from 'framer-motion';
 import { Code2, Webhook, Zap, Mail, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
@@ -146,11 +147,12 @@ function CopyButton({ text }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function ApiReference() {
+export default function ApiReference() { 
+  const { t } = useLanguage();
   const [expandedEvent, setExpandedEvent] = useState(null);
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'API Reference', href: null }]} />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">

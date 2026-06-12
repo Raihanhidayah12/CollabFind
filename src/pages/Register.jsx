@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import AuthParticles from '../components/AuthParticles';
+import { useLanguage } from '../i18n/LanguageContext';
 
 function getStrength(pw) {
   if (!pw) return 0;
@@ -24,9 +25,16 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const [done, setDone]       = useState(false);
+  const { t } = useLanguage();
 
   const strength = getStrength(form.password);
-  const info     = STRENGTH_INFO[strength];
+  const strengthInfo = strength === 0 ? null : [
+    null,
+    { label: t('auth.tooWeak'),       dot: '#ef4444', cls: 'active-weak'   },
+    { label: t('auth.gettingThere'),  dot: '#f59e0b', cls: 'active-medium' },
+    { label: t('auth.strong'),        dot: '#00FFC2', cls: 'active-strong' },
+  ][strength];
+  const info = strengthInfo;
 
   const handle = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -104,13 +112,13 @@ export default function Register() {
             <div className="auth-success-ring-inner">✓</div>
           </div>
           <h1 className="auth-title">
-            You're <span>in!</span>
+            {t('auth.signUp')} <span>✓</span>
           </h1>
           <p className="auth-subtitle" style={{ marginBottom: 32 }}>
-            Check your email to confirm your account,<br />then sign in and start building.
+            {t('auth.email')}
           </p>
           <Link to="/login" className="auth-btn auth-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-            Go to Sign In →
+            {t('auth.signIn')} →
           </Link>
         </div>
       </div>
@@ -133,10 +141,10 @@ export default function Register() {
         </Link>
 
         <h1 className="auth-title">
-          Join the <span>Mission</span>
+          {t('auth.createAccount')}
         </h1>
         <p className="auth-subtitle">
-          Create your account and start collaborating with builders worldwide.
+          {t('auth.createAccountSubtitle')}
         </p>
 
         <form onSubmit={handleRegister} className="auth-form">
@@ -150,7 +158,7 @@ export default function Register() {
 
           {/* Full Name */}
           <div className="auth-field">
-            <label className="auth-label">Full Name</label>
+            <label className="auth-label">{t('auth.fullName')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -172,7 +180,7 @@ export default function Register() {
 
           {/* Email */}
           <div className="auth-field">
-            <label className="auth-label">Email Address</label>
+            <label className="auth-label">{t('auth.email')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -194,7 +202,7 @@ export default function Register() {
 
           {/* Password */}
           <div className="auth-field">
-            <label className="auth-label">Password</label>
+            <label className="auth-label">{t('auth.password')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -242,7 +250,7 @@ export default function Register() {
 
           {/* Confirm Password */}
           <div className="auth-field">
-            <label className="auth-label">Confirm Password</label>
+            <label className="auth-label">{t('auth.confirmPassword')}</label>
             <div className="auth-input-wrap">
               <span className="auth-input-icon">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -279,10 +287,10 @@ export default function Register() {
             disabled={loading}
           >
             {loading ? (
-              <><span className="auth-spinner" /> Creating account...</>
+              <><span className="auth-spinner" /> {t('auth.createAccount')}...</>
             ) : (
               <>
-                Create Account
+                {t('auth.createAccount')}
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                 </svg>
@@ -293,7 +301,7 @@ export default function Register() {
 
         <div className="auth-divider">
           <div className="auth-divider-line" />
-          <span className="auth-divider-text">or sign up with</span>
+          <span className="auth-divider-text">{t('auth.orContinueWith')}</span>
           <div className="auth-divider-line" />
         </div>
 
@@ -319,11 +327,11 @@ export default function Register() {
         </div>
 
         <p className="auth-footer">
-          Already have an account?{' '}
-          <Link to="/login" className="auth-link">Sign in →</Link>
+          {t('auth.hasAccount')}{' '}
+          <Link to="/login" className="auth-link">{t('auth.signIn')} →</Link>
         </p>
         <p className="auth-footer auth-footer-back">
-          <Link to="/" className="auth-link auth-link--muted">← Back to Home</Link>
+          <Link to="/" className="auth-link auth-link--muted">← {t('common.back')}</Link>
         </p>
       </div>
     </div>

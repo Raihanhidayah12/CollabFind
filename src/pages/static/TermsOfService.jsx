@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { motion } from 'framer-motion';
 import Footer from '../../components/landing/Footer';
 import PageNavbar from '../../components/PageNavbar';
@@ -60,9 +61,10 @@ const sections = [
   },
 ];
 
-export default function TermsOfService() {
+export default function TermsOfService() { 
+  const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Terms of Service', href: null }]} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>

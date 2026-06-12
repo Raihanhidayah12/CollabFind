@@ -2,12 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FolderOpen, Users, Trophy, Zap } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
+
+const FALLBACK_LABELS = {
+  activeProjects: 'stats.activeProjects',
+  members: 'stats.members',
+  successes: 'stats.successes',
+  skillsMatched: 'stats.skillsMatched',
+};
 
 const FALLBACK = [
-  { icon: FolderOpen, label: 'Active Projects', value: 2500, suffix: '+', color: '#3B82F6' },
-  { icon: Users,      label: 'Members',          value: 15000, suffix: '+', color: '#8B5CF6' },
-  { icon: Trophy,     label: 'Successes',         value: 7000,  suffix: '+', color: '#10B981' },
-  { icon: Zap,        label: 'Skills Matched',    value: 50000, suffix: '+', color: '#F59E0B' },
+  { icon: FolderOpen, label: FALLBACK_LABELS.activeProjects, value: 2500, suffix: '+', color: '#3B82F6' },
+  { icon: Users,      label: FALLBACK_LABELS.members,         value: 15000, suffix: '+', color: '#8B5CF6' },
+  { icon: Trophy,     label: FALLBACK_LABELS.successes,        value: 7000,  suffix: '+', color: '#10B981' },
+  { icon: Zap,        label: FALLBACK_LABELS.skillsMatched,    value: 50000, suffix: '+', color: '#F59E0B' },
 ];
 
 function useCountUp(target, duration = 1800, start = false) {
@@ -27,7 +35,7 @@ function useCountUp(target, duration = 1800, start = false) {
   return count;
 }
 
-function StatCard({ icon: Icon, label, value, suffix, color, started }) {
+function StatCard({ icon: Icon, label, value, suffix, color, started, t }) {
   const count = useCountUp(value, 1800, started);
 
   const display = count >= 1000
@@ -57,7 +65,7 @@ function StatCard({ icon: Icon, label, value, suffix, color, started }) {
         >
           {display}{suffix}
         </div>
-        <div className="text-sm text-slate-500 mt-1">{label}</div>
+        <div className="text-sm text-slate-500 mt-1">{t(label)}</div>
       </div>
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl"
@@ -71,6 +79,7 @@ export default function StatsCounter() {
   const [stats, setStats] = useState(FALLBACK);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetchStats() {
@@ -86,10 +95,10 @@ export default function StatsCounter() {
 
       if (projectCount || memberCount) {
         setStats([
-          { icon: FolderOpen, label: 'Active Projects',      value: projectCount  || 2500,  suffix: '+', color: '#3B82F6' },
-          { icon: Users,      label: 'Members',              value: memberCount   || 15000, suffix: '+', color: '#8B5CF6' },
-          { icon: Trophy,     label: 'Kolaborasi Berhasil',  value: appCount      || 7000,  suffix: '+', color: '#10B981' },
-          { icon: Zap,        label: 'Skills Terdaftar',     value: (memberCount  || 15000) * 3, suffix: '+', color: '#F59E0B' },
+          { icon: FolderOpen, label: 'stats.activeProjects',  value: projectCount  || 2500,  suffix: '+', color: '#3B82F6' },
+          { icon: Users,      label: 'stats.members',          value: memberCount   || 15000, suffix: '+', color: '#8B5CF6' },
+          { icon: Trophy,     label: 'stats.successes',        value: appCount      || 7000,  suffix: '+', color: '#10B981' },
+          { icon: Zap,        label: 'stats.skillsMatched',    value: (memberCount  || 15000) * 3, suffix: '+', color: '#F59E0B' },
         ]);
       }
     }
@@ -109,17 +118,17 @@ export default function StatsCounter() {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-yellow-300 text-xs font-medium mb-4">
-            <Zap size={12} /> Platform in Numbers
+            <Zap size={12} /> {t('stats.badge', 'Platform in Numbers')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Angka yang{' '}
-            <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">bicara sendiri</span>
+            {t('stats.heading', 'Numbers that')}{' '}
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">{t('stats.headingHighlight', 'speak for themselves')}</span>
           </h2>
         </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((s) => (
-            <StatCard key={s.label} {...s} started={inView} />
+            <StatCard key={s.label} {...s} started={inView} t={t} />
           ))}
         </div>
       </div>

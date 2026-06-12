@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const ICON_MAP = { Code2, Smartphone, Palette, Brain, Cpu, Lightbulb, GitBranch, Trophy };
 
@@ -157,6 +158,7 @@ export default function Explore() {
   const [showFilter, setShowFilter]     = useState(false);
   const [session, setSession]           = useState(null);
   const [visibleCount, setVisibleCount] = useState(12);
+  const { t } = useLanguage();
 
   const search   = searchParams.get('q') || '';
   const category = searchParams.get('category') || 'all';
@@ -233,7 +235,7 @@ export default function Explore() {
   const hasFilters = search || category !== 'all' || status !== 'all' || sort !== 'newest';
 
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
+    { value: 'all', label: t('explore.allStatus') },
     { value: 'open', label: 'Recruiting' },
     { value: 'ongoing', label: 'In Progress' },
     { value: 'completed', label: 'Completed' },
@@ -246,7 +248,7 @@ export default function Explore() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       {/* Bg glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
@@ -268,9 +270,9 @@ export default function Explore() {
         >
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-2 tracking-tight"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            Explore <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Projects</span>
+            {t('explore.title')} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('explore.titleHighlight')}</span>
           </h1>
-          <p className="text-slate-400 text-sm">Find your next collaboration and build something amazing.</p>
+          <p className="text-slate-400 text-sm">{t('explore.subtitle')}</p>
         </motion.div>
 
         {/* Search + controls */}

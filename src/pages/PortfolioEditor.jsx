@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
@@ -5,7 +6,8 @@ import { Loader2, Save, LayoutTemplate, Link as LinkIcon, GitBranch, Briefcase, 
 import { Link } from 'react-router-dom';
 import PageNavbar from '../components/PageNavbar';
 
-export default function PortfolioEditor() {
+export default function PortfolioEditor() { 
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState(null);
@@ -205,17 +207,17 @@ export default function PortfolioEditor() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#06080F]">
+      <div className="flex-1 items-center justify-center bg-[#06080F] flex">
         <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#06080F] text-white font-sans relative overflow-x-hidden flex flex-col">
+    <div className="bg-[#06080F] text-white font-sans relative overflow-x-hidden">
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Portfolio Generator' }]} homePath="/dashboard" />
 
-      <div className="relative flex-1 p-6 lg:p-10">
+      <div className="relative p-6 lg:p-10">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" />
 
@@ -427,13 +429,13 @@ export default function PortfolioEditor() {
           <div className="space-y-8">
             
             {/* Project Showcase Settings */}
-            <div className="bg-[#0F1423]/80 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl flex flex-col max-h-[600px]">
+            <div className="bg-[#0F1423]/80 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-2xl">
               <div className="mb-6">
                 <h2 className="text-xl font-bold mb-2">Featured Projects</h2>
                 <p className="text-sm text-slate-400">Select the completed projects you want to pin to your portfolio.</p>
               </div>
               
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+              <div className="space-y-3">
                 {availableProjects.length === 0 ? (
                   <div className="text-center py-12 px-4 bg-white/5 rounded-2xl border border-white/10">
                     <p className="text-slate-400 text-sm font-medium leading-relaxed">

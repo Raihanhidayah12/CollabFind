@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Users, Folder, FileText, GitBranch, Globe, Briefcase, Camera, MessageSquare, Calendar, Trophy, Star, BookOpen, Lock } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import { useAuth } from '../AuthProvider';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Icon mapping for pages
 const ICON_MAP = {
@@ -59,6 +60,7 @@ const PAGE_LINKS = [
 
 export default function SearchModal({ isOpen, onClose }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [projects, setProjects] = useState([]);
   const [profiles, setProfiles] = useState([]);
@@ -179,7 +181,7 @@ const handleProfileClick = (profileId) => {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search projects, teammates, pages..."
+                  placeholder={t('search.placeholder')}
                   className="flex-1 px-3 py-2 bg-transparent text-white placeholder-slate-500 text-sm outline-none"
                   autoComplete="off"
                 />
@@ -204,13 +206,13 @@ const handleProfileClick = (profileId) => {
                 {loading ? (
                   <div className="p-8 text-center text-slate-500">
                     <div className="w-6 h-6 border-2 border-slate-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-3" />
-                    <p className="text-sm">Searching...</p>
+                    <p className="text-sm">{t('search.searching')}</p>
                   </div>
                 ) : !query.trim() && filteredPages.length > 0 ? (
                   /* Show popular pages when no query */
                   <div className="p-3">
                     <p className="px-3 py-2 text-xs text-slate-500 font-medium uppercase tracking-wider">
-                      Quick Links
+                      {t('search.quickLinks')}
                     </p>
                     <div className="space-y-1">
                       {filteredPages.slice(0, 8).map((page) => {
@@ -238,7 +240,7 @@ const handleProfileClick = (profileId) => {
                     {projects.length > 0 && (
                       <div>
                         <p className="px-3 py-2 text-xs text-slate-500 font-medium uppercase tracking-wider">
-                          Projects
+                          {t('search.projects')}
                         </p>
                         <div className="space-y-1">
                           {projects.map((project) => (
@@ -275,7 +277,7 @@ const handleProfileClick = (profileId) => {
                     {profiles.length > 0 && (
                       <div>
                         <p className="px-3 py-2 text-xs text-slate-500 font-medium uppercase tracking-wider">
-                          Teammates
+                          {t('search.teammates')}
                         </p>
                         <div className="space-y-1">
                           {profiles.map((profile) => (
@@ -305,7 +307,7 @@ const handleProfileClick = (profileId) => {
                     {filteredPages.length > 0 && (
                       <div>
                         <p className="px-3 py-2 text-xs text-slate-500 font-medium uppercase tracking-wider">
-                          {query.trim() ? 'Pages' : 'More Links'}
+                          {query.trim() ? t('search.pages') : t('search.moreLinks')}
                         </p>
                         <div className="space-y-1">
                           {filteredPages.map((page) => {
@@ -332,8 +334,8 @@ const handleProfileClick = (profileId) => {
                     {!loading && projects.length === 0 && profiles.length === 0 && filteredPages.length === 0 && query.trim() && (
                       <div className="p-8 text-center">
                         <Search size={32} className="text-slate-500/50 mx-auto mb-3" />
-                        <p className="text-white font-medium mb-1">No results found</p>
-                        <p className="text-sm text-slate-500">Try searching for something else</p>
+                        <p className="text-white font-medium mb-1">{t('search.noResults')}</p>
+                        <p className="text-sm text-slate-500">{t('search.noResultsHint')}</p>
                       </div>
                     )}
                   </div>
@@ -345,15 +347,15 @@ const handleProfileClick = (profileId) => {
                 <span className="flex items-center gap-1">
                   <span className="px-1.5 py-0.5 bg-white/[0.06] rounded">↑</span>
                   <span className="px-1.5 py-0.5 bg-white/[0.06] rounded">↓</span>
-                  navigate
+                  {t('search.navigate')}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="px-1.5 py-0.5 bg-white/[0.06] rounded">↵</span>
-                  select
+                  {t('search.select')}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="px-1.5 py-0.5 bg-white/[0.06] rounded">esc</span>
-                  close
+                  {t('search.close')}
                 </span>
               </div>
             </div>

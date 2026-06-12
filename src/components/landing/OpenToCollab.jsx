@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { Users, ArrowRight, Sparkles, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-function UserCard({ user, index }) {
+function UserCard({ user, index, t }) {
   const hasAvatar = user.avatar_url?.startsWith('http');
   const COLORS = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#06B6D4', '#EC4899'];
   const color = user.color || COLORS[index % COLORS.length];
@@ -40,7 +41,7 @@ function UserCard({ user, index }) {
               className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0"
               style={{ background: `${color}18`, color: color }}
             >
-              {user.availability}
+              {t(user.availability, user.availability === 'otc.activeThisWeek' ? 'Active this week' : 'Open for collab')}
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">{user.role}</p>
@@ -72,7 +73,7 @@ function UserCard({ user, index }) {
         to="/teammates"
         className="mt-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white border border-white/[0.06] hover:border-white/[0.14] bg-white/[0.02] hover:bg-white/[0.06] transition-all duration-200"
       >
-        Lihat Profil <ArrowRight size={12} />
+        {t('otc.viewProfile', 'View Profile')} <ArrowRight size={12} />
       </Link>
 
       <div
@@ -86,6 +87,7 @@ function UserCard({ user, index }) {
 export default function OpenToCollab() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetchUsers() {
@@ -106,7 +108,7 @@ export default function OpenToCollab() {
           location: u.location,
           avatar_url: u.avatar_url,
           color: COLORS[i % COLORS.length],
-          availability: i % 2 === 0 ? 'Aktif minggu ini' : 'Open untuk collab',
+          availability: i % 2 === 0 ? 'otc.activeThisWeek' : 'otc.openForCollab',
         }));
         setUsers(mapped);
       } else {
@@ -118,7 +120,7 @@ export default function OpenToCollab() {
   }, []);
 
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section className="open-to-collab-section py-24 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-600/6 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-600/6 rounded-full blur-[100px]" />
@@ -134,21 +136,21 @@ export default function OpenToCollab() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/30 bg-green-500/10 text-green-300 text-xs font-medium mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              Aktif Minggu Ini
+              {t('otc.badge', 'Active This Week')}
             </div>
             <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Open to{' '}
-              <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">Collab</span>
+              {t('otc.heading', 'Open to')}{' '}
+              <span className="bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">{t('otc.headingHighlight', 'Collab')}</span>
             </h2>
             <p className="text-slate-400 mt-2 max-w-md">
-              Builder yang lagi aktif nyari project atau teammate minggu ini.
+              {t('otc.subtitle', 'Builders actively looking for projects or teammates this week.')}
             </p>
           </div>
           <Link
             to="/teammates"
             className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white border border-white/[0.08] hover:border-white/[0.18] bg-white/[0.03] hover:bg-white/[0.07] transition-all duration-200"
           >
-            <Users size={15} /> Lihat Semua
+            <Users size={15} /> {t('otc.seeAll', 'See All')}
           </Link>
         </motion.div>
 
@@ -161,12 +163,12 @@ export default function OpenToCollab() {
         ) : users.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {users.map((user, i) => (
-              <UserCard key={user.id} user={user} index={i} />
+              <UserCard key={user.id} user={user} index={i} t={t} />
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-slate-500 text-sm">Belum ada profile yang tersedia.</p>
+            <p className="text-slate-500 text-sm">{t('otc.empty', 'No profiles available yet.')}</p>
           </div>
         )}
 
@@ -179,15 +181,15 @@ export default function OpenToCollab() {
           <div className="flex items-center gap-3">
             <Sparkles size={18} className="text-yellow-400" />
             <p className="text-sm text-slate-400">
-              <span className="font-semibold text-white">Kamu juga bisa masuk sini.</span>{' '}
-              Update profilmu dan tandai sebagai open to collab.
+              <span className="font-semibold text-white">{t('otc.calloutBold', 'You can be here too.')}</span>{' '}
+              {t('otc.calloutText', 'Update your profile and mark yourself as open to collab.')}
             </p>
           </div>
           <Link
             to="/register"
             className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-400 hover:to-cyan-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all duration-300"
           >
-            Daftar Sekarang <ArrowRight size={14} />
+            {t('otc.registerNow', 'Register Now')} <ArrowRight size={14} />
           </Link>
         </motion.div>
       </div>

@@ -2,12 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const SCAN_STEPS = [
-  { label: 'Menganalisis profil kamu...', delay: 0 },
-  { label: 'Mencocokkan skills dengan proyek...', delay: 1.2 },
-  { label: 'Menghitung skor kecocokan...', delay: 2.4 },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const FAKE_MATCHES = [
   { title: 'AI Study Assistant',    skills: ['React', 'FastAPI'],         match: 98, color: '#8B5CF6' },
@@ -15,10 +10,16 @@ const FAKE_MATCHES = [
   { title: 'Open Source CLI Toolkit', skills: ['TypeScript', 'Node.js'], match: 79, color: '#94A3B8' },
 ];
 
-function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClose }) {
-  const [mode, setMode]       = useState('dummy'); // 'dummy' or 'real'
+function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClose, t }) {
+  const [mode, setMode]       = useState('dummy');
   const [step, setStep]       = useState(0);
   const [showResult, setShowResult] = useState(false);
+
+  const SCAN_STEPS = [
+    { label: t('smartDemo.scan1'), delay: 0 },
+    { label: t('smartDemo.scan2'), delay: 1.2 },
+    { label: t('smartDemo.scan3'), delay: 2.4 },
+  ];
 
   const isLoggedIn = !!userSkills;
   const isReal = mode === 'real';
@@ -60,7 +61,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 mx-auto mb-3 flex items-center justify-center text-lg font-bold text-white">
             {initial}
           </div>
-          <div className="text-sm font-semibold text-white mb-1">{isReal ? 'Your Profile' : 'Demo Profile'}</div>
+          <div className="text-sm font-semibold text-white mb-1">{isReal ? t('smartDemo.yourProfile') : t('smartDemo.demoProfile')}</div>
           <div className="flex flex-wrap justify-center gap-1.5">
             {displaySkills.slice(0, 5).map(s => (
               <span key={s} className="px-2 py-0.5 rounded-md bg-blue-500/15 border border-blue-500/30 text-xs text-blue-300">{s}</span>
@@ -110,7 +111,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
             <div className="text-center mb-3">
               <span className="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
                 style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                {displayMatches.length} Proyek Ditemukan!
+                {displayMatches.length} {t('smartDemo.projectsFound')}
               </span>
             </div>
             {displayMatches.map((m, i) => (
@@ -153,7 +154,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
                 }}
               >
                 <Sparkles size={14} />
-                Tutup & Lihat Hasil
+                {t('smartDemo.closeSeeResults')}
                 <ArrowRight size={14} />
               </button>
             ) : isLoggedIn ? (
@@ -166,7 +167,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
                 }}
               >
                 <Sparkles size={14} />
-                Coba Sendiri dengan Akunmu
+                {t('smartDemo.tryWithAccount')}
                 <ArrowRight size={14} />
               </button>
             ) : (
@@ -179,7 +180,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
                 }}
               >
                 <Sparkles size={14} />
-                Daftar & Coba Sendiri
+                {t('smartDemo.registerTry')}
                 <ArrowRight size={14} />
               </Link>
             )}
@@ -190,7 +191,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
       {step > 0 && !showResult && (
         <div className="flex items-center gap-2 text-xs text-slate-500">
           <div className="w-3 h-3 border border-blue-500/40 border-t-blue-400 rounded-full animate-spin" />
-          Sedang menganalisis...
+          {t('smartDemo.analyzing')}
         </div>
       )}
     </div>
@@ -198,6 +199,7 @@ function ScanAnimation({ onDone, userSkills, recommendations, displayName, onClo
 }
 
 export default function SmartMatchDemo({ onClose, userSkills, recommendations, displayName }) {
+  const { t } = useLanguage();
   return (
     <AnimatePresence>
       <motion.div
@@ -233,15 +235,16 @@ export default function SmartMatchDemo({ onClose, userSkills, recommendations, d
               <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
                 Smart Project Matching
               </h3>
-              <p className="text-xs text-slate-500">Demo — Lihat cara kerja AI kami</p>
+              <p className="text-xs text-slate-500">{t('smartDemo.subtitle')}</p>
             </div>
           </div>
 
-          <ScanAnimation 
-            onClose={onClose} 
-            userSkills={userSkills} 
-            recommendations={recommendations} 
-            displayName={displayName} 
+          <ScanAnimation
+            onClose={onClose}
+            userSkills={userSkills}
+            recommendations={recommendations}
+            displayName={displayName}
+            t={t}
           />
         </motion.div>
       </motion.div>

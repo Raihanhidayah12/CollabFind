@@ -3,10 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import { motion } from 'framer-motion';
 import { Check, X, Loader2 } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ProjectInvitation() {
   const { inviteId } = useParams();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [invitation, setInvitation] = useState(null);
   const [project, setProject] = useState(null);
   const [inviter, setInviter] = useState(null);
@@ -70,7 +72,7 @@ export default function ProjectInvitation() {
       navigate(`/dashboard/workspace/${invitation.project_id}`);
     } catch (err) {
       console.error('Error accepting invitation:', err);
-      alert('Failed to accept invitation. Please try again.');
+      alert(t('invite.failedAccept'));
       setResponding(false);
     }
   };
@@ -88,14 +90,14 @@ export default function ProjectInvitation() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <Loader2 size={24} className="text-blue-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center p-4 pt-32">
+    <div className="bg-[#050816] flex items-center justify-center p-4 pt-32">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -116,10 +118,10 @@ export default function ProjectInvitation() {
             )}
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            {inviter?.name || 'Someone'} invited you
+            {inviter?.name || t('invite.someone')} {t('invite.invitedYou')}
           </h2>
           <p className="text-slate-400">
-            to join <span className="text-white font-semibold">{project?.title}</span>
+            {t('invite.toJoin')} <span className="text-white font-semibold">{project?.title}</span>
           </p>
         </div>
 
@@ -136,7 +138,7 @@ export default function ProjectInvitation() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/10 transition-all disabled:opacity-50"
           >
             {responding ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
-            Decline
+            {t('invite.decline')}
           </button>
           <button
             onClick={handleAccept}
@@ -144,7 +146,7 @@ export default function ProjectInvitation() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 transition-all disabled:opacity-50"
           >
             {responding ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-            Accept
+            {t('invite.accept')}
           </button>
         </div>
       </motion.div>

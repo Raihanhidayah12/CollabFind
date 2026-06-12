@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -12,14 +13,15 @@ const values = [
   { icon: Heart,  color: '#EC4899', title: 'Built for Builders',  desc: 'From students to indie hackers, CollabFind is designed for anyone who wants to build something real with others.' },
 ];
 
-export default function AboutUs() {
+export default function AboutUs() { 
+  const { t } = useLanguage();
   const [session, setSession] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
   }, []);
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'About Us', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Mail, CheckCircle, TrendingUp, Users, Lightbulb, Loader2 } from 'lucide-react';
@@ -11,7 +12,8 @@ const highlights = [
   { icon: Lightbulb,  color: '#F59E0B', title: 'Tips Kolaborasi',   desc: 'Cara efektif membangun produk bersama tim remote' },
 ];
 
-export default function Newsletter() {
+export default function Newsletter() { 
+  const { t } = useLanguage();
   const [email,      setEmail]      = useState('');
   const [name,       setName]       = useState('');
   const [loading,    setLoading]    = useState(false);
@@ -51,7 +53,7 @@ export default function Newsletter() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Newsletter', href: null }]} />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { motion } from 'framer-motion';
 import { Zap, Hash, ExternalLink } from 'lucide-react';
 import PageNavbar from '../../components/PageNavbar';
@@ -12,9 +13,10 @@ const channels = [
   { name: 'general',         desc: 'Ngobrol santai tentang apa saja', color: '#F59E0B' },
 ];
 
-export default function Discord() {
+export default function Discord() { 
+  const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Discord', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
 

@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -39,7 +40,8 @@ const tools = [
   },
 ];
 
-export default function ProductFeatures() {
+export default function ProductFeatures() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
 
@@ -59,14 +61,14 @@ export default function ProductFeatures() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
+      <div className="bg-[#050816] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] text-white font-['Manrope',sans-serif]">
       <PageNavbar breadcrumbs={[{ label: 'Product Features', href: null }]} />
 
       <main className="relative overflow-hidden pt-28">

@@ -3,12 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Play, Users, FolderOpen, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import GuidedTourSimple from '../GuidedTourSimple';
-
-const stats = [
-  { icon: FolderOpen, value: '2,500+', label: 'Active Projects', color: 'from-blue-500 to-cyan-400' },
-  { icon: Users,      value: '15,000+', label: 'Members',        color: 'from-purple-500 to-pink-400' },
-  { icon: Trophy,     value: '7,000+',  label: 'Successes',      color: 'from-cyan-500 to-teal-400' },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -19,6 +14,13 @@ const fadeUp = (delay = 0) => ({
 
 export default function Hero() {
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const { t } = useLanguage();
+
+  const stats = [
+    { icon: FolderOpen, value: '2,500+', label: t('hero.activeProjects'), color: 'from-blue-500 to-cyan-400' },
+    { icon: Users,      value: '15,000+', label: t('hero.members'),        color: 'from-purple-500 to-pink-400' },
+    { icon: Trophy,     value: '7,000+',  label: t('hero.successes'),      color: 'from-cyan-500 to-teal-400' },
+  ];
   return (
     <>
       <section id="home" className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-16 overflow-hidden">
@@ -43,7 +45,7 @@ export default function Hero() {
         {/* Badge */}
         <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-sm font-medium mb-8">
           <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-          Now in Beta — Join 15,000+ builders
+          {t('hero.badge')}
           <ArrowRight size={14} />
         </motion.div>
 
@@ -52,10 +54,10 @@ export default function Hero() {
           {...fadeUp(0.1)}
           className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight mb-6"
         >
-          Build Amazing{' '}
+          {t('hero.title')}{' '}
           <span className="relative inline-block">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Projects
+              {t('hero.titleHighlight')}
             </span>
             <motion.span
               className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
@@ -66,7 +68,7 @@ export default function Hero() {
             />
           </span>
           {' '}
-          Together
+          {t('hero.titleSuffix')}
         </motion.h1>
 
         {/* Subtitle */}
@@ -74,8 +76,7 @@ export default function Hero() {
           {...fadeUp(0.2)}
           className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Find talented teammates, join exciting projects, and create portfolio-worthy products
-          with developers, designers, and creators worldwide.
+          {t('hero.subtitle')}
         </motion.p>
 
         {/* CTA Buttons */}
@@ -84,7 +85,7 @@ export default function Hero() {
             to="/register"
             className="group flex items-center gap-2 px-7 py-3.5 text-base font-semibold text-white rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all duration-300"
           >
-            Explore Projects
+            {t('hero.exploreProjects')}
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
           <button
@@ -96,7 +97,7 @@ export default function Hero() {
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-[0_0_12px_rgba(59,130,246,0.4)]">
               <Play size={13} className="text-white fill-white ml-0.5" />
             </div>
-            Watch Demo
+            {t('hero.watchDemo')}
           </button>
         </motion.div>
 

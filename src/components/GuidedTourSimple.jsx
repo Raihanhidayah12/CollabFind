@@ -3,14 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const tourSteps = [
-  { id: 1, target: '#hero-section', title: 'Selamat Datang di CollabFind!', description: 'Platform untuk menemukan tim dan proyek kolaboratif yang sempurna.' },
-  { id: 2, target: '.featured-projects', title: 'Jelajahi 2,500+ Proyek Aktif', description: 'Temukan proyek menarik dari komunitas developer worldwide.' },
-  { id: 3, target: '.collaborators-section', title: 'Temukan Tim Sempurna', description: 'Terhubung dengan 15,000+ developer berbakat dengan skill yang cocok.' },
-  { id: 4, target: '.categories-section', title: 'Filter Berdasarkan Kategori', description: 'Cari proyek berdasarkan teknologi, industri, atau level keahlian.' },
-  { id: 5, target: '.features-section', title: 'Fitur-Fitur Powerful', description: 'Real-time chat, task management, dan portfolio generator terintegrasi.' },
-  { id: 6, target: '.kanban-section', title: 'Kelola Tugas dengan Kanban', description: 'Visualisasi progress proyek dengan interface drag-and-drop yang intuitif.' },
-  { id: 7, target: '.testimonials-section', title: '7,000+ Kisah Sukses', description: 'Bergabung dengan komunitas yang telah menciptakan produk amazing.' },
-  { id: 8, target: '.cta-section', title: 'Siap untuk Memulai?', description: 'Klik tombol untuk membuat akun dan mulai kolaborasi hari ini!', isLast: true },
+  { id: 1, target: '#home', title: 'Selamat Datang di CollabFind!', description: 'Platform untuk menemukan tim dan proyek kolaboratif yang sempurna.' },
+  { id: 2, target: '#how-it-works', title: 'Cara Kerja CollabFind', description: '3 langkah mudah: buat profil, temukan project, mulai kolaborasi.' },
+  { id: 3, target: '.featured-projects', title: 'Jelajahi 2,500+ Proyek Aktif', description: 'Temukan proyek menarik dari komunitas developer worldwide.' },
+  { id: 4, target: '.open-to-collab-section', title: 'Open to Collab', description: 'Lihat builder yang sedang aktif mencari teammate minggu ini.' },
+  { id: 5, target: '.categories-section', title: 'Filter Berdasarkan Kategori', description: 'Cari proyek berdasarkan teknologi, industri, atau level keahlian.' },
+  { id: 6, target: '.features-section', title: 'Fitur-Fitur Powerful', description: 'Real-time chat, task management, dan portfolio generator terintegrasi.' },
+  { id: 7, target: '.kanban-section', title: 'Kelola Tugas dengan Kanban', description: 'Visualisasi progress proyek dengan interface drag-and-drop yang intuitif.' },
+  { id: 8, target: '.freelance-section', title: 'Freelance Marketplace', description: 'Monetize skill-mu atau temukan talent terbaik untuk project-mu.' },
+  { id: 9, target: '.comparison-section', title: 'Kenapa CollabFind?', description: 'Lihat perbandingan fitur CollabFind dengan platform lainnya.' },
+  { id: 10, target: '.testimonials-section', title: '7,000+ Kisah Sukses', description: 'Bergabung dengan komunitas yang telah menciptakan produk amazing.' },
+  { id: 11, target: '.role-matcher-section', title: 'Role Matcher', description: 'Jawab 3 pertanyaan, temukan project dan peran yang paling cocok untukmu.' },
+  { id: 12, target: '.cta-section', title: 'Siap untuk Memulai?', description: 'Klik tombol untuk membuat akun dan mulai kolaborasi hari ini!', isLast: true },
 ];
 
 export default function GuidedTour({ isOpen, onClose }) {

@@ -2,17 +2,19 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Code2, Sparkles, Layout, CheckCircle, TrendingUp, ChevronRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const DEMO_STEPS = [
-  { id: 0, text: "Extracting profile data...", icon: Code2, color: "text-blue-400" },
-  { id: 1, text: "Analyzing skills & projects...", icon: Sparkles, color: "text-purple-400" },
-  { id: 2, text: "Applying 'Neo-Dark' template...", icon: Layout, color: "text-cyan-400" },
-  { id: 3, text: "Portfolio generated successfully!", icon: CheckCircle, color: "text-emerald-400" },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function PortfolioDemo({ onClose, isLoggedIn = false }) {
+  const { t } = useLanguage();
   const [step, setStep] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
+
+  const DEMO_STEPS = [
+    { id: 0, text: t('portDemo.step0'), icon: Code2, color: "text-blue-400" },
+    { id: 1, text: t('portDemo.step1'), icon: Sparkles, color: "text-purple-400" },
+    { id: 2, text: t('portDemo.step2'), icon: Layout, color: "text-cyan-400" },
+    { id: 3, text: t('portDemo.step3'), icon: CheckCircle, color: "text-emerald-400" },
+  ];
 
   useEffect(() => {
     if (!autoplay) return;
@@ -70,13 +72,13 @@ export default function PortfolioDemo({ onClose, isLoggedIn = false }) {
               <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
                 Portfolio Generator
               </h3>
-              <p className="text-xs text-slate-500">Auto-magic portfolio creation from your CollabFind data.</p>
+              <p className="text-xs text-slate-500">{t('portDemo.subtitle')}</p>
             </div>
             <button
               onClick={handleReplay}
               className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-white/[0.09] bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all"
             >
-              <TrendingUp size={11} /> Replay
+              <TrendingUp size={11} /> {t('portDemo.replay')}
             </button>
           </div>
 
@@ -228,7 +230,7 @@ export default function PortfolioDemo({ onClose, isLoggedIn = false }) {
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white transition-all bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-400 hover:to-blue-500 shadow-[0_0_24px_rgba(168,85,247,0.35)]"
                 >
                   <Zap size={14} />
-                  Generate Your Portfolio Now
+                  {t('portDemo.generateNow')}
                   <ChevronRight size={14} />
                 </Link>
               ) : (
@@ -237,7 +239,7 @@ export default function PortfolioDemo({ onClose, isLoggedIn = false }) {
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white transition-all bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-400 hover:to-blue-500 shadow-[0_0_24px_rgba(168,85,247,0.35)]"
                 >
                   <Zap size={14} />
-                  Join to Generate Yours
+                  {t('portDemo.joinToGenerate')}
                   <ChevronRight size={14} />
                 </Link>
               )}

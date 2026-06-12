@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -13,7 +14,8 @@ const TABS = [
   { key: 'rejected', label: 'Rejected' },
 ];
 
-export default function MyProposals() {
+export default function MyProposals() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [proposals, setProposals] = useState([]);
@@ -60,7 +62,7 @@ export default function MyProposals() {
   }, [proposals, tab]);
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
       </div>

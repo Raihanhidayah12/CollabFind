@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Users, Rocket, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const COLORS = ['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#06B6D4', '#EC4899'];
 const SLOT_LABELS = ['1 open role', '2 open roles', '3 open roles', '4 open roles', '5 open roles'];
@@ -36,6 +37,7 @@ const fadeUp = (delay = 0) => ({
 export default function HowItWorks() {
   const [projects, setProjects] = useState(FALLBACK_PROJECTS);
   const [profiles, setProfiles] = useState(FALLBACK_PROFILES);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetchData() {
@@ -73,8 +75,8 @@ export default function HowItWorks() {
       step: '01',
       icon: Search,
       color: '#3B82F6',
-      title: 'Post atau Temukan Project',
-      desc: 'Punya ide? Post projectmu dan deskripsikan apa yang kamu butuhkan. Atau jelajahi ratusan project aktif yang mencari kolaborator seperti kamu.',
+      title: t('hiw.step1Title'),
+      desc: t('hiw.step1Desc'),
       visual: (
         <div className="flex flex-col gap-2">
           {projects.map((p, i) => (
@@ -93,8 +95,8 @@ export default function HowItWorks() {
       step: '02',
       icon: Users,
       color: '#8B5CF6',
-      title: 'Smart Match Temukan Teammu',
-      desc: 'Algoritma kami mencocokkan kamu dengan developer, designer, dan PM berdasarkan skill, ketersediaan, dan gaya kerja — bukan sekadar keyword.',
+      title: t('hiw.step2Title'),
+      desc: t('hiw.step2Desc'),
       visual: (
         <div className="flex flex-col gap-2">
           {profiles.map((m, i) => (
@@ -124,8 +126,8 @@ export default function HowItWorks() {
       step: '03',
       icon: Rocket,
       color: '#10B981',
-      title: 'Build & Ship Bersama',
-      desc: 'Workspace lengkap: Kanban board, chat real-time, wiki project, dan portfolio generator otomatis. Semua yang kamu butuhkan untuk ship produk nyata.',
+      title: t('hiw.step3Title'),
+      desc: t('hiw.step3Desc'),
       visual: (
         <div className="grid grid-cols-2 gap-2">
           {WORKSPACE_TOOLS.map((item) => (
@@ -151,14 +153,14 @@ export default function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div {...fadeUp()} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-medium mb-4">
-            <Rocket size={12} /> How It Works
+            <Rocket size={12} /> {t('hiw.badge')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Dari ide ke produk,{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">3 langkah</span>
+            {t('hiw.title')}{' '}
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">{t('hiw.titleHighlight')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Sederhana. Cepat. Terarah. Mulai kolaborasi nyata dalam hitungan menit.
+            {t('hiw.subtitle')}
           </p>
         </motion.div>
 
@@ -209,10 +211,10 @@ export default function HowItWorks() {
             to="/register"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 shadow-[0_0_30px_rgba(59,130,246,0.35)] hover:shadow-[0_0_44px_rgba(59,130,246,0.55)] transition-all duration-300"
           >
-            Mulai Sekarang — Gratis
+            {t('hiw.startNow')}
             <ArrowRight size={18} />
           </Link>
-          <p className="text-xs text-slate-600 mt-3">Tidak perlu kartu kredit. Setup dalam 2 menit.</p>
+          <p className="text-xs text-slate-600 mt-3">{t('hiw.noCreditCard')}</p>
         </motion.div>
       </div>
     </section>

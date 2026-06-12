@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import UserMenu from './UserMenu';
 import NotificationMenu from './NotificationMenu';
 import { useAuth } from './AuthProvider';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function PageNavbar({ breadcrumbs = [], homePath = '/' }) {
-  // Use shared auth context - already initialized from localStorage
   const { session } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <motion.nav
@@ -55,6 +57,7 @@ export default function PageNavbar({ breadcrumbs = [], homePath = '/' }) {
 
         {/* Right: Auth/Menu */}
         <div className={`flex items-center gap-3 ${!session && 'hidden md:flex'}`}>
+          <LanguageSwitcher />
           {session ? (
             <>
               <NotificationMenu session={session} />
@@ -63,10 +66,10 @@ export default function PageNavbar({ breadcrumbs = [], homePath = '/' }) {
           ) : (
             <>
               <Link to="/login" state={{ from: location.pathname }} className="text-sm text-slate-400 hover:text-white transition-colors">
-                Login
+                {t('nav.login')}
               </Link>
               <Link to="/register" className="px-3 py-1.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 transition-all">
-                Sign Up
+                {t('nav.signUp')}
               </Link>
             </>
           )}
@@ -94,19 +97,20 @@ export default function PageNavbar({ breadcrumbs = [], homePath = '/' }) {
             className="md:hidden bg-[#050816]/95 border-t border-white/[0.06] overflow-visible"
           >
             <div className="px-4 py-4 flex flex-col gap-3">
+              <LanguageSwitcher />
               <div className="flex gap-2">
                 <Link
                   to="/login"
                   state={{ from: location.pathname }}
                   className="flex-1 text-center py-2 text-sm text-slate-300 border border-white/10 rounded-lg hover:bg-white/[0.06] transition-all"
                 >
-                  Login
+                  {t('nav.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="flex-1 text-center py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg hover:from-blue-400 hover:to-purple-500 transition-all"
                 >
-                  Sign Up
+                  {t('nav.signUp')}
                 </Link>
               </div>
             </div>

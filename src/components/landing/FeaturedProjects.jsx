@@ -3,20 +3,21 @@ import { motion } from 'framer-motion';
 import { Users, ArrowRight, Zap, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const STATUS_STYLE = {
-  open:      { label: 'Recruiting',  cls: 'text-green-400 bg-green-400/10 border-green-400/20' },
-  ongoing:   { label: 'In Progress', cls: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  completed: { label: 'Completed',   cls: 'text-slate-400 bg-slate-400/10 border-slate-400/20' },
+  open:      { labelKey: 'fp.recruiting',   cls: 'text-green-400 bg-green-400/10 border-green-400/20' },
+  ongoing:   { labelKey: 'fp.inProgress',   cls: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
+  completed: { labelKey: 'fp.completed',    cls: 'text-slate-400 bg-slate-400/10 border-slate-400/20' },
 };
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
-  if (days < 1) return 'Today';
-  if (days < 7) return `${days}d ago`;
-  if (days < 30) return `${Math.floor(days / 7)}w ago`;
-  return `${Math.floor(days / 30)}mo ago`;
+  if (days < 1) return t('fp.today');
+  if (days < 7) return `${days}${t('fp.daysAgo')}`;
+  if (days < 30) return `${Math.floor(days / 7)}${t('fp.weeksAgo')}`;
+  return `${Math.floor(days / 30)}${t('fp.monthsAgo')}`;
 }
 
 function ProjectSkeleton() {
@@ -47,6 +48,7 @@ export default function FeaturedProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [session, setSession]   = useState(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -95,14 +97,14 @@ export default function FeaturedProjects() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-medium mb-4">
-            <Zap size={12} /> Popular This Week
+            <Zap size={12} /> {t('fp.badge')}
           </div>
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight"
             style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-            Featured <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Projects</span>
+            {t('fp.title')} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t('fp.titleHighlight')}</span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Join high-impact projects and build things that matter with talented teams.
+            {t('fp.subtitle')}
           </p>
         </motion.div>
 
@@ -135,11 +137,11 @@ export default function FeaturedProjects() {
                     <div className="p-5 flex flex-col flex-1">
                       <div className="flex items-center justify-between mb-3">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s.cls}`}>
-                          {s.label}
+                          {t(s.labelKey)}
                         </span>
                         <div className="flex items-center gap-1 text-slate-500 text-xs">
                           <Users size={12} />
-                          <span>{p.current_members ?? 1} · {p.open_slots ?? 0} slots</span>
+                          <span>{p.current_members ?? 1} · {p.open_slots ?? 0} {t('fp.slots')}</span>
                         </div>
                       </div>
 
@@ -162,7 +164,7 @@ export default function FeaturedProjects() {
                       </div>
 
                       <div className="flex items-center gap-2 text-[10px] text-slate-600 mb-3">
-                        <Clock size={10} /> {timeAgo(p.created_at)}
+                        <Clock size={10} /> {timeAgo(p.created_at, t)}
                       </div>
 
                       <Link
@@ -170,7 +172,7 @@ export default function FeaturedProjects() {
                         state={{ from: '/explore' }}
                         className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold text-white border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.09] hover:border-white/[0.15] group/btn transition-all"
                       >
-                        {session ? 'Join Project' : 'View Project'}
+                        {session ? t('fp.joinProject') : t('fp.viewProject')}
                         <ArrowRight size={13} className="group-hover/btn:translate-x-0.5 transition-transform" />
                       </Link>
                     </div>
@@ -183,17 +185,17 @@ export default function FeaturedProjects() {
         {projects.length === 0 && !loading && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
             <Zap size={48} className="text-slate-600/30 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-white mb-2">No projects yet</h3>
-            <p className="text-slate-500 text-sm mb-6">Be the first to create a project and find collaborators.</p>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('fp.noProjects')}</h3>
+            <p className="text-slate-500 text-sm mb-6">{t('fp.noProjectsDesc')}</p>
             <Link to="/create-project" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600">
-              Create Project <ArrowRight size={14} />
+              {t('fp.createProject')} <ArrowRight size={14} />
             </Link>
           </motion.div>
         )}
 
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-center mt-12">
           <Link to="/explore" className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-slate-300 border border-white/10 hover:border-white/20 hover:text-white hover:bg-white/[0.04] transition-all duration-200">
-            View All Projects <ArrowRight size={14} />
+            {t('fp.viewAll')} <ArrowRight size={14} />
           </Link>
         </motion.div>
       </div>

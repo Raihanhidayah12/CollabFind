@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2, Zap } from 'lucide-react';
@@ -6,6 +7,7 @@ import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 import { SkeletonRow } from '../components/Skeleton';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const tabs = [
   { id: 'account', label: 'Account', icon: User },
@@ -14,7 +16,8 @@ const tabs = [
   { id: 'security', label: 'Security', icon: Shield },
 ];
 
-export default function Settings() {
+export default function Settings() { 
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [session, setSession] = useState(null);
   const [activeTab, setActiveTab] = useState('account');
@@ -59,7 +62,7 @@ export default function Settings() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} homePath="/dashboard" />
       <main className="flex-1 pt-20 md:pt-28 pb-12 md:pb-16">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -85,7 +88,7 @@ export default function Settings() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816] flex flex-col" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} homePath="/dashboard" />
       
       <main className="flex-1 pt-20 md:pt-28 pb-12 md:pb-16">
@@ -243,6 +246,12 @@ export default function Settings() {
                           <div className="text-xs md:text-sm font-medium text-slate-400">Light Mode (Coming Soon)</div>
                         </div>
                       </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-base md:text-lg font-bold text-white mb-1">Language</h3>
+                      <p className="text-xs md:text-sm text-slate-400 mb-4 md:mb-5">Choose your preferred language.</p>
+                      <LanguageSwitcher variant="settings" />
                     </div>
                   </div>
                 )}

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../i18n/LanguageContext';
 import { motion } from 'framer-motion';
 import { Download, Zap } from 'lucide-react';
 import Footer from '../../components/landing/Footer';
@@ -17,9 +18,10 @@ const assets = [
   { name: 'Product Screenshots',desc: 'Hi-res screenshots of the platform' },
 ];
 
-export default function PressKit() {
+export default function PressKit() { 
+  const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope',sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Press Kit', href: null }]} />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">

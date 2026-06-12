@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,7 +26,8 @@ function JobSkeleton() {
   );
 }
 
-export default function FreelanceMarketplace() {
+export default function FreelanceMarketplace() { 
+  const { t } = useLanguage();
   const [session, setSession] = useState(null);
   const [tab, setTab] = useState('jobs');
   const [jobs, setJobs] = useState([]);
@@ -90,7 +92,7 @@ export default function FreelanceMarketplace() {
   const hasMore = items.length > visibleCount;
 
   return (
-    <div className="min-h-screen bg-[#050816] font-['Manrope',sans-serif]">
+    <div className="bg-[#050816] font-['Manrope',sans-serif]">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] bg-blue-600/8 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/3 right-0 w-[400px] h-[400px] bg-purple-600/8 rounded-full blur-[100px]" />

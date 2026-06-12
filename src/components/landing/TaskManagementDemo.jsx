@@ -5,6 +5,7 @@ import {
   ChevronRight, Zap, Plus, TrendingUp, Target, MessageSquare,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // ── Demo data ─────────────────────────────────────────────────
 const SPRINT = { name: 'Sprint 1', end: '20 Jun 2025' };
@@ -69,10 +70,11 @@ function TaskCard({ task, animating }) {
 }
 
 function KanbanBoard({ tasks, animatingId }) {
+  const { t } = useLanguage();
   return (
     <div className="grid grid-cols-3 gap-2">
       {COLS.map(col => {
-        const colTasks = tasks.filter(t => t.status === col.id);
+        const colTasks = tasks.filter(tk => tk.status === col.id);
         return (
           <div key={col.id} className="flex flex-col gap-2">
             {/* Column header */}
@@ -97,7 +99,7 @@ function KanbanBoard({ tasks, animatingId }) {
                 ))}
               </AnimatePresence>
               {colTasks.length === 0 && (
-                <p className="text-[10px] text-slate-700 text-center py-3">Kosong</p>
+                <p className="text-[10px] text-slate-700 text-center py-3">{t('taskDemo.empty')}</p>
               )}
             </div>
           </div>
@@ -108,8 +110,9 @@ function KanbanBoard({ tasks, animatingId }) {
 }
 
 function ProgressBar({ tasks }) {
+  const { t } = useLanguage();
   const total = tasks.length;
-  const done = tasks.filter(t => t.status === 'done').length;
+  const done = tasks.filter(tk => tk.status === 'done').length;
   const pct = total === 0 ? 0 : Math.round((done / total) * 100);
 
   return (
@@ -118,7 +121,7 @@ function ProgressBar({ tasks }) {
         <div className="flex items-center gap-1.5">
           <Target size={11} className="text-emerald-400" />
           <span className="text-[11px] font-semibold text-white">{SPRINT.name}</span>
-          <span className="text-[10px] text-slate-500">· deadline {SPRINT.end}</span>
+          <span className="text-[10px] text-slate-500">· {t('taskDemo.deadline')} {SPRINT.end}</span>
         </div>
         <motion.span
           key={pct}
@@ -139,14 +142,14 @@ function ProgressBar({ tasks }) {
         />
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-slate-600">{done} dari {total} tugas selesai</span>
+        <span className="text-[10px] text-slate-600">{done} {t('taskDemo.tasksDone')}</span>
         {pct === 100 && (
           <motion.span
             initial={{ opacity: 0, x: 8 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-[10px] font-bold text-emerald-400"
           >
-            Sprint selesai!
+            {t('taskDemo.sprintDone')}
           </motion.span>
         )}
       </div>
@@ -155,6 +158,7 @@ function ProgressBar({ tasks }) {
 }
 
 export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstWorkspaceId = null }) {
+  const { t } = useLanguage();
   const [tasks, setTasks]           = useState(INITIAL_TASKS);
   const [animatingId, setAnimatingId] = useState(null);
   const [step, setStep]             = useState(0); // 0–4
@@ -188,7 +192,7 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
     setTimeout(() => setAutoplay(true), 50);
   }
 
-  const done = tasks.filter(t => t.status === 'done').length;
+  const done = tasks.filter(tk => tk.status === 'done').length;
   const pct = Math.round((done / tasks.length) * 100);
 
   return (
@@ -226,13 +230,13 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
               <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
                 Task Management Demo
               </h3>
-              <p className="text-xs text-slate-500">Simulasi Kanban Board &amp; Sprint Tracking otomatis</p>
+              <p className="text-xs text-slate-500">{t('taskDemo.subtitle')}</p>
             </div>
             <button
               onClick={handleReplay}
               className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-white/[0.09] bg-white/[0.04] text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all"
             >
-              <TrendingUp size={11} /> Ulangi Demo
+              <TrendingUp size={11} /> {t('taskDemo.replayDemo')}
             </button>
           </div>
 
@@ -250,15 +254,15 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
                 {step < MOVE_SEQUENCE.length ? (
                   <>
                     <div className="w-3 h-3 rounded-full border border-blue-500/40 border-t-blue-400 animate-spin" />
-                    {step === 0 && 'Memulai sprint — tim siap bekerja...'}
-                    {step === 1 && 'Rizky mulai mengerjakan "Notifikasi real-time"...'}
-                    {step === 2 && 'Rizky juga ambil task "Testing & QA"...'}
-                    {step === 3 && 'Rina selesaikan "Integrasi Supabase storage" ✓'}
-                    {step >= 4 && 'Sprint hampir selesai!'}
+                    {step === 0 && t('taskDemo.step0')}
+                    {step === 1 && t('taskDemo.step1')}
+                    {step === 2 && t('taskDemo.step2')}
+                    {step === 3 && t('taskDemo.step3')}
+                    {step >= 4 && t('taskDemo.step4')}
                   </>
                 ) : (
                   <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                    <CheckSquare size={12} /> Semua tugas selesai! Sprint berhasil!
+                    <CheckSquare size={12} /> {t('taskDemo.allDone')}
                   </span>
                 )}
               </motion.div>
@@ -274,9 +278,9 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3 mt-4">
             {[
-              { label: 'Total Tugas', val: tasks.length, color: '#94A3B8' },
-              { label: 'Selesai', val: done, color: '#10B981' },
-              { label: 'Progress', val: `${pct}%`, color: pct >= 100 ? '#10B981' : '#3B82F6' },
+              { label: t('taskDemo.totalTasks'), val: tasks.length, color: '#94A3B8' },
+              { label: t('taskDemo.done'), val: done, color: '#10B981' },
+              { label: t('taskDemo.progress'), val: `${pct}%`, color: pct >= 100 ? '#10B981' : '#3B82F6' },
             ].map(s => (
               <div key={s.label} className="p-3 rounded-xl border border-white/[0.06] bg-white/[0.03] text-center">
                 <motion.div
@@ -306,7 +310,7 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
                 }}
               >
                 <Zap size={14} />
-                Buka Workspace Kamu
+                {t('taskDemo.openWorkspace')}
                 <ChevronRight size={14} />
               </Link>
             ) : (
@@ -320,7 +324,7 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
                 }}
               >
                 <Zap size={14} />
-                Buat Proyek Baru
+                {t('taskDemo.createProject')}
                 <ChevronRight size={14} />
               </Link>
             )
@@ -335,7 +339,7 @@ export default function TaskManagementDemo({ onClose, isLoggedIn = false, firstW
               }}
             >
               <Zap size={14} />
-              Mulai Kelola Proyek Kamu Sekarang
+              {t('taskDemo.startNow')}
               <ChevronRight size={14} />
             </Link>
           )}

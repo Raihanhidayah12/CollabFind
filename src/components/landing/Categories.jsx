@@ -3,17 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Code2, Smartphone, Palette, Brain, Cpu, Lightbulb, GitBranch, Trophy, ArrowRight } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const ICON_MAP = {
   Code2, Smartphone, Palette, Brain, Cpu, Lightbulb, GitBranch, Trophy,
 };
-
-const SIZE_FILTER = [
-  { label: 'All', value: 'all' },
-  { label: 'Banyak Project', value: 'many', min: 5 },
-  { label: 'Sedang', value: 'mid', min: 2, max: 4 },
-  { label: 'Baru Mulai', value: 'few', max: 1 },
-];
 
 function SkeletonCard() {
   return (
@@ -30,6 +24,14 @@ export default function Categories() {
   const [loading, setLoading]       = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const SIZE_FILTER = [
+    { label: t('cat.filterAll'),  value: 'all' },
+    { label: t('cat.filterMany'), value: 'many', min: 5 },
+    { label: t('cat.filterMid'),  value: 'mid', min: 2, max: 4 },
+    { label: t('cat.filterFew'),  value: 'few', max: 1 },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -81,13 +83,13 @@ export default function Categories() {
           className="text-center mb-10"
         >
           <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Explore{' '}
+            {t('cat.title')}{' '}
             <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-              Categories
+              {t('cat.titleHighlight')}
             </span>
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Find your niche or go broad — there's a project for every skill set.
+            {t('cat.subtitle')}
           </p>
         </motion.div>
 
@@ -190,7 +192,7 @@ export default function Categories() {
                     animate={{ opacity: 1 }}
                     className="col-span-4 py-10 text-center text-slate-600 text-sm"
                   >
-                    Belum ada kategori di filter ini.
+                    {t('cat.empty')}
                   </motion.div>
                 )}
               </AnimatePresence>

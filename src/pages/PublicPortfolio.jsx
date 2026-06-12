@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
@@ -5,7 +6,8 @@ import { GitBranch, Briefcase, Globe, MapPin, Calendar, ExternalLink, ArrowRight
 import PageNavbar from '../components/PageNavbar';
 import Footer from '../components/landing/Footer';
 
-export default function PublicPortfolio() {
+export default function PublicPortfolio() { 
+  const { t } = useLanguage();
   const { username } = useParams();
   const [loading, setLoading] = useState(true);
   const [portfolio, setPortfolio] = useState(null);
@@ -104,7 +106,7 @@ export default function PublicPortfolio() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#06080F] flex flex-col">
+      <div className="bg-[#06080F] flex flex-col">
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
         </div>
@@ -114,7 +116,7 @@ export default function PublicPortfolio() {
 
   if (!portfolio) {
     return (
-      <div className="min-h-screen bg-[#06080F] flex flex-col text-white">
+      <div className="bg-[#06080F] flex flex-col text-white">
         <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
           <h1 className="text-4xl font-bold mb-4">Portfolio Not Found</h1>
           <p className="text-gray-400 mb-8 max-w-md">The portfolio you are looking for does not exist or has been removed.</p>
@@ -130,7 +132,7 @@ export default function PublicPortfolio() {
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#06080F] text-white font-sans selection:bg-blue-500/30">
+    <div className="bg-[#06080F] text-white font-sans selection:bg-blue-500/30">
       <PageNavbar breadcrumbs={[{ label: 'Portfolio' }]} homePath="/dashboard" />
       
       <main className="pt-28 pb-20">

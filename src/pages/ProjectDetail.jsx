@@ -1,3 +1,4 @@
+import { useLanguage } from '../i18n/LanguageContext';
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,7 +17,8 @@ const STATUS_STYLE = {
   completed: { label: 'Completed',   cls: 'text-slate-400 bg-slate-400/10 border-slate-400/20' },
 };
 
-export default function ProjectDetail() {
+export default function ProjectDetail() { 
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -458,7 +460,7 @@ export default function ProjectDetail() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope', sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope', sans-serif" }}>
       <PageNavbar breadcrumbs={[{ label: 'Explore', href: '/explore' }, { label: 'Project Details' }]} homePath="/dashboard" />
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -481,7 +483,7 @@ export default function ProjectDetail() {
   const isOwner = session?.user?.id === project.creator_id;
 
   return (
-    <div className="min-h-screen bg-[#050816]" style={{ fontFamily: "'Manrope', sans-serif" }}>
+    <div className="bg-[#050816]" style={{ fontFamily: "'Manrope', sans-serif" }}>
       {/* Bg */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/3 w-[500px] h-[400px] rounded-full blur-[120px]"

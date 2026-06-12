@@ -7,15 +7,21 @@ import {
   CheckSquare, ArrowRight, Users, MessageSquare, Clock,
   CheckCircle, Plus, Zap,
 } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-const PREVIEW_SLIDES = [
-  {
-    id: 'boards',
-    icon: LayoutDashboard,
-    color: '#10B981',
-    label: 'Project Boards',
-    title: 'Kanban board dengan sprint & diskusi',
-    desc: 'Atur tugas di papan Kanban, tetapkan assignee & deadline, dan diskusikan langsung di setiap task lewat thread.',
+export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, firstWorkspaceId = null }) {
+  const navigate      = useNavigate();
+  const { t } = useLanguage();
+  const [slide, setSlide] = useState(0);
+
+  const PREVIEW_SLIDES = [
+    {
+      id: 'boards',
+      icon: LayoutDashboard,
+      color: '#10B981',
+      label: 'Project Boards',
+      title: t('wpm.boardsTitle'),
+      desc: t('wpm.boardsDesc'),
     preview: (
       <div className="flex flex-col gap-2">
         {/* Sprint header */}
@@ -78,18 +84,18 @@ const PREVIEW_SLIDES = [
     icon: FolderOpen,
     color: '#8B5CF6',
     label: 'File Storage',
-    title: 'Semua aset proyek dengan folder otomatis',
-    desc: 'Upload file dan otomatis terkategorisi ke folder virtual berdasarkan tipe — gambar, dokumen, kode, dan lainnya.',
+    title: t('wpm.filesTitle'),
+    desc: t('wpm.filesDesc'),
     preview: (
       <div className="flex gap-2 h-[130px]">
         {/* Folder sidebar */}
         <div className="w-24 flex flex-col gap-0.5 overflow-hidden">
           {[
-            { label: 'Semua File', icon: FolderOpen, color: '#3B82F6', active: true },
-            { label: 'Gambar', icon: FileImage, color: '#8B5CF6' },
-            { label: 'Dokumen', icon: FileText, color: '#10B981' },
-            { label: 'Kode', icon: FileCode, color: '#3B82F6' },
-            { label: 'Arsip', icon: FileArchive, color: '#F59E0B' },
+            { label: t('wpm.allFiles'), icon: FolderOpen, color: '#3B82F6', active: true },
+            { label: t('wpm.images'), icon: FileImage, color: '#8B5CF6' },
+            { label: t('wpm.documents'), icon: FileText, color: '#10B981' },
+            { label: t('wpm.code'), icon: FileCode, color: '#3B82F6' },
+            { label: t('wpm.archive'), icon: FileArchive, color: '#F59E0B' },
           ].map((f) => (
             <div key={f.label} className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[9px] ${
               f.active ? 'bg-blue-500/15 border border-blue-500/30 text-blue-300' : 'text-slate-500'
@@ -125,8 +131,8 @@ const PREVIEW_SLIDES = [
     icon: BookOpen,
     color: '#06B6D4',
     label: 'Wiki',
-    title: 'Dokumentasi tim yang rapi',
-    desc: 'Tulis code guidelines, jobdesk, rangkuman meeting, dan ide di halaman Wiki. Terintegrasi langsung dengan proyekmu.',
+    title: t('wpm.wikiTitle'),
+    desc: t('wpm.wikiDesc'),
     preview: (
       <div className="flex gap-3 h-[130px]">
         <div className="w-24 flex flex-col gap-1">
@@ -154,8 +160,8 @@ const PREVIEW_SLIDES = [
     icon: Activity,
     color: '#F59E0B',
     label: 'Activity',
-    title: 'Timeline aktivitas tim secara real-time',
-    desc: 'Pantau semua aktivitas tim — task dibuat, dipindah, komentar baru, file diupload — semuanya di satu timeline.',
+    title: t('wpm.activityTitle'),
+    desc: t('wpm.activityDesc'),
     preview: (
       <div className="flex flex-col gap-2">
         {[
@@ -185,10 +191,6 @@ const PREVIEW_SLIDES = [
     ),
   },
 ];
-
-export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, firstWorkspaceId = null }) {
-  const navigate      = useNavigate();
-  const [slide, setSlide] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -244,7 +246,7 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
                   <Users size={18} style={{ color: current.color }} />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">Fitur Eksklusif</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">{t('wpm.exclusiveFeature')}</p>
                   <h2 className="text-base font-extrabold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
                     Team Collaboration Workspace
                   </h2>
@@ -253,7 +255,7 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
               <button
                 onClick={onClose}
                 className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/[0.06] transition-all"
-                aria-label="Tutup modal"
+                aria-label={t('wpm.closeModal')}
               >
                 <X size={16} />
               </button>
@@ -358,12 +360,12 @@ export default function WorkspacePreviewModal({ onClose, isLoggedIn = false, fir
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 24px rgba(59,130,246,0.3)'; }}
             >
               {isLoggedIn
-                ? (firstWorkspaceId ? 'Buka Workspace Kamu' : 'Buat Proyek Baru')
-                : 'Kelola Projekmu Lebih Profesional, Daftar Sekarang (Gratis)'}
+                ? (firstWorkspaceId ? t('wpm.openWorkspace') : t('wpm.createProject'))
+                : t('wpm.registerCta')}
               <ArrowRight size={15} />
             </button>
             <p className="text-center text-xs text-slate-600 mt-2">
-              {isLoggedIn ? 'Workspace siap digunakan' : 'Gratis selamanya · Tidak perlu kartu kredit'}
+              {isLoggedIn ? t('wpm.workspaceReady') : t('wpm.freeForever')}
             </p>
           </div>
         </motion.div>
