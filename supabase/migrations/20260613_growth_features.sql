@@ -44,7 +44,7 @@ CREATE POLICY "Users can view their own referrals"
 DROP POLICY IF EXISTS "Users can insert referrals they initiated" ON referrals;
 CREATE POLICY "Users can insert referrals they initiated"
   ON referrals FOR INSERT
-  WITH CHECK (referrer_id = auth.uid());
+  WITH CHECK (referrer_id = auth.uid() OR referred_id = auth.uid());
 
 -- 5. Index for referral lookups
 CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_id);

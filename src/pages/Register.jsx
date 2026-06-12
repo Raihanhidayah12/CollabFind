@@ -93,21 +93,20 @@ export default function Register() {
       // Process referral
       const refCode = localStorage.getItem('collabfind_ref');
       if (refCode) {
-        try {
-          const { data: referrer } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('referral_code', refCode)
-            .single();
+        const { data: referrer, error: refLookupErr } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('referral_code', refCode)
+          .single();
 
-          if (referrer && referrer.id !== data.user.id) {
-            await supabase.from('referrals').insert({
-              referrer_id: referrer.id,
-              referred_id: data.user.id,
-            });
-          }
-        } catch {
-          // Referral table may not exist yet — silently skip
+        if (refLookupErr) {
+          console.warn('Referral lookup failed:', refLookupErr.message);
+        } else if (referrer && referrer.id !== data.user.id) {
+          const { error: refInsertErr } = await supabase.from('referrals').insert({
+            referrer_id: referrer.id,
+            referred_id: data.user.id,
+          });
+          if (refInsertErr) console.warn('Referral insert failed:', refInsertErr.message);
         }
         localStorage.removeItem('collabfind_ref');
       }
