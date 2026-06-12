@@ -79,6 +79,7 @@ Diskusi real-time, hackathon, events, dan newsletter komunitas.
 - **Sprint & Task Management** — Sprint planning dengan task assignment, deadline, dan progress tracking
 - **Task Thread Discussion** — Diskusi per tugas dengan @mention rekan tim
 - **Error Boundary** — Crash protection di setiap halaman
+- **Internationalization (i18n)** — Dukungan dua bahasa (Indonesia & English) dengan language toggle di seluruh halaman dan komponen
 - **Code Splitting** — Lazy loading untuk performa optimal
 - **Responsive Design** — Tampilan optimal di desktop, tablet, dan mobile
 
@@ -92,6 +93,7 @@ Diskusi real-time, hackathon, events, dan newsletter komunitas.
 | **Backend & DB** | Supabase (PostgreSQL, Auth, Realtime, Storage) |
 | **Routing** | React Router v7 |
 | **Animation** | Framer Motion |
+| **i18n** | Custom React Context (926 keys, EN/ID) |
 | **Icons** | Lucide React |
 | **CI/CD** | GitHub Actions |
 | **Deployment** | Vercel |
@@ -225,6 +227,10 @@ CollabFind/
 │   │   ├── resources/          # Blog, Docs, API Ref...
 │   │   └── static/             # About, Privacy, Terms...
 │   ├── hooks/                  # Custom hooks
+│   ├── i18n/                   # Internationalization
+│   │   ├── LanguageContext.jsx # Language provider & useLanguage hook
+│   │   ├── en.js               # English translations (926 keys)
+│   │   └── id.js               # Indonesian translations (926 keys)
 │   ├── utils/                  # Utility functions
 │   │   └── supabaseClient.js   # Supabase client config
 │   ├── App.jsx                 # Landing page
@@ -293,6 +299,7 @@ Kontribusi sangat disambut! Berikut langkah-langkahnya:
 - [x] Forum, Events & Blog
 - [x] Freelance Marketplace (Jobs, Proposals, Contracts, Milestones)
 - [x] Code Splitting & Performance
+- [x] Internationalization (i18n) — Bahasa Indonesia & English
 - [ ] Unit & Integration Tests
 - [ ] Dark/Light Mode Toggle
 - [ ] Mobile App (React Native)
