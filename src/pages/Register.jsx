@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import AuthParticles from '../components/AuthParticles';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -20,12 +20,18 @@ const STRENGTH_INFO = [
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
   const [done, setDone]       = useState(false);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (ref) localStorage.setItem('collabfind_ref', ref);
+  }, [searchParams]);
 
   const strength = getStrength(form.password);
   const strengthInfo = strength === 0 ? null : [
@@ -82,6 +88,28 @@ export default function Register() {
           .eq('invitee_email', emailLower)
           .eq('status', 'pending')
           .is('invitee_id', null);
+      }
+
+      // Process referral
+      const refCode = localStorage.getItem('collabfind_ref');
+      if (refCode) {
+        try {
+          const { data: referrer } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('referral_code', refCode)
+            .single();
+
+          if (referrer && referrer.id !== data.user.id) {
+            await supabase.from('referrals').insert({
+              referrer_id: referrer.id,
+              referred_id: data.user.id,
+            });
+          }
+        } catch {
+          // Referral table may not exist yet — silently skip
+        }
+        localStorage.removeItem('collabfind_ref');
       }
     }
 

@@ -16,6 +16,7 @@ import PageNavbar from '../components/PageNavbar';
 import AuthFooter from '../components/AuthFooter';
 import RatePlatform from '../components/RatePlatform';
 import OnboardingChecklist from '../components/OnboardingChecklist';
+import OnboardingWizard from '../components/OnboardingWizard';
 import ChatInboxPreview from '../components/ChatInboxPreview';
 import Features from '../components/landing/Features';
 import ProjectProgressOverview from '../components/ProjectProgressOverview';
@@ -1181,6 +1182,16 @@ export default function Dashboard() {
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [activities, setActivities]     = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [wizardDone, setWizardDone] = useState(false);
+
+  const showWizard = profile && !profile.onboarding_completed && !wizardDone;
+
+  const handleWizardComplete = (intent) => {
+    setWizardDone(true);
+    setProfile(prev => prev ? { ...prev, onboarding_completed: true } : prev);
+    if (intent === 'create') navigate('/create-project');
+    else if (intent === 'join') navigate('/explore');
+  };
 
   /* ── 1. Get session ──────────────────────────────────────── */
   useEffect(() => {
@@ -1616,6 +1627,12 @@ export default function Dashboard() {
 
       <AuthFooter />
       <CollabFindBot isDashboard={true} />
+
+      <AnimatePresence>
+        {showWizard && (
+          <OnboardingWizard profile={profile} onComplete={handleWizardComplete} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

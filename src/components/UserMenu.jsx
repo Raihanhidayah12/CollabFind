@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, LogOut, ChevronDown, Settings, Loader2, Zap } from 'lucide-react';
+import { User, LogOut, ChevronDown, Settings, Loader2, Zap, Gift } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -144,6 +144,13 @@ export default function UserMenu({ session }) {
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
               >
                 <Settings size={15} /> {t('dash.settings')}
+              </Link>
+              <Link
+                to="/referral"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
+              >
+                <Gift size={15} /> {t('ref.title')}
               </Link>
             </div>
 

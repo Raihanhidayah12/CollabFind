@@ -50,6 +50,7 @@ const JobDetail = lazy(() => import('./pages/JobDetail.jsx'))
 const MyProposals = lazy(() => import('./pages/MyProposals.jsx'))
 const ContractDetail = lazy(() => import('./pages/ContractDetail.jsx'))
 const FreelanceDashboard = lazy(() => import('./pages/FreelanceDashboard.jsx'))
+const Referral = lazy(() => import('./pages/Referral.jsx'))
 
 function PageLoader() {
   return (
@@ -111,6 +112,7 @@ createRoot(document.getElementById('root')).render(
                 <Route path="/freelance/proposals" element={<MyProposals />} />
                 <Route path="/freelance/contracts/:id" element={<ContractDetail />} />
                 <Route path="/freelance/dashboard" element={<FreelanceDashboard />} />
+                <Route path="/referral" element={<Referral />} />
               </Routes>
             </Suspense>
           </ErrorBoundary>

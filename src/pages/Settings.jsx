@@ -1,7 +1,7 @@
 import { useLanguage } from '../i18n/LanguageContext';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2, Zap } from 'lucide-react';
+import { User, Bell, Palette, Shield, LogOut, CheckCircle, Loader2, Zap, Copy, Gift, Share2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import PageNavbar from '../components/PageNavbar';
@@ -24,14 +24,40 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [profile, setProfile] = useState(null);
+  const [emailNotifs, setEmailNotifs] = useState({
+    applications: true, updates: true, messages: true, marketing: false,
+  });
+  const [referralCode, setReferralCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
         navigate('/login');
         return;
       }
       setSession(data.session);
+
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.session.user.id)
+        .single();
+
+      if (prof) {
+        setProfile(prof);
+        if (prof.email_notifications) {
+          setEmailNotifs({ ...emailNotifs, ...prof.email_notifications });
+        }
+        let code = prof.referral_code;
+        if (!code) {
+          code = Math.random().toString(36).substring(2, 10);
+          supabase.from('profiles').update({ referral_code: code }).eq('id', data.session.user.id).then(() => {}).catch(() => {});
+        }
+        setReferralCode(code);
+      }
+
       setLoading(false);
     });
   }, [navigate]);
@@ -59,6 +85,42 @@ export default function Settings() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/login');
+  };
+
+  const handleToggleNotif = async (key) => {
+    const updated = { ...emailNotifs, [key]: !emailNotifs[key] };
+    setEmailNotifs(updated);
+    if (!session) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ email_notifications: updated })
+        .eq('id', session.user.id);
+      if (error) throw error;
+      setMessage({ text: t('settings.notifSaved'), type: 'success' });
+    } catch {
+      setMessage({ text: t('settings.notifSaveFail'), type: 'error' });
+    }
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+  };
+
+  const handleCopyReferral = async () => {
+    await navigator.clipboard.writeText(referralCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShareReferral = async () => {
+    const url = `https://collab-find.vercel.app/register?ref=${referralCode}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'CollabFind', text: 'Join CollabFind!', url });
+      } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   if (loading) return (
@@ -165,6 +227,45 @@ export default function Settings() {
                     </div>
                     
                     <hr className="border-white/[0.08]" />
+
+                    {/* Referral Section */}
+                    {referralCode && (
+                      <div>
+                        <h3 className="text-base md:text-lg font-bold text-white mb-1">{t('ref.settingsTitle')}</h3>
+                        <p className="text-xs md:text-sm text-slate-400 mb-4 md:mb-5">{t('ref.shareDesc')}</p>
+
+                        <div className="flex flex-col sm:flex-row gap-3 max-w-lg">
+                          <div className="flex-1 flex items-center gap-3 bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-2.5">
+                            <Gift size={14} className="text-purple-400 flex-shrink-0" />
+                            <span className="text-lg font-extrabold text-white tracking-[0.15em] font-mono select-all">
+                              {referralCode}
+                            </span>
+                          </div>
+                          <button
+                            onClick={handleCopyReferral}
+                            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex-shrink-0 ${
+                              copied
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-white/[0.06] text-slate-300 border border-white/[0.1] hover:bg-white/[0.1]'
+                            }`}
+                          >
+                            {copied ? <><CheckCircle size={14} /> {t('ref.copied')}</> : <><Copy size={14} /> {t('ref.copyCode')}</>}
+                          </button>
+                          <button
+                            onClick={handleShareReferral}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-purple-500/20 border border-purple-500/30 hover:bg-purple-500/30 transition-all flex-shrink-0"
+                          >
+                            <Share2 size={14} /> {t('ref.share')}
+                          </button>
+                        </div>
+
+                        <Link to="/referral" className="inline-block mt-3 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                          {t('ref.title')} →
+                        </Link>
+                      </div>
+                    )}
+
+                    <hr className="border-white/[0.08]" />
                     
                     <div>
                       <h3 className="text-base md:text-lg font-bold text-white mb-1">Danger Zone</h3>
@@ -186,26 +287,32 @@ export default function Settings() {
                 {activeTab === 'notifications' && (
                   <div className="space-y-6 md:space-y-8">
                     <div>
-                      <h3 className="text-base md:text-lg font-bold text-white mb-1">Email Notifications</h3>
-                      <p className="text-xs md:text-sm text-slate-400 mb-4 md:mb-5">Choose what we email you about.</p>
-                      
+                      <h3 className="text-base md:text-lg font-bold text-white mb-1">{t('settings.notifTitle')}</h3>
+                      <p className="text-xs md:text-sm text-slate-400 mb-4 md:mb-5">{t('settings.notifDesc')}</p>
+
                       <div className="space-y-3 md:space-y-4">
                         {[
-                          { title: 'Project Applications', desc: 'When someone applies to your project' },
-                          { title: 'Application Updates', desc: 'When your application is accepted or rejected' },
-                          { title: 'New Messages', desc: 'When you receive a new chat message' },
-                          { title: 'Marketing', desc: 'Tips, new features, and newsletters' }
-                        ].map((item, i) => (
-                          <div key={i} className="flex items-center justify-between p-3 md:p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] gap-3">
-                            <div className="min-w-0">
-                              <div className="text-xs md:text-sm font-medium text-white">{item.title}</div>
-                              <div className="text-xs text-slate-500 mt-0.5">{item.desc}</div>
+                          { key: 'applications', title: t('settings.notifApplications'), desc: t('settings.notifApplicationsDesc') },
+                          { key: 'updates',      title: t('settings.notifUpdates'),      desc: t('settings.notifUpdatesDesc') },
+                          { key: 'messages',     title: t('settings.notifMessages'),     desc: t('settings.notifMessagesDesc') },
+                          { key: 'marketing',    title: t('settings.notifMarketing'),    desc: t('settings.notifMarketingDesc') },
+                        ].map((item) => {
+                          const on = emailNotifs[item.key];
+                          return (
+                            <div key={item.key} className="flex items-center justify-between p-3 md:p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] gap-3">
+                              <div className="min-w-0">
+                                <div className="text-xs md:text-sm font-medium text-white">{item.title}</div>
+                                <div className="text-xs text-slate-500 mt-0.5">{item.desc}</div>
+                              </div>
+                              <button
+                                onClick={() => handleToggleNotif(item.key)}
+                                className={`relative inline-block w-10 md:w-12 h-6 flex-shrink-0 rounded-full transition-colors cursor-pointer ${on ? 'bg-blue-500' : 'bg-white/[0.12]'}`}
+                              >
+                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${on ? 'left-1 translate-x-5 md:translate-x-6' : 'left-1 translate-x-0'}`} />
+                              </button>
                             </div>
-                            <div className="relative inline-block w-10 md:w-12 h-6 flex-shrink-0 rounded-full bg-blue-500 transition-colors cursor-pointer">
-                              <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white transition-transform translate-x-5 md:translate-x-6" />
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
