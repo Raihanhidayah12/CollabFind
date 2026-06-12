@@ -10,7 +10,7 @@
 
 ### Temukan Proyek. Bentuk Tim. Bangun Bersama.
 
-Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator dengan proyek menarik serta kolaborator yang tepat.
+Platform kolaborasi yang menghubungkan developer, desainer, dan kreator dengan proyek menarik serta kolaborator yang tepat.
 
 <br />
 
@@ -20,7 +20,7 @@ Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator
 
 <br>
 
-**[Explore Docs](https://collab-find.vercel.app/docs)** &nbsp;·&nbsp; **[Report Bug](https://github.com/Raihanhidayah12/CollabFind/issues)** &nbsp;·&nbsp; **[Request Feature](https://github.com/Raihanhidayah12/CollabFind/issues)**
+**[Explore Docs](https://collab-find.vercel.app/docs)** · **[Report Bug](https://github.com/Raihanhidayah12/CollabFind/issues)** · **[Request Feature](https://github.com/Raihanhidayah12/CollabFind/issues)**
 
 </div>
 
@@ -44,41 +44,45 @@ Platform kolaborasi inovatif yang menghubungkan developer, desainer, dan kreator
   <tr>
     <td width="50%" valign="top">
 
-### 🎯 Smart Match
-Algoritma cerdas yang mencocokkan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi.
+### Smart Match
+Algoritma pencocokan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi.
 
-### 💼 Freelance Marketplace
-Marketplace terintegrasi untuk menghubungkan freelancer dengan klien — mulai dari posting pekerjaan, proposal, kontrak, hingga milestone delivery.
+### Freelance Marketplace
+Marketplace terintegrasi untuk menghubungkan freelancer dengan klien — posting pekerjaan, proposal, kontrak, hingga milestone delivery.
 
-### 💻 Workspace Kolaboratif
+### Workspace Kolaboratif
 Ruang kerja terintegrasi dengan **Kanban Board**, **Team Chat**, **File Storage**, **Wiki**, dan **Activity Timeline**.
 
     </td>
     <td width="50%" valign="top">
 
-### 🔍 Eksplorasi Proyek
+### Eksplorasi Proyek
 Temukan dan ikuti proyek dari berbagai kategori dan industri dengan pencarian cerdas.
 
-### 📂 Portfolio Generator
+### Portfolio Generator
 Builder portofolio dinamis untuk showcase hasil karya secara profesional langsung dari profil.
 
-### 🌐 Forum & Komunitas
+### Forum & Komunitas
 Diskusi real-time, info hackathon, events, dan newsletter komunitas.
 
     </td>
   </tr>
 </table>
 
-### ✨ Fitur Unggulan Lainnya:
+### Fitur Unggulan Lainnya
+
+- **Onboarding Wizard** — Panduan interaktif 4 langkah untuk user baru agar langsung produktif setelah mendaftar.
+- **Referral System** — Undang teman dengan kode referral unik, kumpulkan badge (Scout, Connector, Founding Member, Ambassador).
+- **Email Notification Preferences** — User mengatur notifikasi email yang ingin diterima (lamaran, pesan, update, newsletter).
 - **Freelance Contracts & Milestones** — Kelola kontrak, milestone delivery, dan tracking progres kerja.
-- **OAuth Login** — Sign in instan dan aman menggunakan Google atau GitHub.
+- **OAuth Login** — Sign in instan menggunakan Google atau GitHub.
 - **Real-time Notifications** — Notifikasi undangan tim dan update proyek secara langsung.
-- **Command Palette** — Navigasi super cepat di seluruh platform hanya dengan menekan `Ctrl+K`.
-- **Sprint & Task Management** — Perencanaan sprint lengkap dengan task assignment, deadline, dan progress tracking.
-- **Task Thread Discussion** — Diskusi spesifik di setiap task menggunakan fitur @mention rekan tim.
-- **Internationalization (i18n)** — Dukungan penuh dua bahasa (Indonesia & English) dengan toggle instan di seluruh halaman (926 keys).
-- **Optimized Performance** — Menggunakan Code Splitting dan Lazy Loading untuk loading yang jauh lebih cepat.
-- **Responsive Design** — Tampilan antarmuka yang responsif dan optimal di mobile, tablet, maupun desktop.
+- **Command Palette** — Navigasi cepat di seluruh platform dengan `Ctrl+K`.
+- **Sprint & Task Management** — Perencanaan sprint dengan task assignment, deadline, dan progress tracking.
+- **Task Thread Discussion** — Diskusi di setiap task menggunakan @mention rekan tim.
+- **Internationalization (i18n)** — Dukungan dua bahasa (Indonesia & English) dengan toggle instan.
+- **Code Splitting & Lazy Loading** — Performa optimal dengan pemuatan halaman on-demand.
+- **Responsive Design** — Tampilan optimal di mobile, tablet, dan desktop.
 
 ---
 
@@ -90,7 +94,7 @@ Diskusi real-time, info hackathon, events, dan newsletter komunitas.
 | **Backend & Database** | Supabase (PostgreSQL, Auth, Realtime, Storage) |
 | **Routing** | React Router v7 |
 | **Animation** | Framer Motion |
-| **i18n** | Custom React Context (926 keys, EN/ID) |
+| **i18n** | Custom React Context (EN/ID) |
 | **Icons** | Lucide React |
 | **CI/CD & Deployment** | GitHub Actions & Vercel |
 
@@ -99,6 +103,7 @@ Diskusi real-time, info hackathon, events, dan newsletter komunitas.
 ## Getting Started
 
 ### Prasyarat
+
 - [Node.js](https://nodejs.org/) v18+
 - [Git](https://git-scm.com/)
 - Akun [Supabase](https://supabase.com)
@@ -106,100 +111,120 @@ Diskusi real-time, info hackathon, events, dan newsletter komunitas.
 ### Instalasi
 
 **1. Clone repository**
+
 ```bash
-git clone [https://github.com/Raihanhidayah12/CollabFind.git](https://github.com/Raihanhidayah12/CollabFind.git)
+git clone https://github.com/Raihanhidayah12/CollabFind.git
 cd CollabFind
-2. Install dependencies
+```
 
-Bash
+**2. Install dependencies**
+
+```bash
 npm install
-3. Konfigurasi Environment Variables
+```
 
-Bash
+**3. Konfigurasi Environment Variables**
+
+```bash
 cp .env.example .env
-Buka file .env dan masukkan credentials dari project Supabase kamu:
+```
 
-Cuplikan kode
-VITE_SUPABASE_URL=[https://your-project.supabase.co](https://your-project.supabase.co)
+Buka file `.env` dan masukkan credentials dari project Supabase kamu:
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_PROJECT_ID=your-project-ref
-4. Setup Database Tables
-Jalankan file SQL berikut di bagian Supabase SQL Editor untuk membuat skema tabel yang dibutuhkan:
+```
 
-supabase/create_project_collaborators.sql — Skema manajemen kolaborator & undangan.
+**4. Setup Database**
 
-supabase/migrations/20260612_freelance_marketplace.sql — Skema marketplace (jobs, proposals, contracts, milestones).
+Jalankan file SQL berikut di Supabase SQL Editor untuk membuat skema tabel yang dibutuhkan:
 
-5. Jalankan Development Server
+- `supabase/create_project_collaborators.sql` — Skema manajemen kolaborator & undangan.
+- `supabase/migrations/20260612_freelance_marketplace.sql` — Skema marketplace (jobs, proposals, contracts, milestones).
+- `supabase/migrations/20260613_growth_features.sql` — Onboarding, referral system, email notifications.
 
-Bash
+**5. Jalankan Development Server**
+
+```bash
 npm run dev
-Aplikasi kamu sekarang sudah berjalan di http://localhost:5173
+```
 
-Struktur Proyek
+Aplikasi berjalan di `http://localhost:5173`
+
+---
+
+## Struktur Proyek
+
+```
 CollabFind/
 ├── .github/workflows/          # GitHub Actions CI pipeline
 ├── public/                     # Static assets
 ├── src/
-│   ├── components/             # Shared & feature-based components
-│   │   ├── landing/            # Landing page sections (Hero, Navbar, dll)
-│   │   ├── workspace/          # Kanban, Chat, Storage, Wiki
-│   │   └── freelance/          # JobCard, Proposal, Milestone tracker
-│   ├── pages/                  # Halaman utama aplikasi (Dashboard, Explore, dll)
+│   ├── components/             # Shared & feature components
+│   │   ├── landing/            # Landing page (Hero, Navbar, Features, dll)
+│   │   ├── workspace/          # Kanban, Chat, File Storage, Wiki
+│   │   └── freelance/          # JobCard, Proposal, Milestone Tracker
+│   ├── pages/                  # Halaman utama (Dashboard, Explore, Profile, dll)
 │   ├── hooks/                  # Custom React hooks
-│   ├── i18n/                   # Konfigurasi i18n (Context + 926 keys EN/ID)
-│   ├── utils/                  # Inisialisasi Supabase client & helper
-│   ├── App.jsx                 # Entry point Landing Page
+│   ├── i18n/                   # Internationalization (Context + EN/ID)
+│   ├── utils/                  # Supabase client & helper functions
+│   ├── App.jsx                 # Landing page entry point
 │   ├── main.jsx                # Router & Provider setup
-│   └── index.css               # Global styling Tailwind v4
+│   └── index.css               # Global Tailwind v4 styles
 ├── supabase/migrations/        # SQL migration files
 ├── vercel.json                 # Vercel SPA routing rules
 └── package.json
-Roadmap
-[x] Authentication (Email + OAuth Google & GitHub)
+```
 
-[x] Project CRUD & Workspace Management
+---
 
-[x] Kanban Board & Team Chat Real-time
+## Roadmap
 
-[x] Portfolio Generator
+- [x] Authentication (Email + OAuth Google & GitHub)
+- [x] Project CRUD & Workspace Management
+- [x] Kanban Board & Team Chat Real-time
+- [x] Portfolio Generator
+- [x] Smart Match Algorithm & Find Teammates
+- [x] Real-time Notifications System
+- [x] Forum, Events, & Blog Komunitas
+- [x] Freelance Marketplace (Jobs, Proposals, Contracts, Milestones)
+- [x] Multi-language Support (i18n — EN/ID)
+- [x] Onboarding Wizard
+- [x] Referral System & Badge Tiers
+- [x] Email Notification Preferences
+- [ ] Unit & Integration Testing
+- [ ] Dark / Light Mode Toggle
+- [ ] Payment Gateway (Stripe) untuk Freelance
+- [ ] AI-powered Project & Talents Recommendation
 
-[x] Smart Match Algorithm & Find Teammates
+---
 
-[x] Real-time Notifications System
+## Berkontribusi
 
-[x] Forum, Events, & Blog Komunitas
+Kontribusi selalu terbuka! Ikuti langkah berikut:
 
-[x] Freelance Marketplace Integration (Jobs, Proposals, Contracts, Milestones)
+1. **Fork** repository ini.
+2. Buat branch fitur baru: `git checkout -b feature/NamaFitur`
+3. Commit dengan [Conventional Commits](https://www.conventionalcommits.org/): `git commit -m "feat: tambah fitur X"`
+4. Push ke branch kamu: `git push origin feature/NamaFitur`
+5. Buka **Pull Request**.
 
-[x] Multi-language Support (i18n - 926 keys)
+Pastikan menjalankan `npm run lint` sebelum commit.
 
-[ ] Unit & Integration Testing
+---
 
-[ ] Dark / Light Mode Toggle
+## Lisensi
 
-[ ] Implementasi Payment Gateway (Stripe) untuk Freelance
+Proyek ini dilisensikan di bawah **MIT License** — lihat file [LICENSE](LICENSE) untuk detail.
 
-[ ] AI-powered Project & Talents Recommendation
+---
 
-Berkontribusi
-Kontribusi selalu terbuka! Jika ingin berkontribusi atau memperbaiki bug, silakan ikuti langkah berikut:
+<div align="center">
 
-Fork repository ini.
+Dibuat oleh [Raihanhidayah12](https://github.com/Raihanhidayah12)
 
-Buat branch fitur baru: git checkout -b feature/NamaFitur.
+Jangan lupa berikan star jika bermanfaat!
 
-Commit perubahan kamu dengan standard Conventional Commits: git commit -m "feat: tambah fitur X".
-
-Push ke branch kamu: git push origin feature/NamaFitur.
-
-Buka sebuah Pull Request.
-
-Pastikan untuk menjalankan npm run lint dan memastikan kode berjalan dengan baik sebelum melakukan commit.
-
-Lisensi
-Proyek ini dilisensikan di bawah MIT License - lihat file LICENSE untuk detail lebih lanjut.
-
-Dibuat dengan 💻 oleh Raihanhidayah12
-
-Jangan lupa berikan ⭐ star pada repositori ini jika bermanfaat!
+</div>

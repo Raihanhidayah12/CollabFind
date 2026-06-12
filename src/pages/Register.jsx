@@ -21,7 +21,7 @@ const STRENGTH_INFO = [
 export default function Register() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '', referralCode: '' });
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -30,7 +30,13 @@ export default function Register() {
 
   useEffect(() => {
     const ref = searchParams.get('ref');
-    if (ref) localStorage.setItem('collabfind_ref', ref);
+    if (ref) {
+      localStorage.setItem('collabfind_ref', ref);
+      setForm(prev => ({ ...prev, referralCode: ref }));
+    } else {
+      const saved = localStorage.getItem('collabfind_ref');
+      if (saved) setForm(prev => ({ ...prev, referralCode: saved }));
+    }
   }, [searchParams]);
 
   const strength = getStrength(form.password);
@@ -91,8 +97,9 @@ export default function Register() {
       }
 
       // Process referral
-      const refCode = localStorage.getItem('collabfind_ref');
+      const refCode = form.referralCode?.trim() || localStorage.getItem('collabfind_ref');
       if (refCode) {
+        localStorage.setItem('collabfind_ref', refCode);
         const { data: referrer, error: refLookupErr } = await supabase
           .from('profiles')
           .select('id')
@@ -118,6 +125,9 @@ export default function Register() {
 
   const handleOAuth = async (provider) => {
     setError('');
+    if (form.referralCode?.trim()) {
+      localStorage.setItem('collabfind_ref', form.referralCode.trim());
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/dashboard` },
@@ -305,6 +315,29 @@ export default function Register() {
                   {form.confirm === form.password ? 'Match' : 'Mismatch'}
                 </span>
               )}
+            </div>
+          </div>
+
+          {/* Referral Code (optional) */}
+          <div className="auth-field">
+            <label className="auth-label">{t('auth.referralCode')} <span style={{ opacity: 0.5, fontWeight: 400 }}>({t('auth.optional')})</span></label>
+            <div className="auth-input-wrap">
+              <span className="auth-input-icon">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+              </span>
+              <input
+                type="text"
+                name="referralCode"
+                className="auth-input"
+                placeholder={t('auth.referralPlaceholder')}
+                value={form.referralCode}
+                onChange={handle}
+                autoComplete="off"
+                maxLength={12}
+                style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}
+              />
             </div>
           </div>
 
