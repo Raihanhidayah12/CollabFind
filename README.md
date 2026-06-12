@@ -10,7 +10,7 @@
 
 ### Temukan Proyek. Bentuk Tim. Bangun Bersama.
 
-Platform kolaborasi yang menghubungkan developer, desainer, dan kreator dengan proyek menarik serta kolaborator yang tepat.
+Platform kolaborasi all-in-one yang menghubungkan developer, desainer, dan kreator digital dengan proyek menarik serta tim yang tepat. CollabFind menyediakan workspace terintegrasi penuh — mulai dari manajemen proyek berbasis Kanban, real-time chat, penyimpanan file tim, hingga freelance marketplace — sehingga kolaborasi bisa terjadi dalam satu tempat tanpa berpindah-pindah tools.
 
 <br />
 
@@ -20,7 +20,7 @@ Platform kolaborasi yang menghubungkan developer, desainer, dan kreator dengan p
 
 <br>
 
-**[Explore Docs](https://collab-find.vercel.app/docs)** · **[Report Bug](https://github.com/Raihanhidayah12/CollabFind/issues)** · **[Request Feature](https://github.com/Raihanhidayah12/CollabFind/issues)**
+**[Live Demo](https://collab-find.vercel.app)** · **[Report Bug](https://github.com/Raihanhidayah12/CollabFind/issues)** · **[Request Feature](https://github.com/Raihanhidayah12/CollabFind/issues)**
 
 </div>
 
@@ -28,61 +28,99 @@ Platform kolaborasi yang menghubungkan developer, desainer, dan kreator dengan p
 
 ## Daftar Isi
 
+- [Apa itu CollabFind?](#apa-itu-collabfind)
 - [Fitur Utama](#fitur-utama)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Struktur Proyek](#struktur-proyek)
-- [Roadmap](#roadmap)
 - [Berkontribusi](#berkontribusi)
 - [Lisensi](#lisensi)
 
 ---
 
+## Apa itu CollabFind?
+
+CollabFind lahir dari masalah sederhana: developer dan kreator sering kesulitan menemukan proyek yang cocok dan kolaborator yang tepat. Platform yang ada biasanya hanya menyediakan satu fungsi — entah itu job board, project management, atau forum — sehingga user harus berpindah-pindah antara banyak tools.
+
+CollabFind menggabungkan semuanya dalam satu platform:
+
+- **Temukan proyek** — Jelajahi proyek dari berbagai kategori atau buat proyek kamu sendiri dan cari kolaborator.
+- **Bentuk tim** — Cari talenta berdasarkan skill dan role, undang mereka ke tim, atau gabung ke proyek yang sedang mencari anggota.
+- **Bangun bersama** — Workspace terintegrasi dengan Kanban board, real-time chat, file storage, wiki, dan sprint management untuk menjalankan proyek dari ide sampai selesai.
+- **Hasilkan karya** — Freelance marketplace menghubungkan freelancer dengan klien, lengkap dengan sistem kontrak dan milestone delivery.
+
+Setiap user mendapatkan profil dan portfolio publik yang bisa digunakan sebagai showcase hasil karya, serta AI assistant (CollabFindBot) yang membantu navigasi dan menjawab pertanyaan seputar platform.
+
+---
+
 ## Fitur Utama
 
-<table>
-  <tr>
-    <td width="50%" valign="top">
+### Workspace Kolaboratif
 
-### Smart Match
-Algoritma pencocokan talenta dengan proyek berdasarkan keahlian, minat, dan riwayat kolaborasi.
+Ruang kerja terintegrasi untuk menjalankan proyek bersama tim:
+
+- **Kanban Board** — Board dengan kolom customizable, drag-and-drop task cards, dan filter berdasarkan assignee, label, atau prioritas.
+- **Team Chat** — Real-time messaging menggunakan Supabase Realtime, dengan dukungan file attachment dan notifikasi.
+- **File Storage** — Penyimpanan file tim terintegrasi langsung di dalam workspace proyek.
+- **Wiki** — Dokumentasi proyek kolaboratif yang bisa diedit bersama anggota tim.
+- **Sprint & Task Management** — Perencanaan sprint dengan task assignment, deadline, dan progress tracking.
+- **Activity Timeline** — Riwayat aktivitas tim dan perubahan pada proyek secara kronologis.
+- **Task Thread Discussion** — Diskusi spesifik di setiap task menggunakan @mention rekan tim.
 
 ### Freelance Marketplace
-Marketplace terintegrasi untuk menghubungkan freelancer dengan klien — posting pekerjaan, proposal, kontrak, hingga milestone delivery.
 
-### Workspace Kolaboratif
-Ruang kerja terintegrasi dengan **Kanban Board**, **Team Chat**, **File Storage**, **Wiki**, dan **Activity Timeline**.
+Marketplace terintegrasi untuk menghubungkan freelancer dengan klien:
 
-    </td>
-    <td width="50%" valign="top">
+- Posting pekerjaan dengan detail budget, deadline, dan skill yang dibutuhkan.
+- Sistem proposal dari freelancer ke klien.
+- Kontrak kerja dengan milestone delivery dan progress tracking.
+- Dashboard freelance untuk memantau kontrak aktif dan riwayat pekerjaan.
 
-### Eksplorasi Proyek
-Temukan dan ikuti proyek dari berbagai kategori dan industri dengan pencarian cerdas.
+### Eksplorasi & Pencarian
 
-### Portfolio Generator
-Builder portofolio dinamis untuk showcase hasil karya secara profesional langsung dari profil.
+- **Explore Projects** — Temukan proyek dari berbagai kategori dan industri dengan pencarian dan filter.
+- **Find Teammates** — Cari kolaborator berdasarkan skill, role, atau nama. Lihat profil dan keahlian sebelum mengundang ke tim.
+- **Command Palette** — Navigasi cepat ke seluruh halaman dan fitur platform cukup dengan menekan `Ctrl+K`.
 
-### Forum & Komunitas
-Diskusi real-time, info hackathon, events, dan newsletter komunitas.
+### Profil & Portfolio
 
-    </td>
-  </tr>
-</table>
+- **Profile** — Halaman profil dengan bio, skill, job title, dan riwayat proyek.
+- **Portfolio Generator** — Builder portofolio dinamis untuk showcase hasil karya. Setiap user mendapat halaman portfolio publik yang bisa dibagikan.
+- **Achievements & Badges** — Sistem badge dan pencapaian berdasarkan aktivitas di platform.
 
-### Fitur Unggulan Lainnya
+### Komunitas
 
-- **Onboarding Wizard** — Panduan interaktif 4 langkah untuk user baru agar langsung produktif setelah mendaftar.
-- **Referral System** — Undang teman dengan kode referral unik, kumpulkan badge (Scout, Connector, Founding Member, Ambassador).
-- **Email Notification Preferences** — User mengatur notifikasi email yang ingin diterima (lamaran, pesan, update, newsletter).
-- **Freelance Contracts & Milestones** — Kelola kontrak, milestone delivery, dan tracking progres kerja.
-- **OAuth Login** — Sign in instan menggunakan Google atau GitHub.
-- **Real-time Notifications** — Notifikasi undangan tim dan update proyek secara langsung.
-- **Command Palette** — Navigasi cepat di seluruh platform dengan `Ctrl+K`.
-- **Sprint & Task Management** — Perencanaan sprint dengan task assignment, deadline, dan progress tracking.
-- **Task Thread Discussion** — Diskusi di setiap task menggunakan @mention rekan tim.
-- **Internationalization (i18n)** — Dukungan dua bahasa (Indonesia & English) dengan toggle instan.
-- **Code Splitting & Lazy Loading** — Performa optimal dengan pemuatan halaman on-demand.
-- **Responsive Design** — Tampilan optimal di mobile, tablet, dan desktop.
+- **Forum** — Diskusi komunitas dengan thread dan kategori.
+- **Events** — Kalender event dan meetup komunitas.
+- **Hackathons** — Informasi dan pendaftaran hackathon.
+- **Newsletter** — Subscribe newsletter untuk update terbaru.
+- **Discord** — Integrasi dengan komunitas Discord CollabFind.
+- **Blog** — Artikel dan tutorial dari tim dan komunitas.
+
+### Kolaborasi & Pertumbuhan
+
+- **Onboarding Wizard** — Panduan interaktif 4 langkah yang muncul otomatis untuk user baru: welcome, isi profil, pilih skill, dan tentukan tujuan (buat proyek, join proyek, atau eksplor).
+- **Referral System** — Setiap user mendapat kode referral unik. Undang teman dan kumpulkan badge tier: Scout (0), Connector (1-4), Founding Member (5-9), Ambassador (10+).
+- **Email Notification Preferences** — User mengatur sendiri kategori notifikasi email yang ingin diterima: lamaran proyek, pesan, update, atau newsletter.
+- **Real-time Notifications** — Notifikasi langsung untuk undangan tim, update proyek, dan aktivitas penting lainnya.
+
+### CollabFindBot (AI Assistant)
+
+Chatbot AI yang terintegrasi di seluruh halaman, membantu user menavigasi platform, menjawab pertanyaan, dan memberikan rekomendasi. Menggunakan Groq API untuk respons yang cepat.
+
+### Autentikasi & Keamanan
+
+- **Email Registration** — Daftar dan login menggunakan email dan password.
+- **OAuth Login** — Sign in instan menggunakan akun Google atau GitHub.
+- **Referral Tracking** — Kode referral otomatis tercatat saat registrasi, berlaku untuk email maupun OAuth.
+- **Row Level Security (RLS)** — Semua data di Supabase dilindungi dengan policy RLS sehingga user hanya bisa mengakses data milik sendiri.
+
+### Lainnya
+
+- **Internationalization (i18n)** — Dukungan penuh dua bahasa (Indonesia & English) dengan toggle instan di seluruh halaman.
+- **Code Splitting & Lazy Loading** — Pemuatan halaman on-demand menggunakan React Router lazy loading untuk performa optimal.
+- **Responsive Design** — Tampilan yang adaptif dan optimal di mobile, tablet, dan desktop.
+- **Onboarding Checklist** — Checklist interaktif di dashboard untuk memandu user menyelesaikan setup awal.
 
 ---
 
@@ -92,8 +130,9 @@ Diskusi real-time, info hackathon, events, dan newsletter komunitas.
 |-------|-----------|
 | **Frontend** | React 19, Vite 8, Tailwind CSS 4 |
 | **Backend & Database** | Supabase (PostgreSQL, Auth, Realtime, Storage) |
-| **Routing** | React Router v7 |
+| **Routing** | React Router v7 (lazy loading) |
 | **Animation** | Framer Motion |
+| **AI** | Groq API (CollabFindBot) |
 | **i18n** | Custom React Context (EN/ID) |
 | **Icons** | Lucide React |
 | **CI/CD & Deployment** | GitHub Actions & Vercel |
@@ -135,6 +174,7 @@ Buka file `.env` dan masukkan credentials dari project Supabase kamu:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 VITE_SUPABASE_PROJECT_ID=your-project-ref
+VITE_GROQ_API_KEY=your-groq-api-key
 ```
 
 **4. Setup Database**
@@ -163,12 +203,15 @@ CollabFind/
 ├── public/                     # Static assets
 ├── src/
 │   ├── components/             # Shared & feature components
-│   │   ├── landing/            # Landing page (Hero, Navbar, Features, dll)
-│   │   ├── workspace/          # Kanban, Chat, File Storage, Wiki
-│   │   └── freelance/          # JobCard, Proposal, Milestone Tracker
-│   ├── pages/                  # Halaman utama (Dashboard, Explore, Profile, dll)
+│   │   ├── landing/            # Landing page (Hero, Navbar, Features, Footer, dll)
+│   │   ├── workspace/          # Kanban, Chat, File Storage, Wiki, Sprint, Task Thread
+│   │   └── freelance/          # JobCard, Proposal, Milestone Tracker, FreelanceFilters
+│   ├── pages/                  # Halaman utama
+│   │   ├── community/          # Forum, Events, Hackathons, Newsletter, Discord
+│   │   ├── resources/          # Documentation, Blog, Changelog, Status, API Reference
+│   │   └── static/             # About, Careers, Privacy, Terms, Press Kit
 │   ├── hooks/                  # Custom React hooks
-│   ├── i18n/                   # Internationalization (Context + EN/ID)
+│   ├── i18n/                   # Internationalization (Context + EN/ID translations)
 │   ├── utils/                  # Supabase client & helper functions
 │   ├── App.jsx                 # Landing page entry point
 │   ├── main.jsx                # Router & Provider setup
@@ -177,27 +220,6 @@ CollabFind/
 ├── vercel.json                 # Vercel SPA routing rules
 └── package.json
 ```
-
----
-
-## Roadmap
-
-- [x] Authentication (Email + OAuth Google & GitHub)
-- [x] Project CRUD & Workspace Management
-- [x] Kanban Board & Team Chat Real-time
-- [x] Portfolio Generator
-- [x] Smart Match Algorithm & Find Teammates
-- [x] Real-time Notifications System
-- [x] Forum, Events, & Blog Komunitas
-- [x] Freelance Marketplace (Jobs, Proposals, Contracts, Milestones)
-- [x] Multi-language Support (i18n — EN/ID)
-- [x] Onboarding Wizard
-- [x] Referral System & Badge Tiers
-- [x] Email Notification Preferences
-- [ ] Unit & Integration Testing
-- [ ] Dark / Light Mode Toggle
-- [ ] Payment Gateway (Stripe) untuk Freelance
-- [ ] AI-powered Project & Talents Recommendation
 
 ---
 
