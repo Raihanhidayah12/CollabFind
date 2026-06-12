@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star, Loader2, CheckCircle, Users } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // Reusable card for rating a single person
 function RateeCard({ user, rating, onChange, isOwner: ownerBadge }) {
@@ -57,6 +58,7 @@ function RateeCard({ user, rating, onChange, isOwner: ownerBadge }) {
 }
 
 export default function RateTeammatesModal({ project, session, onClose }) {
+  const { t } = useLanguage();
   const [teammates, setTeammates] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -130,7 +132,7 @@ export default function RateTeammatesModal({ project, session, onClose }) {
 
     } catch (err) {
       console.error('RateTeammatesModal fetchTeammates error:', err);
-      setError('Gagal memuat data tim. Coba lagi.');
+      setError(t('rtm.loadFail'));
     } finally {
       setLoading(false);
     }
@@ -149,17 +151,17 @@ export default function RateTeammatesModal({ project, session, onClose }) {
       setError('');
 
       const payload = teammates
-        .filter(t => ratings[t.id]?.score > 0)
-        .map(t => ({
+        .filter(tm => ratings[tm.id]?.score > 0)
+        .map(tm => ({
           project_id: project.id,
           rater_id:   currentUserId,
-          ratee_id:   t.id,
-          score:      ratings[t.id].score * 20, // 5 stars = 100 pts
-          feedback:   ratings[t.id].feedback || '',
+          ratee_id:   tm.id,
+          score:      ratings[tm.id].score * 20, // 5 stars = 100 pts
+          feedback:   ratings[tm.id].feedback || '',
         }));
 
       if (payload.length === 0) {
-        setError('Berikan rating ke setidaknya satu anggota tim.');
+        setError(t('rtm.minRating'));
         setSubmitting(false);
         return;
       }
@@ -175,13 +177,13 @@ export default function RateTeammatesModal({ project, session, onClose }) {
 
     } catch (err) {
       console.error('RateTeammatesModal submit error:', err);
-      setError(err.message || 'Gagal menyimpan rating. Coba lagi.');
+      setError(t('rtm.saveFail'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const ratedCount = teammates.filter(t => ratings[t.id]?.score > 0).length;
+  const ratedCount = teammates.filter(tm => ratings[tm.id]?.score > 0).length;
 
   return (
     <AnimatePresence>
@@ -204,11 +206,11 @@ export default function RateTeammatesModal({ project, session, onClose }) {
           {/* ── Header ── */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
             <div>
-              <h2 className="text-lg font-bold text-white">Rate Your Team</h2>
+              <h2 className="text-lg font-bold text-white">{t('rtm.title')}</h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 {isOwner
-                  ? 'Nilai kontribusi collaborators-mu di proyek ini'
-                  : 'Nilai semua anggota tim termasuk project owner'}
+                  ? t('rtm.ownerDesc')
+                  : t('rtm.memberDesc')}
               </p>
             </div>
             <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.06]">
@@ -221,7 +223,7 @@ export default function RateTeammatesModal({ project, session, onClose }) {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-3">
                 <Loader2 className="w-8 h-8 animate-spin" />
-                <p className="text-sm">Memuat data tim…</p>
+                <p className="text-sm">{t('rtm.loading')}</p>
               </div>
 
             ) : success ? (
@@ -233,9 +235,9 @@ export default function RateTeammatesModal({ project, session, onClose }) {
                 >
                   <CheckCircle className="w-14 h-14" />
                 </motion.div>
-                <h3 className="text-xl font-bold">Rating Tersimpan!</h3>
+                <h3 className="text-xl font-bold">{t('rtm.saved')}</h3>
                 <p className="text-sm text-slate-400 text-center">
-                  Terima kasih sudah memberikan feedback untuk timmu.
+                  {t('rtm.savedDesc')}
                 </p>
               </div>
 
@@ -243,7 +245,7 @@ export default function RateTeammatesModal({ project, session, onClose }) {
               <div className="flex flex-col items-center justify-center py-12 text-slate-500 gap-3">
                 <Users className="w-10 h-10 opacity-40" />
                 <p className="text-sm text-center">
-                  Belum ada anggota tim lain yang bisa dinilai di proyek ini.
+                  {t('rtm.noTeammates')}
                 </p>
               </div>
 
@@ -259,10 +261,10 @@ export default function RateTeammatesModal({ project, session, onClose }) {
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1.5">
                     <Star size={11} className="text-yellow-500" />
-                    {ratedCount} / {teammates.length} anggota dinilai
+                    {ratedCount} / {teammates.length} {t('rtm.rated')}
                   </span>
                   {ratedCount === teammates.length && teammates.length > 0 && (
-                    <span className="text-emerald-400 font-medium">Semua sudah dinilai!</span>
+                    <span className="text-emerald-400 font-medium">{t('rtm.allRated')}</span>
                   )}
                 </div>
 
@@ -287,7 +289,7 @@ export default function RateTeammatesModal({ project, session, onClose }) {
                 onClick={onClose}
                 className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-colors"
               >
-                Batal
+                {t('rtm.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
@@ -295,7 +297,7 @@ export default function RateTeammatesModal({ project, session, onClose }) {
                 className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                Simpan Rating
+                {t('rtm.saveRating')}
               </button>
             </div>
           )}

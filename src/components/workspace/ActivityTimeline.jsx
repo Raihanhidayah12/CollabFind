@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import { ACTION_LABELS } from '../../utils/activityLogger';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const ACTION_ICONS = {
   task_created: Plus,
@@ -27,19 +28,19 @@ const ACTION_COLORS = {
   wiki_edited: '#EC4899',
 };
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const now = new Date();
   const date = new Date(dateStr);
   const seconds = Math.floor((now - date) / 1000);
 
-  if (seconds < 60) return 'baru saja';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} menit lalu`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam lalu`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)} hari lalu`;
+  if (seconds < 60) return t('at.justNow');
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} ${t('at.minsAgo')}`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} ${t('at.hoursAgo')}`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)} ${t('at.daysAgo')}`;
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-function groupByDate(activities) {
+function groupByDate(activities, t) {
   const groups = {};
   const today = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -47,8 +48,8 @@ function groupByDate(activities) {
   activities.forEach((act) => {
     const actDate = new Date(act.created_at).toDateString();
     let label;
-    if (actDate === today) label = 'Hari ini';
-    else if (actDate === yesterday) label = 'Kemarin';
+    if (actDate === today) label = t('at.today');
+    else if (actDate === yesterday) label = t('at.yesterday');
     else label = new Date(act.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
     if (!groups[label]) groups[label] = [];
@@ -59,6 +60,7 @@ function groupByDate(activities) {
 }
 
 export default function ActivityTimeline({ projectId, session }) {
+  const { t } = useLanguage();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState({});
@@ -133,11 +135,11 @@ export default function ActivityTimeline({ projectId, session }) {
   }, [projectId]);
 
   const filterOptions = [
-    { value: 'all', label: 'Semua' },
-    { value: 'task', label: 'Task' },
-    { value: 'thread', label: 'Komentar' },
-    { value: 'file', label: 'File' },
-    { value: 'wiki', label: 'Wiki' },
+    { value: 'all', labelKey: 'at.filterAll' },
+    { value: 'task', labelKey: 'at.filterTask' },
+    { value: 'thread', labelKey: 'at.filterComment' },
+    { value: 'file', labelKey: 'at.filterFile' },
+    { value: 'wiki', labelKey: 'at.filterWiki' },
   ];
 
   if (loading) {
@@ -148,7 +150,7 @@ export default function ActivityTimeline({ projectId, session }) {
     );
   }
 
-  const grouped = groupByDate(activities);
+  const grouped = groupByDate(activities, t);
 
   return (
     <div className="flex flex-col gap-4">
@@ -159,7 +161,7 @@ export default function ActivityTimeline({ projectId, session }) {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 border border-white/[0.08] hover:text-white hover:border-white/[0.16] transition-all"
         >
           <Filter size={12} />
-          Filter: {filterOptions.find(f => f.value === filter)?.label}
+          Filter: {t(filterOptions.find(f => f.value === filter)?.labelKey)}
         </button>
 
         <AnimatePresence>
@@ -180,7 +182,7 @@ export default function ActivityTimeline({ projectId, session }) {
                       : 'text-slate-500 hover:text-white hover:bg-white/[0.06]'
                   }`}
                 >
-                  {opt.label}
+                  {t(opt.labelKey)}
                 </button>
               ))}
             </motion.div>
@@ -194,8 +196,8 @@ export default function ActivityTimeline({ projectId, session }) {
           <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-4">
             <Clock size={24} className="text-slate-600" />
           </div>
-          <p className="text-sm text-slate-500 mb-1">Belum ada aktivitas</p>
-          <p className="text-xs text-slate-600">Aktivitas di workspace akan muncul di sini</p>
+          <p className="text-sm text-slate-500 mb-1">{t('at.noActivity')}</p>
+          <p className="text-xs text-slate-600">{t('at.noActivityDesc')}</p>
         </div>
       ) : (
         Object.entries(grouped).map(([dateLabel, items]) => (
@@ -243,7 +245,7 @@ export default function ActivityTimeline({ projectId, session }) {
                           )}
                           {activity.details?.old_status && activity.details?.new_status && (
                             <span>
-                              {' '}dari <span className="text-slate-300">{activity.details.old_status}</span> ke <span className="text-slate-300">{activity.details.new_status}</span>
+                              {' '}{t('at.from')} <span className="text-slate-300">{activity.details.old_status}</span> {t('at.to')} <span className="text-slate-300">{activity.details.new_status}</span>
                             </span>
                           )}
                         </p>
@@ -251,7 +253,7 @@ export default function ActivityTimeline({ projectId, session }) {
 
                       {/* Time */}
                       <span className="text-[10px] text-slate-600 flex-shrink-0">
-                        {timeAgo(activity.created_at)}
+                        {timeAgo(activity.created_at, t)}
                       </span>
                     </motion.div>
                   );

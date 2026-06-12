@@ -13,6 +13,7 @@ import {
 
 import { supabase } from '../utils/supabaseClient';
 import { useNotifications } from './NotificationProvider';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function NotificationMenu({ session }) {
   const [open, setOpen] = useState(false);
@@ -25,6 +26,7 @@ export default function NotificationMenu({ session }) {
   const profileCache = useRef({});
 
   const { addToast } = useNotifications();
+  const { t } = useLanguage();
 
   // -------------------------
   // Outside Click
@@ -108,12 +110,12 @@ export default function NotificationMenu({ session }) {
       .eq('id', id)
       .single();
 
-    const name = data?.name || 'Someone';
+    const name = data?.name || t('notif.someone');
 
     profileCache.current[id] = name;
 
     return name;
-  }, []);
+  }, [t]);
 
   // -------------------------
   // Realtime Setup
@@ -217,11 +219,11 @@ playNotificationSound();
             id: `app-${app.id}`,
             type: app.status,
             title: accepted
-              ? '✅ Application Accepted!'
-              : '❌ Application Rejected',
+              ? t('notif.appAccepted')
+              : t('notif.appRejected'),
             message: accepted
-              ? `You have been accepted to join "${project?.title}".`
-              : `Your application to "${project?.title}" was rejected.`,
+              ? t('notif.acceptedMsg').replace('{title}', project?.title)
+              : t('notif.rejectedMsg').replace('{title}', project?.title),
             time: new Date().toISOString(),
             link: accepted
               ? `/dashboard/workspace/${app.project_id}`
@@ -274,8 +276,8 @@ playNotificationSound();
           const notification = {
             id: `invite-${invite.id}`,
             type: 'invite',
-            title: `${inviterName} invited you`,
-            message: `You have been invited to join "${project?.title || 'a project'}"`,
+            title: t('notif.invitedYou').replace('{name}', inviterName),
+            message: t('notif.invitedMsg').replace('{title}', project?.title || 'a project'),
             time: invite.created_at,
             link: `/invite/${invite.id}`,
             isUnread: true
@@ -311,7 +313,8 @@ playNotificationSound();
     addToast,
     playNotificationSound,
     cleanupSubscriptions,
-    getProfileName
+    getProfileName,
+    t
   ]);
 
   // -------------------------
@@ -356,8 +359,8 @@ playNotificationSound();
           result.push({
             id: `invite-${inv.id}`,
             type: 'invite',
-            title: `${inviterName} invited you`,
-            message: `You have been invited to join "${project?.title || 'a project'}"`,
+            title: t('notif.invitedYou').replace('{name}', inviterName),
+            message: t('notif.invitedMsg').replace('{title}', project?.title || 'a project'),
             time: inv.created_at,
             link: `/invite/${inv.id}`,
             isUnread: true
@@ -373,7 +376,7 @@ playNotificationSound();
           result.push({
             id: `chat-${msg.id}`,
             type: 'message',
-            title: `Message from ${senderName}`,
+            title: t('notif.messageFrom').replace('{name}', senderName),
             message:
               msg.content?.substring(0, 100),
             time: msg.created_at,
@@ -395,7 +398,7 @@ playNotificationSound();
     } finally {
       setLoading(false);
     }
-  }, [session, getProfileName]);
+  }, [session, getProfileName, t]);
 
   // -------------------------
   // Session
@@ -477,14 +480,14 @@ playNotificationSound();
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h3 className="text-white font-semibold">
-                Notifications
+                {t('notif.title')}
               </h3>
 
               <button
                 onClick={markAllAsRead}
                 className="text-xs text-slate-400 hover:text-white"
               >
-                Mark all as read
+                {t('notif.markAllRead')}
               </button>
             </div>
 
@@ -498,7 +501,7 @@ playNotificationSound();
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="py-8 text-center text-slate-400 text-sm">
-                  No notifications
+                  {t('notif.empty')}
                 </div>
               ) : (
                 notifications.map((notif) => (

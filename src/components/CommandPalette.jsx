@@ -6,27 +6,29 @@ import {
   MessageSquare, Zap, Home, FileText, Calendar, Briefcase,
 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/dashboard', icon: Home, category: 'Navigation' },
-  { label: 'Explore Projects', href: '/explore', icon: Folder, category: 'Navigation' },
-  { label: 'Find Teammates', href: '/teammates', icon: Users, category: 'Navigation' },
-  { label: 'Create Project', href: '/create-project', icon: Plus, category: 'Navigation' },
-  { label: 'Chat', href: '/dashboard/chat', icon: MessageSquare, category: 'Navigation' },
-  { label: 'Freelance Marketplace', href: '/freelance', icon: Briefcase, category: 'Navigation' },
-  { label: 'Post a Job', href: '/freelance/post', icon: Briefcase, category: 'Navigation' },
-  { label: 'Freelance Dashboard', href: '/freelance/dashboard', icon: Briefcase, category: 'Navigation' },
-  { label: 'My Profile', href: '/profile', icon: User, category: 'Navigation' },
-  { label: 'Settings', href: '/settings', icon: Settings, category: 'Navigation' },
-  { label: 'Portfolio Editor', href: '/dashboard/portfolio', icon: Zap, category: 'Navigation' },
-  { label: 'Documentation', href: '/docs', icon: FileText, category: 'Resources' },
-  { label: 'Blog', href: '/blog', icon: FileText, category: 'Resources' },
-  { label: 'Forum', href: '/forum', icon: MessageSquare, category: 'Community' },
-  { label: 'Events', href: '/events', icon: Calendar, category: 'Community' },
+  { labelKey: 'cp.navDashboard',     href: '/dashboard',          icon: Home,          catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navExplore',       href: '/explore',            icon: Folder,        catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navTeammates',     href: '/teammates',          icon: Users,         catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navCreate',        href: '/create-project',     icon: Plus,          catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navChat',          href: '/dashboard/chat',     icon: MessageSquare, catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navFreelance',     href: '/freelance',          icon: Briefcase,     catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navPostJob',       href: '/freelance/post',     icon: Briefcase,     catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navFreelanceDash', href: '/freelance/dashboard',icon: Briefcase,     catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navProfile',       href: '/profile',            icon: User,          catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navSettings',      href: '/settings',           icon: Settings,      catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navPortfolio',     href: '/dashboard/portfolio',icon: Zap,           catKey: 'cp.catNavigation' },
+  { labelKey: 'cp.navDocs',          href: '/docs',               icon: FileText,      catKey: 'cp.catResources' },
+  { labelKey: 'cp.navBlog',          href: '/blog',               icon: FileText,      catKey: 'cp.catResources' },
+  { labelKey: 'cp.navForum',         href: '/forum',              icon: MessageSquare, catKey: 'cp.catCommunity' },
+  { labelKey: 'cp.navEvents',        href: '/events',             icon: Calendar,      catKey: 'cp.catCommunity' },
 ];
 
 export default function CommandPalette() {
   const { session } = useAuth();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -34,8 +36,8 @@ export default function CommandPalette() {
   const navigate = useNavigate();
 
   const filtered = NAV_ITEMS.filter(item =>
-    item.label.toLowerCase().includes(query.toLowerCase()) ||
-    item.category.toLowerCase().includes(query.toLowerCase())
+    t(item.labelKey).toLowerCase().includes(query.toLowerCase()) ||
+    t(item.catKey).toLowerCase().includes(query.toLowerCase())
   );
 
   useEffect(() => {
@@ -109,7 +111,7 @@ export default function CommandPalette() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search pages..."
+                placeholder={t('cp.searchPages')}
                 className="flex-1 bg-transparent py-4 text-sm text-white placeholder-slate-600 outline-none"
               />
               <button
@@ -123,7 +125,7 @@ export default function CommandPalette() {
             <div className="max-h-[320px] overflow-y-auto p-2">
               {filtered.length === 0 ? (
                 <div className="py-8 text-center text-sm text-slate-500">
-                  No results found
+                  {t('cp.noResults')}
                 </div>
               ) : (
                 filtered.map((item, i) => {
@@ -141,9 +143,9 @@ export default function CommandPalette() {
                     >
                       <Icon size={16} className={i === selectedIndex ? 'text-blue-400' : 'text-slate-500'} />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">{item.label}</div>
+                        <div className="text-sm font-medium truncate">{t(item.labelKey)}</div>
                       </div>
-                      <span className="text-[10px] text-slate-600 flex-shrink-0">{item.category}</span>
+                      <span className="text-[10px] text-slate-600 flex-shrink-0">{t(item.catKey)}</span>
                     </button>
                   );
                 })
@@ -152,8 +154,8 @@ export default function CommandPalette() {
 
             <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/[0.06] text-[10px] text-slate-600">
               <div className="flex items-center gap-3">
-                <span><kbd className="px-1.5 py-0.5 rounded border border-white/[0.1] bg-white/[0.04]">↑↓</kbd> Navigate</span>
-                <span><kbd className="px-1.5 py-0.5 rounded border border-white/[0.1] bg-white/[0.04]">↵</kbd> Select</span>
+                <span><kbd className="px-1.5 py-0.5 rounded border border-white/[0.1] bg-white/[0.04]">↑↓</kbd> {t('cp.navigate')}</span>
+                <span><kbd className="px-1.5 py-0.5 rounded border border-white/[0.1] bg-white/[0.04]">↵</kbd> {t('cp.select')}</span>
               </div>
               <span><kbd className="px-1.5 py-0.5 rounded border border-white/[0.1] bg-white/[0.04]">Ctrl+K</kbd></span>
             </div>

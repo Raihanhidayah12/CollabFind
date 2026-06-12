@@ -1,25 +1,26 @@
 import { Zap, GitBranch, Globe, Briefcase, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const links = {
+const buildLinks = (t) => ({
   Platform: [
-    { label: 'Explore Projects',    to: '/explore' },
-    { label: 'Find Teammates',      to: '/teammates' },
-    { label: 'Dashboard',           to: '/dashboard' },
-    { label: 'Portfolio',           to: '/portfolio-generator' },
+    { label: t('footer.exploreProjects'), to: '/explore' },
+    { label: t('footer.findTeammates'),   to: '/teammates' },
+    { label: t('dash.title'),             to: '/dashboard' },
+    { label: t('footer.portfolioGenerator'), to: '/portfolio-generator' },
   ],
   Resources: [
-    { label: 'Features',     to: '/features' },
-    { label: 'Hackathons',   to: '/hackathons' },
-    { label: 'Forum',        to: '/forum' },
-    { label: 'Blog',         to: '/blog' },
+    { label: t('footer.features'), to: '/features' },
+    { label: t('footer.hackathons'), to: '/hackathons' },
+    { label: t('footer.forum'),    to: '/forum' },
+    { label: t('footer.blog'),     to: '/blog' },
   ],
   Company: [
-    { label: 'About Us',         to: '/about' },
-    { label: 'Privacy Policy',   to: '/privacy' },
-    { label: 'Terms of Service', to: '/terms' },
+    { label: t('footer.aboutUs'),        to: '/about' },
+    { label: t('footer.privacyPolicy'),  to: '/privacy' },
+    { label: t('footer.termsOfService'), to: '/terms' },
   ],
-};
+});
 
 const socials = [
   { icon: GitBranch, href: '#', label: 'GitHub' },
@@ -29,6 +30,8 @@ const socials = [
 ];
 
 export default function AuthFooter() {
+  const { t } = useLanguage();
+  const links = buildLinks(t);
   return (
     <footer className="border-t border-white/[0.06] bg-[#030712]/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -44,7 +47,7 @@ export default function AuthFooter() {
               </span>
             </Link>
             <p className="text-xs text-slate-500 leading-relaxed mb-4">
-              Build cool things together.
+              {t('footer.tagline')}
             </p>
             <div className="flex gap-2">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -63,7 +66,7 @@ export default function AuthFooter() {
           {/* Link columns */}
           {Object.entries(links).map(([section, items]) => (
             <div key={section}>
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">{section}</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">{t(`footer.${section.toLowerCase()}`)}</h4>
               <ul className="flex flex-col gap-2">
                 {items.map((item) => (
                   <li key={item.label}>
@@ -80,10 +83,10 @@ export default function AuthFooter() {
         {/* Bottom */}
         <div className="flex items-center justify-between pt-6 border-t border-white/[0.04]">
           <p className="text-[11px] text-slate-600">
-            &copy; {new Date().getFullYear()} CollabFind
+            &copy; {new Date().getFullYear()} CollabFind. {t('footer.rights')}
           </p>
           <p className="text-[11px] text-slate-700">
-            Built with React, Vite, Tailwind CSS &amp; Supabase
+            {t('footer.builtWith')}
           </p>
         </div>
       </div>

@@ -6,19 +6,20 @@ import {
   AlertCircle, Loader2, FileText, ChevronRight, Lock,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { logActivity } from '../../utils/activityLogger';
 
 // ── Toolbar actions untuk rich-text sederhana ────────────────
 const TOOLBAR_ACTIONS = [
-  { label: 'H1',  action: (t, s, e) => wrapLine(t, s, e, '# ') },
-  { label: 'H2',  action: (t, s, e) => wrapLine(t, s, e, '## ') },
-  { label: 'H3',  action: (t, s, e) => wrapLine(t, s, e, '### ') },
-  { label: 'B',   action: (t, s, e) => wrapSel(t, s, e, '**') },
-  { label: 'I',   action: (t, s, e) => wrapSel(t, s, e, '_') },
-  { label: 'Code',action: (t, s, e) => wrapSel(t, s, e, '`') },
-  { label: '```', action: (t, s, e) => wrapBlock(t, s, e) },
-  { label: '• List', action: (t, s, e) => wrapLine(t, s, e, '- ') },
-  { label: '1. List', action: (t, s, e) => wrapLine(t, s, e, '1. ') },
+  { label: 'H1',  action: (txt, s, e) => wrapLine(txt, s, e, '# ') },
+  { label: 'H2',  action: (txt, s, e) => wrapLine(txt, s, e, '## ') },
+  { label: 'H3',  action: (txt, s, e) => wrapLine(txt, s, e, '### ') },
+  { label: 'B',   action: (txt, s, e) => wrapSel(txt, s, e, '**') },
+  { label: 'I',   action: (txt, s, e) => wrapSel(txt, s, e, '_') },
+  { label: 'Code',action: (txt, s, e) => wrapSel(txt, s, e, '`') },
+  { label: '```', action: (txt, s, e) => wrapBlock(txt, s, e) },
+  { label: '• List', action: (txt, s, e) => wrapLine(txt, s, e, '- ') },
+  { label: '1. List', action: (txt, s, e) => wrapLine(txt, s, e, '1. ') },
 ];
 
 function wrapSel(text, selStart, selEnd, mark) {
@@ -75,6 +76,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
   const [titleError, setTitleError]   = useState('');
   // eslint-disable-next-line no-unused-vars
   const textareaRef = useState(null);
+  const { t } = useLanguage();
 
   // ── Fetch pages ──────────────────────────────────────────
   const fetchPages = useCallback(async () => {
@@ -86,12 +88,12 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
       .order('created_at', { ascending: true });
 
     if (error) {
-      addToast('Gagal memuat Wiki.', 'error');
+      addToast(t('wiki.loadFail'), 'error');
     } else {
       setPages(data || []);
     }
     setLoading(false);
-  }, [projectId, addToast]);
+  }, [projectId, addToast, t]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchPages(); }, [fetchPages]);
@@ -120,7 +122,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
   // ── Simpan (create atau update) ──────────────────────────
   async function handleSave() {
     if (!editTitle.trim()) {
-      setTitleError('Judul halaman tidak boleh kosong.');
+      setTitleError(t('wiki.titleRequired'));
       return;
     }
     setTitleError('');
@@ -139,13 +141,13 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
         .single();
 
       if (error) {
-        addToast('Gagal menyimpan halaman.', 'error');
+        addToast(t('wiki.savePageFail'), 'error');
       } else {
         setPages((prev) => [...prev, data]);
         setActivePage(data);
         setIsCreating(false);
         setIsEditing(false);
-        addToast('Halaman berhasil dibuat.', 'success');
+        addToast(t('wiki.createSuccess'), 'success');
         logActivity({
           projectId,
           userId: session.user.id,
@@ -168,12 +170,12 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
         .single();
 
       if (error) {
-        addToast('Gagal menyimpan perubahan.', 'error');
+        addToast(t('wiki.updateFail'), 'error');
       } else {
         setPages((prev) => prev.map((p) => p.id === data.id ? data : p));
         setActivePage(data);
         setIsEditing(false);
-        addToast('Halaman berhasil disimpan.', 'success');
+        addToast(t('wiki.saveSuccess'), 'success');
         logActivity({
           projectId,
           userId: session.user.id,
@@ -199,7 +201,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
       .eq('id', page.id);
 
     if (error) {
-      addToast('Gagal menghapus halaman. Silakan coba lagi.', 'error');
+      addToast(t('wiki.deleteFail'), 'error');
     } else {
       setPages((prev) => prev.filter((p) => p.id !== page.id));
       if (activePage?.id === page.id) {
@@ -207,7 +209,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
         setIsEditing(false);
         setIsCreating(false);
       }
-      addToast('Halaman berhasil dihapus.', 'success');
+      addToast(t('wiki.deleteSuccess'), 'success');
     }
   }
 
@@ -233,14 +235,14 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
       <div className="w-full md:w-56 flex-shrink-0 flex flex-col gap-2">
         {readOnly ? (
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-amber-500/20 bg-amber-500/8 text-amber-300 text-xs">
-            <Lock size={12} /> View only
+            <Lock size={12} /> {t('wiki.viewOnly')}
           </div>
         ) : (
           <button
             onClick={startCreate}
             className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 hover:from-blue-500/30 hover:to-purple-500/30 transition-all"
           >
-            <Plus size={15} /> Buat Halaman Baru
+            <Plus size={15} /> {t('wiki.createNew')}
           </button>
         )}
 
@@ -264,7 +266,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                     <button
                       onClick={(ev) => { ev.stopPropagation(); setConfirmDelete(page); }}
                       className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-600 hover:text-red-400 transition-all"
-                      title="Hapus halaman"
+                      title={t('wiki.deletePage')}
                     >
                       <Trash2 size={12} />
                     </button>
@@ -274,7 +276,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
           }
           {!loading && pages.length === 0 && (
             <p className="text-xs text-slate-600 text-center mt-4 px-2">
-              Belum ada halaman. Buat yang pertama!
+              {t('wiki.noPages')}
             </p>
           )}
         </div>
@@ -287,14 +289,14 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
             <BookOpen size={36} className="text-slate-600" />
             <p className="text-sm text-slate-500">
-              Pilih halaman di sidebar{!readOnly && ' atau buat halaman baru'}
+              {t('wiki.selectPrompt')}{!readOnly && ` ${t('wiki.orCreate')}`}
             </p>
             {!readOnly && (
               <button
                 onClick={startCreate}
                 className="mt-1 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all"
               >
-                <Plus size={14} /> Buat Halaman
+                <Plus size={14} /> {t('wiki.createPage')}
               </button>
             )}
           </div>
@@ -309,7 +311,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
               </h2>
               <div className="flex items-center gap-1">
                 <span className="text-xs text-slate-600 mr-2">
-                  Diperbarui {new Date(activePage.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                  {t('wiki.updated')} {new Date(activePage.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
                 </span>
                 {!readOnly && (
                   <button
@@ -337,7 +339,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                 type="text"
                 value={editTitle}
                 onChange={(e) => { setEditTitle(e.target.value); setTitleError(''); }}
-                placeholder="Judul halaman..."
+                placeholder={t('wiki.titlePlaceholder')}
                 className={`flex-1 bg-transparent text-white font-bold text-base outline-none placeholder-slate-600 mr-4 ${
                   titleError ? 'border-b border-red-500/50' : ''
                 }`}
@@ -347,7 +349,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                 <button
                   onClick={() => { setIsEditing(false); setIsCreating(false); }}
                   className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/[0.06] transition-all"
-                  title="Batal"
+                  title={t('wiki.cancel')}
                 >
                   <X size={15} />
                 </button>
@@ -357,7 +359,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all disabled:opacity-50"
                 >
                   {saving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
-                  Simpan
+                  {t('wiki.save')}
                 </button>
               </div>
             </div>
@@ -389,7 +391,7 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
               id="wiki-editor-textarea"
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              placeholder="Tulis konten di sini... Gunakan Markdown: **bold**, _italic_, `code`, # Heading, - list"
+              placeholder={t('wiki.contentPlaceholder')}
               className="flex-1 bg-transparent text-sm text-slate-300 p-4 outline-none resize-none placeholder-slate-600 font-mono leading-relaxed"
             />
           </>
@@ -417,10 +419,10 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                    Hapus Halaman?
+                    {t('wiki.deletePageTitle')}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Halaman <span className="text-white font-medium">"{confirmDelete.title}"</span> akan dihapus permanen.
+                    {t('wiki.deletePageDesc')} <span className="text-white font-medium">"{confirmDelete.title}"</span>
                   </p>
                 </div>
               </div>
@@ -429,13 +431,13 @@ export default function Wiki({ projectId, session, addToast, readOnly = false })
                   onClick={() => setConfirmDelete(null)}
                   className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                 >
-                  Batal
+                  {t('wiki.cancel')}
                 </button>
                 <button
                   onClick={handleDeleteConfirmed}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 transition-all"
                 >
-                  Hapus
+                  {t('wiki.deleteBtn')}
                 </button>
               </div>
             </motion.div>

@@ -3,8 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, LogOut, ChevronDown, Settings, Loader2, Zap } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function UserMenu({ session }) {
+  const { t } = useLanguage();
   const [open, setOpen]             = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const ref      = useRef();
@@ -86,7 +88,7 @@ export default function UserMenu({ session }) {
             </div>
             <div className="flex items-center gap-2 text-slate-400 text-sm">
               <Loader2 size={15} className="animate-spin" />
-              Signing out...
+              {t('auth.signingOut')}
             </div>
           </motion.div>
         )}
@@ -134,14 +136,14 @@ export default function UserMenu({ session }) {
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
               >
-                <User size={15} /> My Profile
+                <User size={15} /> {t('dash.profile')}
               </Link>
               <Link
                 to="/settings"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
               >
-                <Settings size={15} /> Settings
+                <Settings size={15} /> {t('dash.settings')}
               </Link>
             </div>
 
@@ -152,8 +154,8 @@ export default function UserMenu({ session }) {
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.08] transition-all disabled:opacity-50"
               >
                 {loggingOut
-                  ? <><Loader2 size={15} className="animate-spin" /> Signing out...</>
-                  : <><LogOut size={15} /> Sign Out</>
+                  ? <><Loader2 size={15} className="animate-spin" /> {t('auth.signingOut')}</>
+                  : <><LogOut size={15} /> {t('dash.logout')}</>
                 }
               </button>
             </div>

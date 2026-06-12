@@ -5,6 +5,7 @@ import {
   Loader2, Calendar, User, ChevronRight, X, Save, Lock, MessageSquare,
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 import SprintForm from './SprintForm';
 import TaskThread from './TaskThread';
 import { logActivity } from '../../utils/activityLogger';
@@ -27,7 +28,7 @@ function isPastDeadline(deadline) {
 }
 
 // ── Form tugas ───────────────────────────────────────────────
-function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaultSprintId = null, onSave, onClose, saving }) {
+function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaultSprintId = null, onSave, onClose, saving, t }) {
   const [title, setTitle]       = useState(task?.title || '');
   const [desc, setDesc]         = useState(task?.description || '');
   const [deadline, setDeadline] = useState(task?.deadline || '');
@@ -36,7 +37,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
   const [titleError, setTitleError] = useState('');
 
   function handleSubmit() {
-    if (!title.trim()) { setTitleError('Judul tugas tidak boleh kosong.'); return; }
+    if (!title.trim()) { setTitleError(t('wb.titleRequired')); return; }
     setTitleError('');
     onSave({
       title:       title.trim(),
@@ -56,7 +57,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); setTitleError(''); }}
-          placeholder="Judul tugas..."
+          placeholder={t('wb.taskTitle')}
           autoFocus
           className="w-full bg-white/[0.04] border border-white/[0.09] rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 outline-none focus:border-blue-500/50 focus:bg-blue-500/[0.04] transition-all"
         />
@@ -71,7 +72,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        placeholder="Deskripsi (opsional)..."
+        placeholder={t('wb.taskDesc')}
         rows={3}
         className="w-full bg-white/[0.04] border border-white/[0.09] rounded-xl px-3 py-2.5 text-sm text-slate-300 placeholder-slate-600 outline-none focus:border-blue-500/50 transition-all resize-none"
       />
@@ -79,7 +80,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
       {/* Deadline & Assignee */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">Deadline</label>
+          <label className="text-xs text-slate-500 mb-1 block">{t('wb.deadline')}</label>
           <input
             type="date"
             value={deadline}
@@ -89,25 +90,25 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
           />
         </div>
         <div>
-          <label className="text-xs text-slate-500 mb-1 block">Assignee</label>
+          <label className="text-xs text-slate-500 mb-1 block">{t('wb.assignee')}</label>
           <select
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
             className="w-full bg-[#0d1226] border border-white/[0.09] rounded-xl px-3 py-2 text-sm text-slate-300 outline-none focus:border-blue-500/50 transition-all"
           >
-            <option value="">— Tidak ada —</option>
+            <option value="">{t('wb.noAssignee')}</option>
             {teamMembers.map((m) => (
               <option key={m.id} value={m.id}>{m.name || m.email}</option>
             ))}
           </select>
           {/* Sprint selection */}
-          <label className="text-xs text-slate-500 mt-2">Sprint</label>
+          <label className="text-xs text-slate-500 mt-2">{t('wb.sprint')}</label>
           <select
             value={sprintId}
             onChange={(e) => setSprintId(e.target.value)}
             className="w-full bg-[#0d1226] border border-white/[0.09] rounded-xl px-3 py-2 text-sm text-slate-300 outline-none focus:border-blue-500/50 transition-all"
           >
-            <option value="">— Backlog —</option>
+            <option value="">{t('wb.backlog')}</option>
             {sprintOptions.map((sp) => (
               <option key={sp.id} value={sp.id}>{sp.name}</option>
             ))}
@@ -121,7 +122,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
           onClick={onClose}
           className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 border border-white/[0.08] hover:bg-white/[0.05] transition-all"
         >
-          Batal
+          {t('wb.cancel')}
         </button>
         <button
           onClick={handleSubmit}
@@ -129,7 +130,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/30 transition-all disabled:opacity-50"
         >
           {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-          Simpan
+          {t('wb.save')}
         </button>
       </div>
     </div>
@@ -137,7 +138,7 @@ function TaskForm({ task, teamMembers, defaultStatus, sprintOptions = [], defaul
 }
 
 // ── Task Card ────────────────────────────────────────────────
-function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, onOpenThread, readOnly = false, canEdit = true }) {
+function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, onOpenThread, readOnly = false, canEdit = true, t }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const assigneeName = teamMembers.find((m) => m.id === task.assignee_id)?.name || null;
   const pastDeadline = isPastDeadline(task.deadline);
@@ -178,7 +179,7 @@ function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, on
                       onClick={() => { setMenuOpen(false); onEdit(task); }}
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
                     >
-                      <Edit3 size={12} /> Edit Tugas
+                      <Edit3 size={12} /> {t('wb.editTask')}
                     </button>
                   )}
                   {otherCols.map((col) => (
@@ -188,7 +189,7 @@ function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, on
                       className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
                     >
                       <ChevronRight size={12} style={{ color: col.color }} />
-                      Pindah ke {col.label}
+                      {t('wb.moveTo')} {col.label}
                     </button>
                   ))}
                   {canEdit && (
@@ -198,7 +199,7 @@ function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, on
                         onClick={() => { setMenuOpen(false); onDelete(task); }}
                         className="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
                       >
-                        <Trash2 size={12} /> Hapus Tugas
+                        <Trash2 size={12} /> {t('wb.deleteTask')}
                       </button>
                     </>
                   )}
@@ -235,7 +236,7 @@ function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, on
         className="flex items-center gap-1.5 mt-2 px-2 py-1 rounded-lg text-[10px] text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
       >
         <MessageSquare size={10} />
-        <span>Diskusi</span>
+        <span>{t('wb.discuss')}</span>
         {threadCount > 0 && (
           <span className="px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[9px] font-bold">
             {threadCount}
@@ -247,7 +248,7 @@ function TaskCard({ task, teamMembers, threadCount, onMove, onEdit, onDelete, on
 }
 
 // ── Kolom Kanban ─────────────────────────────────────────────
-function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, onOpenThread, readOnly = false, canEdit = true }) {
+function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selectedSprintId, onMove, onEdit, onDelete, onAddTask, onOpenThread, readOnly = false, canEdit = true, t }) {
   const [adding, setAdding]     = useState(false);
   const [saving, setSaving]     = useState(false);
 
@@ -286,7 +287,7 @@ function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selected
               animate={{ opacity: 1 }}
               className="text-xs text-slate-600 text-center py-6"
             >
-              Belum ada tugas di sini
+              {t('wb.noTasks')}
             </motion.p>
           ) : (
             tasks.map((task) => (
@@ -301,6 +302,7 @@ function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selected
                 onOpenThread={onOpenThread}
                 readOnly={readOnly}
                 canEdit={canEdit}
+                t={t}
               />
             ))
           )}
@@ -321,6 +323,7 @@ function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selected
               onSave={handleAdd}
               onClose={() => setAdding(false)}
               saving={saving}
+              t={t}
             />
           </motion.div>
         )}
@@ -332,7 +335,7 @@ function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selected
           onClick={() => setAdding(true)}
           className="flex items-center gap-1.5 w-full px-3 py-2 rounded-xl text-xs font-medium text-slate-500 border border-dashed border-white/[0.08] hover:text-white hover:border-white/[0.18] hover:bg-white/[0.03] transition-all"
         >
-          <Plus size={13} /> Tambah Tugas
+          <Plus size={13} /> {t('wb.addTask')}
         </button>
       )}
     </div>
@@ -341,6 +344,7 @@ function KanbanColumn({ col, tasks, teamMembers, threadCounts, sprints, selected
 
 // ── Komponen Utama ───────────────────────────────────────────
 export default function ProjectBoards({ projectId, session, addToast, readOnly = false }) {
+  const { t } = useLanguage();
   const [tasks, setTasks]               = useState([]);
   const [teamMembers, setTeamMembers]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -449,10 +453,10 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             setTasks((prev) => [...prev, payload.new]);
           } else if (payload.eventType === 'UPDATE') {
             setTasks((prev) =>
-              prev.map((t) => t.id === payload.new.id ? payload.new : t)
+              prev.map((tk) => tk.id === payload.new.id ? payload.new : tk)
             );
           } else if (payload.eventType === 'DELETE') {
-            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+            setTasks((prev) => prev.filter((tk) => tk.id !== payload.old.id));
           }
         }
       )
@@ -472,7 +476,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       .single();
 
     if (error) {
-      addToast('Gagal menambah tugas. Silakan coba lagi.', 'error');
+      addToast(t('wb.addTaskFail'), 'error');
     } else {
       setTasks((prev) => [...prev, newTask]);
       logActivity({
@@ -491,7 +495,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
     const prevTasks = tasks;
     const oldStatus = task.status;
     setTasks((prev) =>
-      prev.map((t) => t.id === task.id ? { ...t, status: newStatus } : t)
+      prev.map((tk) => tk.id === task.id ? { ...tk, status: newStatus } : tk)
     );
 
     const { error } = await supabase
@@ -502,7 +506,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
     if (error) {
       setTasks(prevTasks);
       console.error('Move error:', error);
-      addToast('Gagal memperbarui status tugas. Silakan coba lagi.', 'error');
+      addToast(t('wb.moveFail'), 'error');
     } else {
       logActivity({
         projectId,
@@ -529,11 +533,11 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
     setSavingEdit(false);
 
     if (error) {
-      addToast('Gagal menyimpan perubahan.', 'error');
+      addToast(t('wb.editFail'), 'error');
     } else {
-      setTasks((prev) => prev.map((t) => t.id === updated.id ? updated : t));
+      setTasks((prev) => prev.map((tk) => tk.id === updated.id ? updated : tk));
       setEditingTask(null);
-      addToast('Tugas berhasil diperbarui.', 'success');
+      addToast(t('wb.editSuccess'), 'success');
       logActivity({
         projectId,
         userId: session.user.id,
@@ -556,10 +560,10 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       .eq('id', task.id);
 
     if (error) {
-      addToast('Gagal menghapus tugas. Silakan coba lagi.', 'error');
+      addToast(t('wb.deleteFail'), 'error');
     } else {
-      setTasks((prev) => prev.filter((t) => t.id !== task.id));
-      addToast('Tugas berhasil dihapus.', 'success');
+      setTasks((prev) => prev.filter((tk) => tk.id !== task.id));
+      addToast(t('wb.deleteSuccess'), 'success');
       logActivity({
         projectId,
         userId: session.user.id,
@@ -631,7 +635,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             onClick={() => setShowSprintForm(true)}
             className="ml-auto px-4 py-1.5 rounded-full text-xs font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all"
           >
-            + Sprint Baru
+            + {t('wb.newSprint')}
           </button>
         )}
       </div>
@@ -639,7 +643,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
       {/* Progress bar */}
       <div className="mb-5">
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-xs text-slate-500">Progress {selectedSprint ? selectedSprint.name : 'Backlog'}</p>
+          <p className="text-xs text-slate-500">{t('wb.progress')} {selectedSprint ? selectedSprint.name : t('wb.backlog')}</p>
           <p className="text-xs font-bold text-slate-300">{progressPercent}%</p>
         </div>
         <div className="w-full bg-white/[0.04] h-1.5 rounded-full overflow-hidden">
@@ -650,7 +654,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             transition={{ duration: 0.5, ease: 'easeOut' }}
           />
         </div>
-        <p className="text-[10px] text-slate-600 mt-1">{doneTasks} dari {totalTasks} tugas selesai</p>
+        <p className="text-[10px] text-slate-600 mt-1">{doneTasks} {t('wb.ofTotal')} {totalTasks} {t('wb.tasksDone')}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -658,7 +662,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
           <KanbanColumn
             key={col.id}
             col={col}
-            tasks={tasks.filter((t) => t.status === col.id && (selectedSprint ? t.sprint_id === selectedSprint.id : !t.sprint_id))}
+            tasks={tasks.filter((tk) => tk.status === col.id && (selectedSprint ? tk.sprint_id === selectedSprint.id : !tk.sprint_id))}
             teamMembers={teamMembers}
             threadCounts={threadCounts}
             sprints={sprints}
@@ -670,6 +674,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             onOpenThread={(task) => setThreadModalTask(task)}
             readOnly={readOnly}
             canEdit={isOwner}
+            t={t}
           />
         ))}
       </div>
@@ -691,7 +696,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                  Edit Tugas
+                  {t('wb.editTask')}
                 </h3>
                 <button
                   onClick={() => setEditingTask(null)}
@@ -708,6 +713,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
                 onSave={handleEditSave}
                 onClose={() => setEditingTask(null)}
                 saving={savingEdit}
+                t={t}
               />
             </motion.div>
           </motion.div>
@@ -735,10 +741,10 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                    Hapus Tugas?
+                    {t('wb.deleteTaskTitle')}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    Tugas <span className="text-white font-medium">"{confirmDelete.title}"</span> akan dihapus permanen.
+                    {t('wb.deleteTaskDesc')} <span className="text-white font-medium">"{confirmDelete.title}"</span> {t('wb.deleteConfirmWarn')}
                   </p>
                 </div>
               </div>
@@ -747,13 +753,13 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
                   onClick={() => setConfirmDelete(null)}
                   className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                 >
-                  Batal
+                  {t('wb.cancel')}
                 </button>
                 <button
                   onClick={handleDeleteConfirmed}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 transition-all"
                 >
-                  Hapus
+                  {t('wb.deleteBtn')}
                 </button>
               </div>
             </motion.div>
@@ -780,7 +786,7 @@ export default function ProjectBoards({ projectId, session, addToast, readOnly =
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                  Buat Sprint Baru
+                  {t('wb.newSprintTitle')}
                 </h3>
                 <button
                   onClick={() => setShowSprintForm(false)}

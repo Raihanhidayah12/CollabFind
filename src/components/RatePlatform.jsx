@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Loader2, CheckCircle, Send } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const COLORS = [
   '#3B82F6', // blue
@@ -13,6 +14,7 @@ const COLORS = [
 ];
 
 export default function RatePlatform({ session, onSuccess }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -105,7 +107,7 @@ const payload = {
 
     } catch (err) {
       console.error('Error submitting testimonial:', err);
-      alert('Gagal mengirim ulasan. Pastikan tabel sudah dibuat di Supabase.');
+      alert(t('rp.alertFail'));
     } finally {
       setSubmitting(false);
     }
@@ -129,7 +131,7 @@ const payload = {
       >
         <div className="flex items-center gap-3 mb-3">
           <CheckCircle className="text-emerald-400" size={20} />
-          <span className="text-sm font-semibold text-white">Terima kasih atas ulasanmu!</span>
+          <span className="text-sm font-semibold text-white">{t('rp.thanksTitle')}</span>
         </div>
         <p className="text-xs text-slate-400 italic mb-3">"{existingTestimonial.quote}"</p>
         <div className="flex items-center justify-between">
@@ -146,7 +148,7 @@ const payload = {
             onClick={() => setShowForm(true)}
             className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
           >
-            Ubah Ulasan
+            {t('rp.editReview')}
           </button>
         </div>
       </motion.div>
@@ -162,8 +164,8 @@ const payload = {
       >
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-bold text-white">Beri Rating CollabFind</h3>
-            <p className="text-xs text-slate-500">Pendapatmu sangat berarti untuk pengembangan platform ini</p>
+            <h3 className="text-lg font-bold text-white">{t('rp.heading')}</h3>
+            <p className="text-xs text-slate-500">{t('rp.subtitle')}</p>
           </div>
           <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map(star => (
@@ -182,7 +184,7 @@ const payload = {
         <textarea
           value={quote}
           onChange={e => setQuote(e.target.value)}
-          placeholder="Ceritakan pengalamanmu menggunakan CollabFind..."
+          placeholder={t('rp.placeholder')}
           rows={3}
           className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-slate-600 text-sm outline-none focus:border-blue-500/40 transition-all resize-none mb-4"
         />
@@ -215,17 +217,17 @@ const payload = {
             {submitting ? (
               <>
                 <Loader2 size={12} className="animate-spin" />
-                Mengirim...
+                {t('rp.submitting')}
               </>
             ) : success ? (
               <>
                 <CheckCircle size={12} />
-                Terkirim!
+                {t('rp.submitted')}
               </>
             ) : (
               <>
                 <Send size={12} />
-                Kirim Ulasan
+                {t('rp.submitBtn')}
               </>
             )}
           </button>
@@ -236,7 +238,7 @@ const payload = {
             onClick={() => setShowForm(false)}
             className="text-xs text-slate-500 hover:text-slate-400 mt-3 w-full text-center transition-colors"
           >
-            Batal
+            {t('rp.cancel')}
           </button>
         )}
       </motion.div>

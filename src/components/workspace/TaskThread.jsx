@@ -2,23 +2,25 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Trash2, MessageSquare, Loader2 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import { useLanguage } from '../../i18n/LanguageContext';
 import MentionInput from './MentionInput';
 import { parseMentions, renderContentWithMentions } from '../../utils/mentionParser';
 import { logActivity } from '../../utils/activityLogger';
 
-function timeAgo(dateStr) {
+function timeAgo(dateStr, t) {
   const now = new Date();
   const date = new Date(dateStr);
   const seconds = Math.floor((now - date) / 1000);
 
-  if (seconds < 60) return 'baru saja';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} menit lalu`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} jam lalu`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)} hari lalu`;
+  if (seconds < 60) return t('tt.justNow');
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} ${t('tt.minsAgo')}`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} ${t('tt.hoursAgo')}`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)} ${t('tt.daysAgo')}`;
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export default function TaskThread({ task, session, teamMembers, projectId, onClose, addToast }) {
+  const { t } = useLanguage();
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -115,7 +117,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
       .single();
 
     if (error) {
-      addToast('Gagal mengirim komentar', 'error');
+      addToast(t('tt.sendFail'), 'error');
       setSubmitting(false);
       return;
     }
@@ -159,7 +161,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
       .eq('id', threadId);
 
     if (error) {
-      addToast('Gagal menghapus komentar', 'error');
+      addToast(t('tt.deleteFail'), 'error');
     }
   };
 
@@ -187,7 +189,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-              Diskusi Task
+              {t('tt.title')}
             </h3>
             <p className="text-xs text-slate-500 truncate">{task.title}</p>
           </div>
@@ -210,8 +212,8 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
               <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-4">
                 <MessageSquare size={24} className="text-slate-600" />
               </div>
-              <p className="text-sm text-slate-500 mb-1">Belum ada diskusi</p>
-              <p className="text-xs text-slate-600">Mulai diskusi dengan mengirim komentar pertama</p>
+              <p className="text-sm text-slate-500 mb-1">{t('tt.noThreads')}</p>
+              <p className="text-xs text-slate-600">{t('tt.noThreadsDesc')}</p>
             </div>
           ) : (
             <AnimatePresence>
@@ -238,7 +240,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
                         <span className="text-xs font-semibold text-white">
                           {profile?.name || 'User'}
                         </span>
-                        <span className="text-[10px] text-slate-600">{timeAgo(thread.created_at)}</span>
+                        <span className="text-[10px] text-slate-600">{timeAgo(thread.created_at, t)}</span>
                       </div>
 
                       <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
@@ -270,7 +272,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
                         <button
                           onClick={() => handleDelete(thread.id)}
                           className="p-1 rounded text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 hover:opacity-100"
-                          title="Hapus komentar"
+                          title={t('tt.deleteComment')}
                         >
                           <Trash2 size={11} />
                         </button>
@@ -291,7 +293,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
               <MentionInput
                 value={input}
                 onChange={setInput}
-                placeholder="Tulis komentar... (ketik @ untuk mention)"
+                placeholder={t('tt.placeholder')}
                 teamMembers={teamMembers}
                 disabled={submitting}
               />
@@ -311,7 +313,7 @@ export default function TaskThread({ task, session, teamMembers, projectId, onCl
             </motion.button>
           </div>
           <p className="text-[10px] text-slate-700 mt-2 text-center">
-            Ketik @ untuk mention anggota tim
+            {t('tt.mentionHint')}
           </p>
         </form>
       </motion.div>

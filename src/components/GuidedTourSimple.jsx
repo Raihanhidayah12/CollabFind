@@ -1,26 +1,31 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const tourSteps = [
-  { id: 1, target: '#home', title: 'Selamat Datang di CollabFind!', description: 'Platform untuk menemukan tim dan proyek kolaboratif yang sempurna.' },
-  { id: 2, target: '#how-it-works', title: 'Cara Kerja CollabFind', description: '3 langkah mudah: buat profil, temukan project, mulai kolaborasi.' },
-  { id: 3, target: '.featured-projects', title: 'Jelajahi 2,500+ Proyek Aktif', description: 'Temukan proyek menarik dari komunitas developer worldwide.' },
-  { id: 4, target: '.open-to-collab-section', title: 'Open to Collab', description: 'Lihat builder yang sedang aktif mencari teammate minggu ini.' },
-  { id: 5, target: '.categories-section', title: 'Filter Berdasarkan Kategori', description: 'Cari proyek berdasarkan teknologi, industri, atau level keahlian.' },
-  { id: 6, target: '.features-section', title: 'Fitur-Fitur Powerful', description: 'Real-time chat, task management, dan portfolio generator terintegrasi.' },
-  { id: 7, target: '.kanban-section', title: 'Kelola Tugas dengan Kanban', description: 'Visualisasi progress proyek dengan interface drag-and-drop yang intuitif.' },
-  { id: 8, target: '.freelance-section', title: 'Freelance Marketplace', description: 'Monetize skill-mu atau temukan talent terbaik untuk project-mu.' },
-  { id: 9, target: '.comparison-section', title: 'Kenapa CollabFind?', description: 'Lihat perbandingan fitur CollabFind dengan platform lainnya.' },
-  { id: 10, target: '.testimonials-section', title: '7,000+ Kisah Sukses', description: 'Bergabung dengan komunitas yang telah menciptakan produk amazing.' },
-  { id: 11, target: '.role-matcher-section', title: 'Role Matcher', description: 'Jawab 3 pertanyaan, temukan project dan peran yang paling cocok untukmu.' },
-  { id: 12, target: '.cta-section', title: 'Siap untuk Memulai?', description: 'Klik tombol untuk membuat akun dan mulai kolaborasi hari ini!', isLast: true },
-];
+function buildTourSteps(t) {
+  return [
+    { id: 1, target: '#home', title: t('gt.welcomeTitle'), description: t('gt.welcomeDesc') },
+    { id: 2, target: '#how-it-works', title: t('gt.howItWorksTitle'), description: t('gt.howItWorksDesc') },
+    { id: 3, target: '.featured-projects', title: t('gt.exploreTitle'), description: t('gt.exploreDesc') },
+    { id: 4, target: '.open-to-collab-section', title: t('gt.openToCollabTitle'), description: t('gt.openToCollabDesc') },
+    { id: 5, target: '.categories-section', title: t('gt.categoriesTitle'), description: t('gt.categoriesDesc') },
+    { id: 6, target: '.features-section', title: t('gt.featuresTitle'), description: t('gt.featuresDesc') },
+    { id: 7, target: '.kanban-section', title: t('gt.kanbanTitle'), description: t('gt.kanbanDesc') },
+    { id: 8, target: '.freelance-section', title: t('gt.freelanceTitle'), description: t('gt.freelanceDesc') },
+    { id: 9, target: '.comparison-section', title: t('gt.comparisonTitle'), description: t('gt.comparisonDesc') },
+    { id: 10, target: '.testimonials-section', title: t('gt.testimonialsTitle'), description: t('gt.testimonialsDesc') },
+    { id: 11, target: '.role-matcher-section', title: t('gt.roleMatcherTitle'), description: t('gt.roleMatcherDesc') },
+    { id: 12, target: '.cta-section', title: t('gt.ctaTitle'), description: t('gt.ctaDesc'), isLast: true },
+  ];
+}
 
 export default function GuidedTour({ isOpen, onClose }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
   const navigate = useNavigate();
+  const { t } = useLanguage();
+  const tourSteps = buildTourSteps(t);
   const currentTour = tourSteps[currentStep];
 
   useEffect(() => {
@@ -114,7 +119,7 @@ export default function GuidedTour({ isOpen, onClose }) {
                 {/* Badge step */}
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-semibold mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                  Step {currentStep + 1} dari {tourSteps.length}
+                  {t('gt.stepOf', `Step ${currentStep + 1} of ${tourSteps.length}`)}
                 </div>
 
                 {/* Title */}
@@ -146,7 +151,7 @@ export default function GuidedTour({ isOpen, onClose }) {
                     disabled={currentStep === 0}
                     className="px-5 py-3 rounded-lg border border-slate-600/50 text-slate-400 font-semibold hover:text-white hover:border-slate-500 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                   >
-                    ← Kembali
+                    {t('gt.prev')}
                   </button>
 
                   {currentTour.isLast ? (
@@ -157,14 +162,14 @@ export default function GuidedTour({ isOpen, onClose }) {
                       }}
                       className="flex-1 px-5 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-semibold shadow-lg hover:shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-200"
                     >
-                      Mulai Sekarang! 🚀
+                      {t('gt.getStart')}
                     </button>
                   ) : (
                     <button
                       onClick={() => setCurrentStep(currentStep + 1)}
                       className="flex-1 px-5 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-semibold shadow-lg hover:shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-200"
                     >
-                      Selanjutnya →
+                      {t('gt.next')}
                     </button>
                   )}
                 </div>

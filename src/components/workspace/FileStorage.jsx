@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import { logActivity } from '../../utils/activityLogger';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 // ── Konfigurasi ──────────────────────────────────────────────
 const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
@@ -25,13 +26,13 @@ const ARC_EXTS  = new Set(['zip','rar']);
 const DESIGN_EXTS = new Set(['fig','svg']);
 
 const FOLDERS = [
-  { id: 'all',      label: 'Semua File', icon: FolderOpen, exts: null,        color: '#3B82F6' },
-  { id: 'images',   label: 'Gambar',     icon: FileImage,  exts: IMG_EXTS,    color: '#8B5CF6' },
-  { id: 'docs',     label: 'Dokumen',    icon: FileText,   exts: DOC_EXTS,    color: '#10B981' },
-  { id: 'pdf',      label: 'PDF',        icon: FileText,   exts: PDF_EXTS,    color: '#EF4444' },
-  { id: 'code',     label: 'Kode',       icon: FileCode,   exts: CODE_EXTS,   color: '#3B82F6' },
-  { id: 'archives', label: 'Arsip',      icon: FileArchive, exts: ARC_EXTS,   color: '#F59E0B' },
-  { id: 'design',   label: 'Design',     icon: File,       exts: DESIGN_EXTS, color: '#EC4899' },
+  { id: 'all',      labelKey: 'fs.allFiles',  icon: FolderOpen, exts: null,        color: '#3B82F6' },
+  { id: 'images',   labelKey: 'fs.images',    icon: FileImage,  exts: IMG_EXTS,    color: '#8B5CF6' },
+  { id: 'docs',     labelKey: 'fs.documents',      icon: FileText,   exts: DOC_EXTS,    color: '#10B981' },
+  { id: 'pdf',      labelKey: 'fs.pdf',       icon: FileText,   exts: PDF_EXTS,    color: '#EF4444' },
+  { id: 'code',     labelKey: 'fs.code',      icon: FileCode,   exts: CODE_EXTS,   color: '#3B82F6' },
+  { id: 'archives', labelKey: 'fs.archives',  icon: FileArchive, exts: ARC_EXTS,   color: '#F59E0B' },
+  { id: 'design',   labelKey: 'fs.design',    icon: File,       exts: DESIGN_EXTS, color: '#EC4899' },
 ];
 
 function isPreviewable(ext) {
@@ -164,6 +165,7 @@ function CodePreview({ url, fileName }) {
 
 // ── Komponen Utama ───────────────────────────────────────────
 export default function FileStorage({ projectId, session, addToast, readOnly = false }) {
+  const { t } = useLanguage();
   const [files, setFiles]         = useState([]);
   const [loading, setLoading]     = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -186,7 +188,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
       .order('created_at', { ascending: false });
 
     if (error) {
-      addToast('Gagal memuat daftar file.', 'error');
+      addToast(t('fs.loadFail'), 'error');
     } else {
       setFiles(data || []);
     }
@@ -224,10 +226,10 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
   function validateFile(file) {
     const ext = getExt(file.name);
     if (!ALLOWED_EXTENSIONS.has(ext)) {
-      return 'Tipe file tidak didukung.';
+      return t('fs.unsupportedType');
     }
     if (file.size > MAX_SIZE_BYTES) {
-      return 'Ukuran file maksimal adalah 50 MB.';
+      return t('fs.maxSizeError');
     }
     return null;
   }
@@ -260,7 +262,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     if (storageError) {
       setUploading(false);
       setUploadProgress(0);
-      addToast('Gagal mengupload file. Silakan coba lagi.', 'error');
+      addToast(t('fs.uploadFail'), 'error');
       return;
     }
 
@@ -281,9 +283,9 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     if (dbError) {
       // Rollback storage object
       await supabase.storage.from('workspace-files').remove([storagePath]);
-      addToast('Gagal menyimpan metadata file.', 'error');
+      addToast(t('fs.metaFail'), 'error');
     } else {
-      addToast('File berhasil diunggah.', 'success');
+      addToast(t('fs.uploadSuccess'), 'success');
       fetchFiles();
       logActivity({
         projectId,
@@ -320,7 +322,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     setLoadingPreview(null);
 
     if (error || !data?.signedUrl) {
-      addToast('Gagal membuka preview file.', 'error');
+      addToast(t('fs.previewFail'), 'error');
       return;
     }
     setPreviewFile({ file, url: data.signedUrl });
@@ -333,7 +335,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
       .createSignedUrl(file.storage_path, 3600);
 
     if (error || !data?.signedUrl) {
-      addToast('Gagal membuat link unduhan.', 'error');
+      addToast(t('fs.downloadLinkFail'), 'error');
       return;
     }
 
@@ -349,7 +351,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch {
-      addToast('Gagal mengunduh file.', 'error');
+      addToast(t('fs.downloadFail'), 'error');
     }
   }
 
@@ -367,11 +369,11 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
     setDeletingId(null);
 
     if (storageResult.error || dbResult.error) {
-      addToast('Gagal menghapus file. Silakan coba lagi.', 'error');
+      addToast(t('fs.deleteFail'), 'error');
       fetchFiles();
     } else {
       setFiles((prev) => prev.filter((f) => f.id !== file.id));
-      addToast('File berhasil dihapus.', 'success');
+      addToast(t('fs.deleteSuccess'), 'success');
     }
   }
 
@@ -411,7 +413,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
               }`}
             >
               <Icon size={13} style={{ color: isActive ? folder.color : undefined }} />
-              <span className="truncate flex-1 text-left">{folder.label}</span>
+              <span className="truncate flex-1 text-left">{t(folder.labelKey)}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${
                 isActive ? 'bg-white/[0.08] text-slate-300' : 'text-slate-700'
               }`}>
@@ -429,7 +431,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
         {readOnly ? (
           <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-amber-500/20 bg-amber-500/8 text-amber-300">
             <Lock size={15} className="flex-shrink-0" />
-            <p className="text-sm">Upload dinonaktifkan. Proyek ini sudah selesai dan kamu adalah kolaborator.</p>
+            <p className="text-sm">{t('fs.uploadDisabled')}</p>
           </div>
         ) : (
           <div
@@ -454,7 +456,7 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
             {uploading ? (
               <>
                 <Loader2 size={28} className="text-blue-400 animate-spin" />
-                <p className="text-sm text-slate-400">Mengupload...</p>
+                <p className="text-sm text-slate-400">{t('fs.uploading')}</p>
                 <div className="w-48 h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
@@ -470,9 +472,9 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
                   <Upload size={20} className="text-blue-400" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-white">Klik atau drag file ke sini</p>
+                  <p className="text-sm font-semibold text-white">{t('fs.clickOrDrag')}</p>
                   <p className="text-xs text-slate-500 mt-1">
-                    Maks. 50 MB · JPG, PNG, PDF, ZIP, JS, TS, dan lainnya
+                    {t('fs.maxSize')}
                   </p>
                 </div>
               </>
@@ -492,8 +494,8 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
             <FolderOpen size={36} className="text-slate-600" />
             <p className="text-sm text-slate-500">
               {selectedFolder === 'all'
-                ? `Belum ada file yang diunggah.${!readOnly ? ' Upload file pertamamu!' : ''}`
-                : `Tidak ada file di folder "${activeFolder?.label}"`
+                ? `${t('fs.noFiles')}${!readOnly ? ` ${t('fs.uploadFirst')}` : ''}`
+                : `${t('fs.noFilesInFolder')} "${t(activeFolder?.labelKey)}"`
               }
             </p>
             {selectedFolder === 'all' && !readOnly && (
@@ -598,10 +600,10 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>
-                    Hapus File?
+                    {t('fs.deleteFile')}
                   </h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    File <span className="text-white font-medium">"{confirmDelete.file_name}"</span> akan dihapus permanen dan tidak bisa dikembalikan.
+                    {t('fs.deleteFileDesc')} <span className="text-white font-medium">"{confirmDelete.file_name}"</span> {t('fs.deleteWarn')}
                   </p>
                 </div>
               </div>
@@ -610,13 +612,13 @@ export default function FileStorage({ projectId, session, addToast, readOnly = f
                   onClick={() => setConfirmDelete(null)}
                   className="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 border border-white/[0.08] hover:bg-white/[0.05] transition-all"
                 >
-                  Batal
+                  {t('fs.cancel')}
                 </button>
                 <button
                   onClick={handleDeleteConfirmed}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 transition-all"
                 >
-                  Hapus
+                  {t('fs.deleteBtn')}
                 </button>
               </div>
             </motion.div>

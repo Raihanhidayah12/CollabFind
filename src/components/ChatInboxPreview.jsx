@@ -3,19 +3,21 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MessageSquare, ArrowRight } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
-function getTimeAgo(dateStr) {
+function getTimeAgo(dateStr, t) {
   if (!dateStr) return '';
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Baru saja';
-  if (mins < 60) return `${mins}m lalu`;
+  if (mins < 1) return t('cip.justNow');
+  if (mins < 60) return `${mins}${t('cip.minsAgo')}`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}j lalu`;
-  return `${Math.floor(hours / 24)}h lalu`;
+  if (hours < 24) return `${hours}${t('cip.hoursAgo')}`;
+  return `${Math.floor(hours / 24)}${t('cip.daysAgo')}`;
 }
 
 export default function ChatInboxPreview({ session }) {
+  const { t } = useLanguage();
   const [conversations, setConversations] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -138,7 +140,7 @@ export default function ChatInboxPreview({ session }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare size={14} className="text-blue-400" />
-              <h3 className="text-sm font-bold text-white">Pesan</h3>
+              <h3 className="text-sm font-bold text-white">{t('cip.messages')}</h3>
             </div>
           </div>
         </div>
@@ -158,18 +160,18 @@ export default function ChatInboxPreview({ session }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare size={14} className="text-blue-400" />
-              <h3 className="text-sm font-bold text-white">Pesan</h3>
+              <h3 className="text-sm font-bold text-white">{t('cip.messages')}</h3>
               {unreadCount > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400">{unreadCount}</span>
               )}
             </div>
             <Link to="/dashboard/chat" className="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-0.5">
-              Semua <ArrowRight size={10} />
+              {t('cip.all')} <ArrowRight size={10} />
             </Link>
           </div>
         </div>
         <div className="p-6 text-center text-xs text-slate-500">
-          Belum ada percakapan.
+          {t('cip.empty')}
         </div>
       </div>
     );
@@ -186,13 +188,13 @@ export default function ChatInboxPreview({ session }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageSquare size={14} className="text-blue-400" />
-            <h3 className="text-sm font-bold text-white">Pesan</h3>
+            <h3 className="text-sm font-bold text-white">{t('cip.messages')}</h3>
             {unreadCount > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400">{unreadCount}</span>
             )}
           </div>
           <Link to="/dashboard/chat" className="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-0.5">
-            Semua <ArrowRight size={10} />
+            {t('cip.all')} <ArrowRight size={10} />
           </Link>
         </div>
       </div>
@@ -217,7 +219,7 @@ export default function ChatInboxPreview({ session }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-white truncate">{conv.otherName}</p>
-                  <span className="text-[10px] text-slate-600 flex-shrink-0 ml-2">{getTimeAgo(conv.lastMessage?.created_at)}</span>
+                  <span className="text-[10px] text-slate-600 flex-shrink-0 ml-2">{getTimeAgo(conv.lastMessage?.created_at, t)}</span>
                 </div>
                 <p className="text-[11px] text-slate-500 truncate">{conv.lastMessage?.content?.substring(0, 40) || '...'}</p>
               </div>

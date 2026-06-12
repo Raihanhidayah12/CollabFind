@@ -2,19 +2,37 @@ import { useState } from 'react';
 import { Zap, GitBranch, Globe, Briefcase, Camera, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useAuth } from '../AuthProvider';
 
 const linkGroups = {
-  Platform: [
-    { labelKey: 'footer.exploreProjects',   to: '/explore' },
-    { labelKey: 'footer.findTeammates',     to: '/teammates' },
-    { labelKey: 'footer.features',          to: '/features' },
+  Product: [
+    { labelKey: 'footer.exploreProjects',    to: '/explore' },
+    { labelKey: 'footer.findTeammates',      to: '/teammates' },
+    { labelKey: 'footer.features',           to: '/features' },
     { labelKey: 'footer.portfolioGenerator', to: '/portfolio-generator' },
-    { labelKey: 'footer.hackathons',        to: '/hackathons' },
+    { labelKey: 'footer.hackathons',         to: '/hackathons' },
+  ],
+  Community: [
+    { labelKey: 'footer.discord',    to: '/discord' },
+    { labelKey: 'footer.forum',      to: '/forum' },
+    { labelKey: 'footer.events',     to: '/events' },
+    { labelKey: 'footer.newsletter', to: '/newsletter' },
+  ],
+  Resources: [
+    { labelKey: 'footer.documentation', to: '/docs' },
+    { labelKey: 'footer.apiReference',  to: '/api' },
+    { labelKey: 'footer.blog',          to: '/blog' },
+    { labelKey: 'footer.changelog',     to: '/changelog' },
+    { labelKey: 'footer.statusPage',    to: '/status' },
   ],
   Company: [
-    { labelKey: 'footer.aboutUs',         to: '/about' },
-    { labelKey: 'footer.privacyPolicy',   to: '/privacy' },
-    { labelKey: 'footer.termsOfService',  to: '/terms' },
+    { labelKey: 'footer.aboutUs',  to: '/about' },
+    { labelKey: 'footer.careers',  to: '/careers' },
+    { labelKey: 'footer.pressKit', to: '/press' },
+  ],
+  Legal: [
+    { labelKey: 'footer.privacyPolicy',  to: '/privacy' },
+    { labelKey: 'footer.termsOfService', to: '/terms' },
   ],
 };
 
@@ -29,6 +47,7 @@ export default function Footer() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const { t } = useLanguage();
+  const { session } = useAuth();
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -43,7 +62,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         {/* Top */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-10 mb-12">
 
           {/* Brand col — spans 2 */}
           <div className="md:col-span-2">
@@ -117,26 +136,46 @@ export default function Footer() {
 
           {/* Get started CTA col */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('footer.getStarted')}</h4>
-            <Link
-              to="/register"
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all duration-300"
-            >
-              {t('nav.signUp')} <ArrowRight size={14} />
-            </Link>
-            <Link
-              to="/explore"
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-200"
-            >
-              {t('hero.exploreProjects')}
-            </Link>
-            <div className="mt-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-xs text-slate-500">{t('common.success')}</span>
-              </div>
-              <p className="text-[11px] text-slate-600">{t('cta.noCreditCard')}</p>
-            </div>
+            {session ? (
+              <>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('footer.dashboard')}</h4>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all duration-300"
+                >
+                  {t('footer.goToDashboard')} <ArrowRight size={14} />
+                </Link>
+                <Link
+                  to="/explore"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-200"
+                >
+                  {t('hero.exploreProjects')}
+                </Link>
+              </>
+            ) : (
+              <>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('footer.getStarted')}</h4>
+                <Link
+                  to="/register"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_20px_rgba(59,130,246,0.25)] hover:shadow-[0_0_30px_rgba(59,130,246,0.4)] transition-all duration-300"
+                >
+                  {t('nav.signUp')} <ArrowRight size={14} />
+                </Link>
+                <Link
+                  to="/explore"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white border border-white/[0.08] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-200"
+                >
+                  {t('hero.exploreProjects')}
+                </Link>
+                <div className="mt-2 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                    <span className="text-xs text-slate-500">{t('common.success')}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600">{t('cta.noCreditCard')}</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

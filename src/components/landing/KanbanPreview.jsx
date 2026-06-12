@@ -6,7 +6,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 // ─── Kanban data ────────────────────────────────────────────────────────────
 const columns = [
   {
-    title: 'To-Do', color: '#94A3B8', borderColor: 'border-slate-600/50',
+    title: 'To-Do', titleKey: 'kp.colTodo', color: '#94A3B8', borderColor: 'border-slate-600/50',
     cards: [
       { title: 'Design onboarding flow',   assignee: 'S', deadline: '20 Jun', threads: 0 },
       { title: 'Write API documentation',  assignee: 'D', deadline: '22 Jun', threads: 3 },
@@ -14,14 +14,14 @@ const columns = [
     ],
   },
   {
-    title: 'In Progress', color: '#3B82F6', borderColor: 'border-blue-500/50',
+    title: 'In Progress', titleKey: 'kp.colInProgress', color: '#3B82F6', borderColor: 'border-blue-500/50',
     cards: [
       { title: 'Build authentication system',  assignee: 'A', deadline: '18 Jun', threads: 5 },
       { title: 'Create project dashboard UI',  assignee: 'R', deadline: '19 Jun', threads: 2 },
     ],
   },
   {
-    title: 'Done', color: '#10B981', borderColor: 'border-emerald-500/50',
+    title: 'Done', titleKey: 'kp.colDone', color: '#10B981', borderColor: 'border-emerald-500/50',
     cards: [
       { title: 'Wireframes & prototypes', assignee: 'S', deadline: null, threads: 4 },
       { title: 'Project setup & repo',    assignee: 'A', deadline: null, threads: 1 },
@@ -33,28 +33,28 @@ const avatarColors = { A: '#3B82F6', S: '#EC4899', K: '#06B6D4', D: '#8B5CF6', L
 
 // ─── Wiki data ────────────────────────────────────────────────────────────────
 const wikiPages = [
-  { icon: '📋', title: 'Project Overview',   active: true },
-  { icon: '🗺️',  title: 'Tech Stack',         active: false },
-  { icon: '🔐', title: 'Auth Flow',           active: false },
-  { icon: '🎨', title: 'Design Guidelines',   active: false },
-  { icon: '🚀', title: 'Deployment Guide',    active: false },
+  { icon: '📋', title: 'Project Overview',   titleKey: 'kp.wikiOverview',   active: true },
+  { icon: '🗺️',  title: 'Tech Stack',         titleKey: 'kp.wikiTechStack',  active: false },
+  { icon: '🔐', title: 'Auth Flow',           titleKey: 'kp.wikiAuthFlow',   active: false },
+  { icon: '🎨', title: 'Design Guidelines',   titleKey: 'kp.wikiDesign',     active: false },
+  { icon: '🚀', title: 'Deployment Guide',    titleKey: 'kp.wikiDeployment', active: false },
 ];
 const wikiContent = {
-  title: 'Project Overview',
-  updated: 'Diperbarui 2 jam lalu oleh Ardi',
+  titleKey: 'kp.wikiOverview',
+  updatedKey: 'kanban.updated',
   sections: [
-    { heading: 'Tentang Proyek', body: 'Food Delivery App adalah aplikasi pengiriman makanan real-time yang menghubungkan restoran dengan pelanggan. Dibangun dengan React Native, Node.js, dan PostgreSQL.' },
-    { heading: 'Tim', body: 'Terdiri dari 4 developer: 2 frontend, 1 backend, dan 1 UI designer. Sprint 2 minggu dengan daily standup setiap pagi.' },
-    { heading: 'Target Launch', body: 'Beta launch dijadwalkan akhir bulan ini. MVP mencakup fitur order, tracking, dan payment.' },
+    { headingKey: 'kanban.aboutProject', bodyKey: 'kanban.aboutDesc' },
+    { headingKey: 'kanban.team', bodyKey: 'kanban.teamDesc' },
+    { headingKey: 'kanban.targetLaunch', bodyKey: 'kanban.targetLaunchDesc' },
   ],
 };
 
 // ─── Tabs config ─────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'files',    label: 'File Storage',    icon: FolderOpen },
-  { id: 'wiki',     label: 'Wiki',            icon: BookOpen },
-  { id: 'kanban',   label: 'Project Boards',  icon: LayoutDashboard },
-  { id: 'activity', label: 'Activity',        icon: Activity },
+  { id: 'files',    label: 'File Storage',    labelKey: 'kp.tabFiles',    icon: FolderOpen },
+  { id: 'wiki',     label: 'Wiki',            labelKey: 'kp.tabWiki',     icon: BookOpen },
+  { id: 'kanban',   label: 'Project Boards',  labelKey: 'kp.tabBoards',   icon: LayoutDashboard },
+  { id: 'activity', label: 'Activity',        labelKey: 'kp.tabActivity', icon: Activity },
 ];
 
 // ─── Panel components ─────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ function KanbanPanel() {
           <div key={col.title} className="min-w-0">
             <div className={`flex items-center gap-2 pb-3 mb-3 border-b ${col.borderColor}`}>
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: col.color }} />
-              <span className="text-xs font-semibold text-slate-400">{col.title}</span>
+              <span className="text-xs font-semibold text-slate-400">{t(col.titleKey)}</span>
               <span className="ml-auto px-1.5 py-0.5 rounded-full text-[10px] font-bold border" style={{ color: col.color, background: `${col.color}15`, borderColor: `${col.color}35` }}>
                 {col.cards.length}
               </span>
@@ -220,7 +220,7 @@ function WikiPanel() {
           <div key={page.title}
             className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-colors ${page.active ? 'bg-purple-500/20 text-purple-300 font-medium' : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'}`}>
             <span>{page.icon}</span>
-            <span className="truncate">{page.title}</span>
+            <span className="truncate">{t(page.titleKey)}</span>
           </div>
         ))}
       </div>
@@ -232,21 +232,17 @@ function WikiPanel() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h3 className="text-sm font-bold text-white mb-1">{wikiContent.title}</h3>
-          <p className="text-[10px] text-slate-600 mb-4">{t('kanban.updated')}</p>
+          <h3 className="text-sm font-bold text-white mb-1">{t(wikiContent.titleKey)}</h3>
+          <p className="text-[10px] text-slate-600 mb-4">{t(wikiContent.updatedKey)}</p>
           <div className="flex flex-col gap-4">
-            {[
-              { heading: t('kanban.aboutProject'), body: t('kanban.aboutDesc') },
-              { heading: t('kanban.team'), body: t('kanban.teamDesc') },
-              { heading: t('kanban.targetLaunch'), body: t('kanban.targetLaunchDesc') },
-            ].map((sec, i) => (
-              <motion.div key={sec.heading}
+            {wikiContent.sections.map((sec, i) => (
+              <motion.div key={sec.headingKey}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
               >
-                <h4 className="text-xs font-semibold text-slate-300 mb-1.5">{sec.heading}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed">{sec.body}</p>
+                <h4 className="text-xs font-semibold text-slate-300 mb-1.5">{t(sec.headingKey)}</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">{t(sec.bodyKey)}</p>
               </motion.div>
             ))}
           </div>
@@ -269,7 +265,7 @@ function ActivityPanel() {
     [t('kanban.yesterday')]: [
       { user: 'R', name: 'Raihan', action: t('mock.uploadedFile'), detail: '"wireframe-v3.fig"', color: '#06B6D4', icon: '↑' },
       { user: 'A', name: 'Ardi', action: t('mock.editedWiki'), detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
-      { user: 'S', name: 'Sari', action: 'deleted task', detail: '"Old prototype"', color: '#EF4444', icon: '✕' },
+      { user: 'S', name: 'Sari', action: t('mock.deletedTask'), detail: '"Old prototype"', color: '#EF4444', icon: '✕' },
     ],
   };
 
@@ -406,7 +402,7 @@ export default function KanbanPreview() {
                     }`}
                   >
                     <Icon size={13} />
-                    {tab.label}
+                    {t(tab.labelKey)}
                   </button>
                 );
               })}

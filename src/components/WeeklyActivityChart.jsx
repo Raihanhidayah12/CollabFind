@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 export default function WeeklyActivityChart({ session }) {
+  const { t } = useLanguage();
+  const dayLabels = [t('wac.sun'), t('wac.mon'), t('wac.tue'), t('wac.wed'), t('wac.thu'), t('wac.fri'), t('wac.sat')];
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,10 +42,10 @@ export default function WeeklyActivityChart({ session }) {
         const d = new Date(now);
         d.setDate(d.getDate() - i);
         const dateStr = d.toISOString().split('T')[0];
-        const dayName = DAYS[d.getDay()];
+        const dayName = dayLabels[d.getDay()];
         const isToday = i === 0;
 
-        const taskCount = tasks?.filter(t => t.updated_at?.startsWith(dateStr)).length || 0;
+        const taskCount = tasks?.filter(tk => tk.updated_at?.startsWith(dateStr)).length || 0;
         const msgCount = messages?.filter(m => m.created_at?.startsWith(dateStr)).length || 0;
         const total = taskCount + msgCount;
 
@@ -61,7 +64,7 @@ export default function WeeklyActivityChart({ session }) {
       <div className="rounded-2xl border border-white/[0.07] bg-[#0a0f1e]/80 overflow-hidden">
         <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2">
           <BarChart3 size={14} className="text-blue-400" />
-          <h3 className="text-sm font-bold text-white">Aktivitas Mingguan</h3>
+          <h3 className="text-sm font-bold text-white">{t('wac.title')}</h3>
         </div>
         <div className="p-4 flex items-end justify-between gap-2 h-24">
           {Array.from({ length: 7 }).map((_, i) => (
@@ -83,9 +86,9 @@ export default function WeeklyActivityChart({ session }) {
       <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BarChart3 size={14} className="text-blue-400" />
-          <h3 className="text-sm font-bold text-white">Aktivitas Mingguan</h3>
+          <h3 className="text-sm font-bold text-white">{t('wac.title')}</h3>
         </div>
-        <span className="text-[10px] text-slate-500">{totalActivity} aksi</span>
+        <span className="text-[10px] text-slate-500">{totalActivity} {t('wac.actions')}</span>
       </div>
       <div className="p-3">
         <div className="flex items-end justify-between gap-1.5 h-20">
@@ -110,10 +113,10 @@ export default function WeeklyActivityChart({ session }) {
         </div>
         <div className="flex items-center gap-4 mt-3 pt-2 border-t border-white/[0.04] text-[10px] text-slate-500">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-blue-500/30" /> Task selesai
+            <span className="w-2 h-2 rounded-sm bg-blue-500/30" /> {t('wac.tasksDone')}
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-purple-500/30" /> Pesan dikirim
+            <span className="w-2 h-2 rounded-sm bg-purple-500/30" /> {t('wac.msgsSent')}
           </span>
         </div>
       </div>

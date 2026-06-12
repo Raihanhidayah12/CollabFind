@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UserCheck, Coffee, Search, Loader2 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 const STATUSES = [
-  { value: 'available', label: 'Available', icon: UserCheck, color: '#10B981', bg: 'bg-green-500/15', border: 'border-green-500/25' },
-  { value: 'busy', label: 'Busy', icon: Coffee, color: '#F59E0B', bg: 'bg-yellow-500/15', border: 'border-yellow-500/25' },
-  { value: 'looking', label: 'Looking', icon: Search, color: '#3B82F6', bg: 'bg-blue-500/15', border: 'border-blue-500/25' },
+  { value: 'available', labelKey: 'qsu.available', icon: UserCheck, color: '#10B981', bg: 'bg-green-500/15', border: 'border-green-500/25' },
+  { value: 'busy', labelKey: 'qsu.busy', icon: Coffee, color: '#F59E0B', bg: 'bg-yellow-500/15', border: 'border-yellow-500/25' },
+  { value: 'looking', labelKey: 'qsu.looking', icon: Search, color: '#3B82F6', bg: 'bg-blue-500/15', border: 'border-blue-500/25' },
 ];
 
 export default function QuickStatusUpdate({ session }) {
+  const { t } = useLanguage();
   const [currentStatus, setCurrentStatus] = useState(null);
   const [saving, setSaving] = useState(false);
 
@@ -49,15 +51,15 @@ export default function QuickStatusUpdate({ session }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full animate-pulse`} style={{ background: active.color }} />
-            <h3 className="text-sm font-bold text-white">Status</h3>
+            <h3 className="text-sm font-bold text-white">{t('qsu.status')}</h3>
           </div>
           {saving && <Loader2 size={12} className="text-slate-500 animate-spin" />}
         </div>
         <p className="text-[10px] text-slate-500 mt-0.5">
-          {currentStatus === 'available' ? 'Terbuka untuk kolaborasi baru' :
-           currentStatus === 'busy' ? 'Sedang fokus di proyek saat ini' :
-           currentStatus === 'looking' ? 'Mencari proyek untuk bergabung' :
-           'Set status kamu'}
+          {currentStatus === 'available' ? t('qsu.availableDesc') :
+           currentStatus === 'busy' ? t('qsu.busyDesc') :
+           currentStatus === 'looking' ? t('qsu.lookingDesc') :
+           t('qsu.setPrompt')}
         </p>
       </div>
       <div className="p-2 grid grid-cols-3 gap-1.5">
@@ -75,7 +77,7 @@ export default function QuickStatusUpdate({ session }) {
               style={{ color: isActive ? s.color : '#94A3B8' }}
             >
               <Icon size={14} />
-              {s.label}
+              {t(s.labelKey)}
             </button>
           );
         })}

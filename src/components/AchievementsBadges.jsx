@@ -2,20 +2,23 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, FolderPlus, Users, Star, MessageSquare, CheckCircle, Zap, TrendingUp } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const BADGES = [
-  { id: 'first_project', label: 'First Project', icon: FolderPlus, desc: 'Buat proyek pertamamu', check: (_, projects) => projects.length >= 1, color: '#10B981' },
-  { id: 'three_projects', label: '3 Projects', icon: FolderPlus, desc: 'Buat 3 proyek', check: (_, projects) => projects.length >= 3, color: '#3B82F6' },
-  { id: 'first_collab', label: 'First Collab', icon: Users, desc: 'Join 1 kolaborasi', check: (_, __, accepted) => accepted >= 1, color: '#8B5CF6' },
-  { id: 'five_collabs', label: 'Team Player', icon: Users, desc: 'Join 5 kolaborasi', check: (_, __, accepted) => accepted >= 5, color: '#F59E0B' },
-  { id: 'first_chat', label: 'Chatter', icon: MessageSquare, desc: 'Kirim pesan pertama', check: (messages) => messages >= 1, color: '#06B6D4' },
-  { id: 'ten_tasks', label: 'Get It Done', icon: CheckCircle, desc: 'Selesaikan 10 task', check: (_, __, ___, tasksDone) => tasksDone >= 10, color: '#EC4899' },
-  { id: 'five_skills', label: 'Skilled', icon: Star, desc: 'Tambahkan 5 skills', check: (p) => (p?.skills?.length || 0) >= 5, color: '#F97316' },
-  { id: 'top_rated', label: 'Top Rated', icon: Zap, desc: 'Collab score 80+', check: (p) => (p?.collaboration_score || 0) >= 80, color: '#EAB308' },
-  { id: 'all_rounder', label: 'All Rounder', icon: TrendingUp, desc: 'Unlock 5 badges', check: (_, __, ___, ____, unlocked) => unlocked >= 5, color: '#14B8A6' },
+const buildBadges = (t) => [
+  { id: 'first_project', label: t('ab.firstProject'), icon: FolderPlus, desc: t('ab.firstProjectDesc'), check: (_, projects) => projects.length >= 1, color: '#10B981' },
+  { id: 'three_projects', label: t('ab.threeProjects'), icon: FolderPlus, desc: t('ab.threeProjectsDesc'), check: (_, projects) => projects.length >= 3, color: '#3B82F6' },
+  { id: 'first_collab', label: t('ab.firstCollab'), icon: Users, desc: t('ab.firstCollabDesc'), check: (_, __, accepted) => accepted >= 1, color: '#8B5CF6' },
+  { id: 'five_collabs', label: t('ab.teamPlayer'), icon: Users, desc: t('ab.teamPlayerDesc'), check: (_, __, accepted) => accepted >= 5, color: '#F59E0B' },
+  { id: 'first_chat', label: t('ab.chatter'), icon: MessageSquare, desc: t('ab.chatterDesc'), check: (messages) => messages >= 1, color: '#06B6D4' },
+  { id: 'ten_tasks', label: t('ab.getItDone'), icon: CheckCircle, desc: t('ab.getItDoneDesc'), check: (_, __, ___, tasksDone) => tasksDone >= 10, color: '#EC4899' },
+  { id: 'five_skills', label: t('ab.skilled'), icon: Star, desc: t('ab.skilledDesc'), check: (p) => (p?.skills?.length || 0) >= 5, color: '#F97316' },
+  { id: 'top_rated', label: t('ab.topRated'), icon: Zap, desc: t('ab.topRatedDesc'), check: (p) => (p?.collaboration_score || 0) >= 80, color: '#EAB308' },
+  { id: 'all_rounder', label: t('ab.allRounder'), icon: TrendingUp, desc: t('ab.allRounderDesc'), check: (_, __, ___, ____, unlocked) => unlocked >= 5, color: '#14B8A6' },
 ];
 
 export default function AchievementsBadges({ profile, myProjects, applications, session }) {
+  const { t } = useLanguage();
+  const BADGES = buildBadges(t);
   const [messageCount, setMessageCount] = useState(0);
   const [tasksDone, setTasksDone] = useState(0);
 
@@ -70,7 +73,7 @@ export default function AchievementsBadges({ profile, myProjects, applications, 
       <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Award size={14} className="text-yellow-400" />
-          <h3 className="text-sm font-bold text-white">Achievements</h3>
+          <h3 className="text-sm font-bold text-white">{t('ab.title')}</h3>
         </div>
         <span className="text-[10px] text-slate-500">{unlockedCount}/{BADGES.length}</span>
       </div>

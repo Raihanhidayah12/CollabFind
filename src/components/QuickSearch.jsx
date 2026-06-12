@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Users, FolderOpen, X, ArrowRight } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function QuickSearch() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,7 @@ export default function QuickSearch() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
-          placeholder="Cari proyek atau user..."
+          placeholder={t('qs.placeholder')}
           className="flex-1 bg-transparent text-xs text-white placeholder-slate-600 outline-none"
         />
         {query && (
@@ -112,7 +114,7 @@ export default function QuickSearch() {
 
       {loading && (
         <div className="absolute top-full left-0 right-0 mt-1 px-3 py-2 text-[10px] text-slate-600">
-          Mencari...
+          {t('qs.searching')}
         </div>
       )}
     </div>

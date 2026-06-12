@@ -154,14 +154,14 @@ export default function Hero() {
                   <Users size={12} className="text-blue-400" />
                 </div>
                 <div>
-                  <div className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">Workspace</div>
-                  <div className="text-xs font-bold text-white">E-Commerce App</div>
+                  <div className="text-[9px] text-slate-600 uppercase tracking-widest font-semibold">{t('hero.wsWorkspace')}</div>
+                  <div className="text-xs font-bold text-white">{t('hero.wsAppName')}</div>
                 </div>
               </div>
 
               {/* Tab navigation */}
               <div className="flex gap-1 p-1 rounded-lg bg-white/[0.04] border border-white/[0.06] w-fit mb-4">
-                {['File Storage', 'Wiki', 'Project Boards', 'Activity'].map((tab, i) => (
+                {[t('hero.wsFileStorage'), t('hero.wsWiki'), t('hero.wsProjectBoards'), t('hero.wsActivity')].map((tab, i) => (
                   <div key={tab} className={`px-3 py-1.5 rounded-md text-[10px] font-medium flex items-center gap-1.5 ${i === 2 ? 'bg-white/[0.09] text-white' : 'text-slate-600'}`}>
                     {tab}
                   </div>
@@ -170,26 +170,26 @@ export default function Hero() {
 
               {/* Sprint tabs */}
               <div className="flex items-center gap-2 mb-3">
-                {['Backlog', 'Sprint 1', 'Sprint 2'].map((sp, i) => (
+                {[t('kanban.backlog'), t('kanban.sprint1'), t('kanban.sprint2')].map((sp, i) => (
                   <div key={sp} className={`px-3 py-1 rounded-full text-[9px] font-semibold border ${i === 1 ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white/[0.04] border-white/[0.09] text-slate-500'}`}>
                     {sp}
                   </div>
                 ))}
                 <div className="ml-auto px-3 py-1 rounded-full text-[9px] font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
-                  + Sprint Baru
+                  {t('mock.sprintNew')}
                 </div>
               </div>
 
               {/* Progress bar */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] text-slate-600">Progress Sprint 1</span>
+                  <span className="text-[9px] text-slate-600">{t('mock.progress')}</span>
                   <span className="text-[9px] font-bold text-slate-400">67%</span>
                 </div>
                 <div className="w-full bg-white/[0.04] h-1 rounded-full overflow-hidden">
                   <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-500" style={{ width: '67%' }} />
                 </div>
-                <span className="text-[8px] text-slate-700">4 dari 6 tugas selesai</span>
+                <span className="text-[8px] text-slate-700">{t('mock.tasksDone')}</span>
               </div>
 
               {/* Main area — Kanban + Activity */}
@@ -198,21 +198,21 @@ export default function Hero() {
                 <div className="col-span-8 grid grid-cols-3 gap-2">
                   {[
                     {
-                      title: 'To Do', color: '#94A3B8',
+                      title: t('hero.wsTodo'), color: '#94A3B8',
                       items: [
                         { name: 'API docs', assignee: 'B', deadline: '20 Jun', threads: 0 },
                         { name: 'Auth flow', assignee: 'S', deadline: '22 Jun', threads: 3 },
                       ],
                     },
                     {
-                      title: 'In Progress', color: '#3B82F6',
+                      title: t('hero.wsInProgress'), color: '#3B82F6',
                       items: [
                         { name: 'Landing page', assignee: 'R', deadline: '18 Jun', threads: 5 },
                         { name: 'DB schema', assignee: 'K', deadline: '19 Jun', threads: 2 },
                       ],
                     },
                     {
-                      title: 'Done', color: '#10B981',
+                      title: t('hero.wsDone'), color: '#10B981',
                       items: [
                         { name: 'Wireframes', assignee: 'K', deadline: null, threads: 4 },
                         { name: 'Setup repo', assignee: 'R', deadline: null, threads: 1 },
@@ -246,7 +246,7 @@ export default function Hero() {
                             </div>
                             <div className="flex items-center gap-1 mt-1.5 text-[8px] text-slate-600">
                               <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                              <span>Diskusi</span>
+                              <span>{t('mock.discussion')}</span>
                               {task.threads > 0 && (
                                 <span className="px-1 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[7px] font-bold">{task.threads}</span>
                               )}
@@ -261,11 +261,11 @@ export default function Hero() {
                 {/* Right — Activity Timeline */}
                 <div className="col-span-4 flex flex-col gap-2">
                   <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">Hari ini</div>
+                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">{t('mock.today')}</div>
                     {[
-                      { user: 'R', name: 'Raihan', action: 'membuat task', detail: '"Auth flow"', color: '#10B981', icon: '+' },
-                      { user: 'K', name: 'Kezia', action: 'memindahkan task', detail: '→ In Progress', color: '#3B82F6', icon: '→' },
-                      { user: 'B', name: 'Budi', action: 'menambahkan komentar', detail: 'di "DB schema"', color: '#8B5CF6', icon: '💬' },
+                      { user: 'R', name: 'Raihan', action: t('mock.createdTask'), detail: '"Auth flow"', color: '#10B981', icon: '+' },
+                      { user: 'K', name: 'Kezia', action: t('mock.movedTask'), detail: '→ In Progress', color: '#3B82F6', icon: '→' },
+                      { user: 'B', name: 'Budi', action: t('mock.addedComment'), detail: 'di "DB schema"', color: '#8B5CF6', icon: '💬' },
                     ].map((a, i) => (
                       <div key={i} className="flex items-start gap-2 py-1.5">
                         <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold flex-shrink-0" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>
@@ -280,10 +280,10 @@ export default function Hero() {
                     ))}
                   </div>
                   <div className="flex-1 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">Kemarin</div>
+                    <div className="text-[9px] text-slate-500 mb-2 font-semibold uppercase tracking-wider">{t('mock.yesterday')}</div>
                     {[
-                      { user: 'S', name: 'Sari', action: 'mengupload file', detail: '"mockup.fig"', color: '#06B6D4', icon: '↑' },
-                      { user: 'R', name: 'Raihan', action: 'mengedit wiki', detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
+                      { user: 'S', name: 'Sari', action: t('mock.uploadedFile'), detail: '"mockup.fig"', color: '#06B6D4', icon: '↑' },
+                      { user: 'R', name: 'Raihan', action: t('mock.editedWiki'), detail: '"Setup Guide"', color: '#EC4899', icon: '✎' },
                     ].map((a, i) => (
                       <div key={i} className="flex items-start gap-2 py-1.5">
                         <div className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold flex-shrink-0" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>

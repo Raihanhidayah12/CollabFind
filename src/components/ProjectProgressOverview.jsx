@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FolderOpen, CheckCircle, Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
-function ProjectProgressCard({ project }) {
+function ProjectProgressCard({ project, t }) {
   const [total, setTotal] = useState(0);
   const [done, setDone] = useState(0);
   const [inProgress, setInProgress] = useState(0);
@@ -68,13 +69,14 @@ function ProjectProgressCard({ project }) {
       <div className="flex items-center gap-3 text-[10px] text-slate-500">
         <span className="flex items-center gap-1"><CheckCircle size={9} className="text-green-400" /> {done}</span>
         <span className="flex items-center gap-1"><Loader2 size={9} className="text-blue-400" /> {inProgress}</span>
-        {overdue > 0 && <span className="flex items-center gap-1"><AlertCircle size={9} className="text-red-400" /> {overdue} overdue</span>}
+        {overdue > 0 && <span className="flex items-center gap-1"><AlertCircle size={9} className="text-red-400" /> {overdue} {t('ppo.overdue')}</span>}
       </div>
     </div>
   );
 }
 
 export default function ProjectProgressOverview({ myProjects }) {
+  const { t } = useLanguage();
   if (!myProjects || myProjects.length === 0) return null;
 
   return (
@@ -86,12 +88,12 @@ export default function ProjectProgressOverview({ myProjects }) {
       <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FolderOpen size={14} className="text-green-400" />
-          <h3 className="text-sm font-bold text-white">Progress Proyek</h3>
+          <h3 className="text-sm font-bold text-white">{t('ppo.title')}</h3>
         </div>
       </div>
       <div className="p-2 space-y-2 max-h-72 overflow-y-auto">
         {myProjects.slice(0, 5).map(p => (
-          <ProjectProgressCard key={p.id} project={p} />
+          <ProjectProgressCard key={p.id} project={p} t={t} />
         ))}
       </div>
     </motion.div>

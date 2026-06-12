@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
+import { useLanguage } from '../i18n/LanguageContext';
 
-const STEPS = [
-  { id: 'profile', label: 'Lengkapi profil & skills', to: '/profile', check: (p) => p?.skills?.length > 0 },
-  { id: 'project', label: 'Buat proyek pertamamu', to: '/create-project', check: (_, projects) => projects.length > 0 },
-  { id: 'explore', label: 'Explore proyek lainnya', to: '/explore', check: () => true },
-  { id: 'chat', label: 'Mulai chat dengan teammate', to: '/dashboard/chat', check: () => true },
+const buildSteps = (t) => [
+  { id: 'profile', label: t('onb.step1'), to: '/profile', check: (p) => p?.skills?.length > 0 },
+  { id: 'project', label: t('onb.step2'), to: '/create-project', check: (_, projects) => projects.length > 0 },
+  { id: 'explore', label: t('onb.step3'), to: '/explore', check: () => true },
+  { id: 'chat', label: t('onb.step4'), to: '/dashboard/chat', check: () => true },
 ];
 
 export default function OnboardingChecklist({ profile, myProjects }) {
+  const { t } = useLanguage();
+  const STEPS = buildSteps(t);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -38,17 +41,17 @@ export default function OnboardingChecklist({ profile, myProjects }) {
       <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles size={14} className="text-blue-400" />
-          <h3 className="text-sm font-bold text-white">Getting Started</h3>
+          <h3 className="text-sm font-bold text-white">{t('onb.gettingStarted')}</h3>
         </div>
         <button onClick={handleDismiss} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
-          Tutup
+          {t('onb.dismiss')}
         </button>
       </div>
 
       {allDone ? (
         <div className="p-4 text-center">
           <CheckCircle size={28} className="text-green-400 mx-auto mb-2" />
-          <p className="text-xs text-slate-400">Semua langkah selesai! Selamat berkolaborasi!</p>
+          <p className="text-xs text-slate-400">{t('onb.allDone')}</p>
         </div>
       ) : (
         <div className="p-3 space-y-1">
@@ -86,7 +89,7 @@ export default function OnboardingChecklist({ profile, myProjects }) {
           />
         </div>
         <p className="text-[10px] text-slate-600 mt-1">
-          {STEPS.filter(s => s.check(profile, myProjects)).length}/{STEPS.length} selesai
+          {STEPS.filter(s => s.check(profile, myProjects)).length}/{STEPS.length} {t('onb.finished')}
         </p>
       </div>
     </motion.div>
