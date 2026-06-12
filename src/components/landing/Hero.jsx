@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Users, FolderOpen, Trophy } from 'lucide-react';
+import { ArrowRight, Play, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import GuidedTourSimple from '../GuidedTourSimple';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -15,12 +15,6 @@ const fadeUp = (delay = 0) => ({
 export default function Hero() {
   const [isTourOpen, setIsTourOpen] = useState(false);
   const { t } = useLanguage();
-
-  const stats = [
-    { icon: FolderOpen, value: '2,500+', label: t('hero.activeProjects'), color: 'from-blue-500 to-cyan-400' },
-    { icon: Users,      value: '15,000+', label: t('hero.members'),        color: 'from-purple-500 to-pink-400' },
-    { icon: Trophy,     value: '7,000+',  label: t('hero.successes'),      color: 'from-cyan-500 to-teal-400' },
-  ];
   return (
     <>
       <section id="home" className="relative min-h-screen flex flex-col items-center justify-center pt-20 pb-16 overflow-hidden">
@@ -80,7 +74,7 @@ export default function Hero() {
         </motion.p>
 
         {/* CTA Buttons */}
-        <motion.div {...fadeUp(0.3)} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <motion.div {...fadeUp(0.3)} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
           <Link
             to="/register"
             className="group flex items-center gap-2 px-7 py-3.5 text-base font-semibold text-white rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all duration-300"
@@ -101,25 +95,18 @@ export default function Hero() {
           </button>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          {...fadeUp(0.4)}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-20"
-        >
-          {stats.map(({ icon: Icon, value, label, color }) => (
-            <div
-              key={label}
-              className="relative group flex flex-col items-center gap-2 p-5 rounded-2xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300 backdrop-blur-sm"
-            >
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} bg-opacity-20 flex items-center justify-center mb-1`} style={{ background: 'rgba(255,255,255,0.05)' }}>
-                <Icon size={18} className="text-slate-300" />
-              </div>
-              <span className={`text-2xl font-extrabold bg-gradient-to-r ${color} bg-clip-text text-transparent`}>
-                {value}
-              </span>
-              <span className="text-sm text-slate-500">{label}</span>
-            </div>
+        {/* Problem statement — tools replaced */}
+        <motion.div {...fadeUp(0.4)} className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-14 max-w-2xl mx-auto">
+          <span className="text-sm text-slate-500 font-medium">{t('hero.problemPrefix')}</span>
+          {[t('hero.toolTrello'), t('hero.toolDiscord'), t('hero.toolDrive'), t('hero.toolLinkedIn'), t('hero.toolUpwork')].map((tool) => (
+            <span key={tool} className="px-3 py-1 rounded-lg text-xs font-medium text-slate-400 border border-white/[0.08] bg-white/[0.03] line-through decoration-slate-600">
+              {tool}
+            </span>
           ))}
+          <ArrowRight size={16} className="text-blue-400 mx-1" />
+          <span className="px-3 py-1 rounded-lg text-xs font-semibold text-white border border-blue-500/30 bg-blue-500/10">
+            {t('hero.oneWorkspace')}
+          </span>
         </motion.div>
 
         {/* Dashboard mockup */}

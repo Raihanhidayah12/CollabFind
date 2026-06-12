@@ -83,6 +83,24 @@ Diskusi real-time, hackathon, events, dan newsletter komunitas.
 - **Code Splitting** — Lazy loading untuk performa optimal
 - **Responsive Design** — Tampilan optimal di desktop, tablet, dan mobile
 
+### Landing Page
+
+Landing page yang dioptimalkan untuk konversi dengan **11 section** yang tersusun secara strategis:
+
+1. **Hero** — Headline berbasis pain-point, problem statement visual (tool yang digantikan), dan CTA ganda
+2. **Trusted By** — Logo organisasi sebagai trust signal
+3. **How It Works** — 3 langkah visual menunjukkan kemudahan penggunaan
+4. **Featured Projects** — Konten real-time dari database, menunjukkan platform aktif
+5. **Kanban Preview** — Demo interaktif workspace utama
+6. **Features** — Grid fitur dengan demo interaktif
+7. **Freelance Marketplace** — Differentiator: marketplace terintegrasi
+8. **Comparison Table** — Perbandingan dengan platform alternatif
+9. **Role Matcher** — Quiz interaktif untuk mencocokkan pengguna dengan proyek
+10. **Testimonials** — Social proof dari database (fallback ke data statis jika kosong)
+11. **CTA** — Dorongan final untuk registrasi
+
+> Semua teks di landing page mendukung i18n (EN/ID) tanpa angka palsu — menggunakan framing "Beta" yang transparan.
+
 ---
 
 ## Tech Stack
@@ -300,6 +318,7 @@ Kontribusi sangat disambut! Berikut langkah-langkahnya:
 - [x] Freelance Marketplace (Jobs, Proposals, Contracts, Milestones)
 - [x] Code Splitting & Performance
 - [x] Internationalization (i18n) — Bahasa Indonesia & English
+- [x] Landing Page Optimization — Conversion-focused restructure, problem statement, no fake stats
 - [ ] Unit & Integration Tests
 - [ ] Dark/Light Mode Toggle
 - [ ] Mobile App (React Native)

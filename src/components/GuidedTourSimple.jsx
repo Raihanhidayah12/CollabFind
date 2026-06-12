@@ -8,15 +8,13 @@ function buildTourSteps(t) {
     { id: 1, target: '#home', title: t('gt.welcomeTitle'), description: t('gt.welcomeDesc') },
     { id: 2, target: '#how-it-works', title: t('gt.howItWorksTitle'), description: t('gt.howItWorksDesc') },
     { id: 3, target: '.featured-projects', title: t('gt.exploreTitle'), description: t('gt.exploreDesc') },
-    { id: 4, target: '.open-to-collab-section', title: t('gt.openToCollabTitle'), description: t('gt.openToCollabDesc') },
-    { id: 5, target: '.categories-section', title: t('gt.categoriesTitle'), description: t('gt.categoriesDesc') },
-    { id: 6, target: '.features-section', title: t('gt.featuresTitle'), description: t('gt.featuresDesc') },
-    { id: 7, target: '.kanban-section', title: t('gt.kanbanTitle'), description: t('gt.kanbanDesc') },
-    { id: 8, target: '.freelance-section', title: t('gt.freelanceTitle'), description: t('gt.freelanceDesc') },
-    { id: 9, target: '.comparison-section', title: t('gt.comparisonTitle'), description: t('gt.comparisonDesc') },
-    { id: 10, target: '.testimonials-section', title: t('gt.testimonialsTitle'), description: t('gt.testimonialsDesc') },
-    { id: 11, target: '.role-matcher-section', title: t('gt.roleMatcherTitle'), description: t('gt.roleMatcherDesc') },
-    { id: 12, target: '.cta-section', title: t('gt.ctaTitle'), description: t('gt.ctaDesc'), isLast: true },
+    { id: 4, target: '.kanban-section', title: t('gt.kanbanTitle'), description: t('gt.kanbanDesc') },
+    { id: 5, target: '.features-section', title: t('gt.featuresTitle'), description: t('gt.featuresDesc') },
+    { id: 6, target: '.freelance-section', title: t('gt.freelanceTitle'), description: t('gt.freelanceDesc') },
+    { id: 7, target: '.comparison-section', title: t('gt.comparisonTitle'), description: t('gt.comparisonDesc') },
+    { id: 8, target: '.role-matcher-section', title: t('gt.roleMatcherTitle'), description: t('gt.roleMatcherDesc') },
+    { id: 9, target: '.testimonials-section', title: t('gt.testimonialsTitle'), description: t('gt.testimonialsDesc') },
+    { id: 10, target: '.cta-section', title: t('gt.ctaTitle'), description: t('gt.ctaDesc'), isLast: true },
   ];
 }
 
