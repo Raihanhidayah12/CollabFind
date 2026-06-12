@@ -97,7 +97,7 @@ export default function FreelanceMarketplaceSection() {
   const features = getFeatures(t);
 
   return (
-    <section className="freelance-section relative py-24 overflow-hidden">
+    <section id="marketplace" className="freelance-section relative py-24 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-0 w-[500px] h-[400px] bg-blue-600/6 rounded-full blur-[140px]" />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/6 rounded-full blur-[120px]" />

@@ -102,7 +102,7 @@ export default function RoleMatcher() {
   const result = resultKey ? (RESULTS[resultKey] || RESULTS['developer-build-medium']) : null;
 
   return (
-    <section className="role-matcher-section py-24 relative overflow-hidden">
+    <section id="role-matcher" className="role-matcher-section py-24 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-600/8 rounded-full blur-[120px]" />
       </div>

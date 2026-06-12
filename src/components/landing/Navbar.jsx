@@ -15,7 +15,8 @@ const navLinks = [
   { labelKey: 'nav.howItWorks',     href: '#how-it-works' },
   { labelKey: 'nav.projects',       href: '#projects' },
   { labelKey: 'nav.features',       href: '#features' },
-  { labelKey: 'nav.findTeammates',  href: '/teammates', external: true },
+  { labelKey: 'nav.marketplace',    href: '#marketplace' },
+  { labelKey: 'nav.roleMatcher',      href: '#role-matcher' },
 ];
 
 export default function Navbar() {
